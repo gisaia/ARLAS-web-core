@@ -5,10 +5,10 @@ export class ArlasService implements ApiService {
   constructor() { }
 
     public buildquery(filters: Array<Object>): Object {
-        throw new Error('Not implemented yet.');
+        return filters;
     }
 
     public executequery(query: Object): Object {
-        throw new Error('Not implemented yet.');
+        return query;
     }
 }

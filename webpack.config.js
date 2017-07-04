@@ -9,8 +9,7 @@ var config = {
   devtool: isProd ? 'hidden-source-map' : 'cheap-eval-source-map',
   context: path.resolve('./src/'),
   entry: {
-    app: './index.ts',
-    vendor: './vendor.ts'
+    app: './index.ts'
   },
   output: {
     path: path.resolve('./dist'),
@@ -35,11 +34,6 @@ var config = {
       'process.env': { // eslint-disable-line quote-props
         NODE_ENV: JSON.stringify(nodeEnv)
       }
-    }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendor',
-      minChunks: Infinity,
-      filename: 'vendor.bundle.[hash].js'
     }),
     new webpack.optimize.UglifyJsPlugin({
       compress: { warnings: false },

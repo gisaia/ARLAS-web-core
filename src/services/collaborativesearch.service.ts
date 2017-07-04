@@ -1,18 +1,19 @@
 import { ApiService } from '../models/apiservice';
 import { CollaborativeSearch } from '../models/collaborativesearch';
-import { Observer } from '../models/observer';
 import { ArlasService } from './arlas.service';
+import { Subject } from 'rxjs/Rx';
 
 export class CollaborativesearchService implements CollaborativeSearch {
+  collaboraticeSubject : Subject<Object>
   contributions = new Map<Object, Object>();
-  registredObserver = new Array<Observer>();
   apiservice:ApiService
   constructor(private api: ApiService) {
       this.apiservice=api
   }
   public setFilter(contributor: Object, filter: Object) {
     this.contributions.set(contributor, filter)
-    this.registredObserver.forEach(o => o.notify(contributor))
+    this.collaboraticeSubject.next({contributor:contributor,filter:filter})
+
   }
   public removeFilter(contributor: Object, filter: Object) {
     this.contributions.delete(contributor)
@@ -20,10 +21,7 @@ export class CollaborativesearchService implements CollaborativeSearch {
   public removeAll() {
       this.contributions = new Map<Object, Object>();
   }
-  public registerObserver(observer: Observer) {
-    this.registredObserver.push(observer)
-  }
-  public searchButNot(contributor?: Object) : Object {
+  public searchButNot(contributor?: any) : Object {
     let filters : Array<Object> = new Array<Object>()
     if(contributor){
         // search all but not contributor in parameter
@@ -43,6 +41,8 @@ export class CollaborativesearchService implements CollaborativeSearch {
     return this.apiservice.executequery(this.apiservice.buildquery(filters))
   }
 
- 
+    public getCollaborativeSubject(contributor:Object): Subject<Object> {
+        return this.collaboraticeSubject
+    }
 }
 
