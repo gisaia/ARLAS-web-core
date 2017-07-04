@@ -1,2 +1,3 @@
-export { CoreModule } from './core/core.module';
-export { CoreComponent }  from './core/core.component';
+export { ArlasService } from './services/arlas.service';
+export { CollaborativesearchService } from './services/collaborativesearch.service';
+

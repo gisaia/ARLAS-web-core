@@ -1,3 +1,4 @@
+import { ApiService } from './apiservice';
 import { Observer } from './observer';
 export interface CollaborativeSearch {
   contributions: Map<Object, Object>

@@ -1,19 +1,14 @@
-import { forEach } from '@angular/router/src/utils/collection';
-import { Injectable, EventEmitter } from '@angular/core';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { ApiService } from '../models/apiservice';
 import { CollaborativeSearch } from '../models/collaborativesearch';
 import { Observer } from '../models/observer';
-import { ApiService } from '../models/apiservice';
+import { ArlasService } from './arlas.service';
 
-
-
-@Injectable()
 export class CollaborativesearchService implements CollaborativeSearch {
   contributions = new Map<Object, Object>();
   registredObserver = new Array<Observer>();
   apiservice:ApiService
-  constructor(apiservice : ApiService ) {
-    this.apiservice=apiservice
+  constructor(private api: ApiService) {
+      this.apiservice=api
   }
   public setFilter(contributor: Object, filter: Object) {
     this.contributions.set(contributor, filter)
@@ -47,5 +42,7 @@ export class CollaborativesearchService implements CollaborativeSearch {
     }
     return this.apiservice.executequery(this.apiservice.buildquery(filters))
   }
+
+ 
 }
 

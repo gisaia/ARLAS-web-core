@@ -1,7 +1,5 @@
 import { ApiService } from '../models/apiservice';
-import { Injectable } from '@angular/core';
 
-@Injectable()
 export class ArlasService implements ApiService {
 
   constructor() { }
