@@ -5,7 +5,7 @@ export interface CollaborativeSearch {
   setFilter(contributor: any, filter: any),
   removeFilter(contributor: any, filter: any),
   removeAll(),
-  getCollaborativeSubject(contributor:Object):Subject<any>
-  searchButNot(contributor?: any):any
+  getCollaborativeChangeSubject(contributor:Object):Subject<any>
+  searchButNot(contributor?: any)
 
 }
