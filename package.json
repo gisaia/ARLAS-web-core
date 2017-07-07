@@ -21,6 +21,10 @@
   "author": "gisaia",
   "license": "MIT",
   "devDependencies": {
+    "@angular/core": "^4.0.0",
+    "@angular/http": "^4.0.0",
+    "@angular/platform-browser": "^4.0.0",
+    "@angular/platform-browser-dynamic": "^4.0.0",
     "copy-webpack-plugin": "^4.0.1",
     "cross-env": "^3.1.4",
     "css-loader": "^0.26.1",
@@ -35,7 +39,8 @@
     "typescript": "~2.3.3",
     "webpack": "^2.1.0-beta.22",
     "webpack-dashboard": "^0.2.1",
-    "webpack-dev-server": "2.2.0"
+    "webpack-dev-server": "2.2.0",
+    "zone.js": "^0.8.4"
   },
   "dependencies": {
     "gulp": "^3.9.1",

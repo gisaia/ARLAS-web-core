@@ -1,5 +1,4 @@
 import { Subject } from 'rxjs/Rx';
-import { ApiService } from './apiservice';
 export interface CollaborativeSearch {
   contributions: Map<any, any>
   setFilter(contributor: any, filter: any),
