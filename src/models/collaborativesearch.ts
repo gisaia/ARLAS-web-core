@@ -1,10 +1,10 @@
 import { Subject } from 'rxjs/Rx';
+import { CollaborationEvent } from './collaborationEvent';
 export interface CollaborativeSearch {
-  contributions: Map<any, any>
+  contributions: Set<CollaborationEvent>
   setFilter(contributor: any, filter: any),
   removeFilter(contributor: any, filter: any),
   removeAll(),
-  getCollaborativeChangeSubject(contributor:Object):Subject<any>
-  searchButNot(contributor?: any)
+  resolveButNot(projection: any,contributor?: any)
 
 }

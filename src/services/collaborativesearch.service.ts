@@ -1,95 +1,121 @@
-import { ARGUMENT_CLASSES } from 'tslint/lib/rules/completedDocsRule';
 import { CollaborativeSearch } from '../models/collaborativesearch';
 import { Observable, Subject } from 'rxjs/Rx';
 import { ExploreService } from 'api-arlas/services/explore.service';
 import { AggregationModel } from "api-arlas/model/aggregationModel";
-import { CollaborationEvent } from '../models/collaborationEvent';
+import { CollaborationEvent, eventType } from '../models/collaborationEvent';
 import { AggregationRequest } from "api-arlas/model/aggregationRequest";
 import { Aggregations } from "api-arlas/model/aggregations";
 import { ArlasAggregation } from "api-arlas/model/arlasAggregation";
 import { Filter } from 'api-arlas/model/filter';
+import { FeatureCollection } from "api-arlas/model/featureCollection";
+import { ArlasHits } from "api-arlas/model/arlasHits";
+import { Count } from "api-arlas/model/count";
+import { Search } from "api-arlas/model/search";
 
-export  interface timelineOutput{
-    endvalue:Date
-    startvalue:Date
 
-
-}
 export class CollaborativesearchService implements CollaborativeSearch {
     collaborationBus: Subject<CollaborationEvent> = new Subject<CollaborationEvent>();
-    contributions = new Map<Object, Object>();
+    contributions = new Set<CollaborationEvent>();
     apiservice: ExploreService
     constructor(private api: ExploreService, private collection: string) {
         this.apiservice = api
     }
-    public setFilter(contributor: Object, data: CollaborationEvent) {
-        this.contributions.set(contributor, data.detail)
-        this.collaborationBus.next(data)
-
+    public setFilter(collaborationEvent: CollaborationEvent) {
+        this.contributions.add(collaborationEvent)
+        this.collaborationBus.next(collaborationEvent)
     }
-    public removeFilter(contributor: Object, filter: Object) {
-        this.contributions.delete(contributor)
+    public removeFilter(collaborationEvent: CollaborationEvent) {
+        this.contributions.delete(collaborationEvent)
     }
     public removeAll() {
-        this.contributions = new Map<Object, Object>();
+        this.contributions = new Set<CollaborationEvent>();
     }
-
-
-    public searchButNot(contributor?: CollaborationEvent): Observable<ArlasAggregation> {
-        let filters: Array<timelineOutput> = new Array<timelineOutput>()
-        if (contributor.contributor) {
-            // search all but not contributor in parameter
-            this.contributions.forEach((k, v) => {
-                if (v != contributor.contributor) {
-                    // build filter for query
-                    filters.push(<timelineOutput>k)
+    public resolveButNot(projection: any, contributor?: Object): Observable<any> {
+        let filters: Array<Filter> = new Array<Filter>()
+        let aggregationsModels: Array<AggregationModel> = new Array<AggregationModel>()
+        if (contributor) {
+            this.contributions.forEach((k) => {
+                if (k.contributor != contributor) {
+                    if (k.detail.filter) { filters.push(k.detail.filter) }
+                    if (k.detail.search) { filters.push(k.detail.search.filter) }
+                    if (k.detail.count) { filters.push(k.detail.count.filter) }
+                    if (k.detail.aggregationRequest) { filters.push(k.detail.aggregationRequest.filter) }
+                    if (k.detail.aggregationRequest.aggregations.aggregations) {
+                        k.detail.aggregationRequest.aggregations.aggregations.forEach(agg => {
+                            aggregationsModels.push(agg)
+                        })
+                    }
                 } else {
-                    filters.push(<timelineOutput>k)
-
                     return
                 }
             })
         } else {
-            // search all contributors result
-            // build filter for query
-            this.contributions.forEach((k, v) => filters.push(<timelineOutput>k))
+            this.contributions.forEach((k) => {
+                if (k.detail.filter) { filters.push(k.detail.filter) }
+                if (k.detail.search) { filters.push(k.detail.search.filter) }
+                if (k.detail.count) { filters.push(k.detail.count.filter) }
+                if (k.detail.aggregationRequest) { filters.push(k.detail.aggregationRequest.filter) }
+                if (k.detail.aggregationRequest.aggregations.aggregations) {
+                    k.detail.aggregationRequest.aggregations.aggregations.forEach(agg => {
+                        if (aggregationsModels.indexOf(agg) < 0) {
+                            aggregationsModels.push(agg)
+                        }
+                    })
+                }
+            })
         }
-        console.log(filters)
-        let startdate = new Date(filters[0].startvalue)
-        let enddate = new Date(filters[0].endvalue)
-
-        //let data = this.apiservice.executequery(this.apiservice.buildquery(filters))
-        let aggregationModel: AggregationModel = {
-            type: "term",
-            field: "timestamp",
-            collectField: "available_bikes",
-            collectFct: "sum",
-            size: "100",
-            order :"asc",
-            on : "field"
-        }
-        let aggregationArray : Array<AggregationModel> = new Array<AggregationModel>()
-        aggregationArray.push(aggregationModel)
-
-        let aggregations : Aggregations = {aggregations : aggregationArray}
-        let f : Filter = {
-            before :enddate.valueOf()/1000,
-            after :startdate.valueOf()/1000
-        }
+        let filter: Filter = {};
+        let f: Array<string> = new Array<string>()
+        let q: string = "";
+        let before: number = 0;
+        let after: number = 0;
+        filters.forEach(filter => {
+            if (filter) {
+                if (filter.f) { filter.f.forEach(filt => f.push(filt)) }
+                if (filter.q) { q = q + filter.q + " " }
+                if (filter.before) {
+                    if (before == 0) {
+                        before = filter.before
+                    } else if (filter.before <= before) {
+                        before = filter.before
+                    }
+                }
+                if (filter.after) {
+                    if (after == 0) {
+                        after = filter.after
+                    } else if (filter.after >= after) {
+                        after = filter.after
+                    }
+                }
+            }
+        })
+        filter.f = f;
+        filter.q = q;
+        filter.before = before;
+        filter.after = after;
+        let aggregations: Aggregations = { aggregations: aggregationsModels }
         let aggregationRequest: AggregationRequest = {
-            filter : f,
-            aggregations : aggregations
-
+            filter: filter,
+            aggregations: aggregations
         }
-
-        let data: Observable<ArlasAggregation> = this.apiservice.aggregatePost(this.collection,aggregationRequest)
-        return data
+        let count: Count = { filter: filter }
+        let search: Search = { filter: filter }
+        switch (projection) {
+            case eventType.aggregate:
+                let aggregResult: Observable<ArlasAggregation> = this.apiservice.aggregatePost(this.collection, aggregationRequest)
+                return aggregResult;
+            case eventType.geoaggregate:
+                let geoaggregResult: Observable<FeatureCollection> = this.apiservice.geoaggregatePost(this.collection, aggregationRequest)
+                return geoaggregResult;
+            case eventType.count:
+                let countResult: Observable<ArlasHits> = this.apiservice.countPost(this.collection, count)
+                return countResult
+            case eventType.search:
+                let searchResult: Observable<ArlasHits> = this.apiservice.searchPost(this.collection, search)
+                return searchResult;
+            case eventType.geosearch:
+                let geosearchResult: Observable<FeatureCollection> = this.apiservice.geosearchPost(this.collection, search)
+        }
     }
-
-    public getCollaborativeChangeSubject(contributor: Object): Subject<CollaborationEvent> {
-        return this.collaborationBus
-    }
-
-
 }
 
