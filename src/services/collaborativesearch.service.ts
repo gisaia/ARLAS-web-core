@@ -40,11 +40,17 @@ export class CollaborativesearchService implements CollaborativeSearch {
                     if (k.detail.search) { filters.push(k.detail.search.filter) }
                     if (k.detail.count) { filters.push(k.detail.count.filter) }
                     if (k.detail.aggregationRequest) { filters.push(k.detail.aggregationRequest.filter) }
-                    if (k.detail.aggregationRequest.aggregations.aggregations) {
-                        k.detail.aggregationRequest.aggregations.aggregations.forEach(agg => {
-                            aggregationsModels.push(agg)
-                        })
+                    if (k.detail.aggregationRequest) {
+                        if (k.detail.aggregationRequest.aggregations.aggregations) {
+                            k.detail.aggregationRequest.aggregations.aggregations.forEach(agg => {
+                                if (aggregationsModels.lastIndexOf(agg) < 0) {
+                                    aggregationsModels.push(agg)
+
+                                }
+                            })
+                        }
                     }
+
                 } else {
                     return
                 }
@@ -55,12 +61,15 @@ export class CollaborativesearchService implements CollaborativeSearch {
                 if (k.detail.search) { filters.push(k.detail.search.filter) }
                 if (k.detail.count) { filters.push(k.detail.count.filter) }
                 if (k.detail.aggregationRequest) { filters.push(k.detail.aggregationRequest.filter) }
-                if (k.detail.aggregationRequest.aggregations.aggregations) {
-                    k.detail.aggregationRequest.aggregations.aggregations.forEach(agg => {
-                        if (aggregationsModels.indexOf(agg) < 0) {
-                            aggregationsModels.push(agg)
-                        }
-                    })
+                if (k.detail.aggregationRequest) {
+                    if (k.detail.aggregationRequest.aggregations.aggregations) {
+                        k.detail.aggregationRequest.aggregations.aggregations.forEach(agg => {
+                            if (aggregationsModels.lastIndexOf(agg) < 0) {
+                                aggregationsModels.push(agg)
+
+                            }
+                        })
+                    }
                 }
             })
         }
@@ -71,7 +80,14 @@ export class CollaborativesearchService implements CollaborativeSearch {
         let after: number = 0;
         filters.forEach(filter => {
             if (filter) {
-                if (filter.f) { filter.f.forEach(filt => f.push(filt)) }
+                if (filter.f) {
+                    filter.f.forEach(filt => {
+                        if (f.indexOf(filt) < 0) {
+                        f.push(filt)
+                        }
+                    }
+                    )
+                }
                 if (filter.q) { q = q + filter.q + " " }
                 if (filter.before) {
                     if (before == 0) {
@@ -115,6 +131,8 @@ export class CollaborativesearchService implements CollaborativeSearch {
                 return searchResult;
             case eventType.geosearch:
                 let geosearchResult: Observable<FeatureCollection> = this.apiservice.geosearchPost(this.collection, search)
+                return geosearchResult;
+
         }
     }
 }
