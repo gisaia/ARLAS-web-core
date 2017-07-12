@@ -1,0 +1,56 @@
+{
+  "name": "arlas-web-core",
+  "version": "0.0.0",
+  "description": "Core Service Library for ARLAS Web App",
+  "scripts": {
+    "start": "npm run server:dev",
+    "server": "npm run server:dev",
+    "server:dev": "webpack-dashboard -- webpack-dev-server --config ./webpack.config.js --port 3000 --host 0.0.0.0 --hot --inline --progress --profile --watch --content-base dist/ --open",
+    "server:prod": "cross-env NODE_ENV=production webpack-dashboard -- webpack-dev-server --config ./webpack.config.js --port 3000 --host 0.0.0.0 --hot --inline --progress --profile --watch --content-base dist/",
+    "build": "npm run build:dev",
+    "build:dev": "webpack --config ./webpack.config.js --progress --profile --color --display-error-details --display-cached",
+    "build:prod": "cross-env NODE_ENV=production webpack --config ./webpack.config.js  --progress --profile --color --display-error-details --display-cached --bail",
+    "build-release": "tsc -p tsconfig-build.json && gulp",
+    "clean": "npm cache clear && rimraf -- dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/GISAIA.ARLAS/ARLAS-web-core.git"
+  },
+  "author": "gisaia",
+  "license": "MIT",
+  "devDependencies": {
+    "@angular/core": "^4.0.0",
+    "@angular/http": "^4.0.0",
+    "@angular/platform-browser": "^4.0.0",
+    "@angular/platform-browser-dynamic": "^4.0.0",
+    "copy-webpack-plugin": "^4.0.1",
+    "cross-env": "^3.1.4",
+    "css-loader": "^0.26.1",
+    "ejs-loader": "^0.3.0",
+    "eslint": "^3.14.0",
+    "expose-loader": "^0.7.1",
+    "rimraf": "^2.5.4",
+    "style-loader": "^0.13.1",
+    "ts-loader": "^2.0.0",
+    "tslint": "^4.3.1",
+    "tslint-loader": "^3.3.0",
+    "typescript": "~2.3.3",
+    "webpack": "^2.1.0-beta.22",
+    "webpack-dashboard": "^0.2.1",
+    "webpack-dev-server": "2.2.0",
+    "zone.js": "^0.8.4"
+  },
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-sourcemaps": "^2.6.0",
+    "run-sequence": "^2.0.0",
+    "rxjs": "^5.1.0"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/GISAIA.ARLAS/ARLAS-web-core/issues"
+  },
+  "homepage": "https://gitlab.com/GISAIA.ARLAS/ARLAS-web-core/blob/master/README.md"
+}
