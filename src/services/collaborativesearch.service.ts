@@ -11,14 +11,19 @@ import { FeatureCollection } from "api-arlas/model/featureCollection";
 import { ArlasHits } from "api-arlas/model/arlasHits";
 import { Count } from "api-arlas/model/count";
 import { Search } from "api-arlas/model/search";
+import { ConfigService } from './config.service';
 
 
 export class CollaborativesearchService implements CollaborativeSearch {
     collaborationBus: Subject<CollaborationEvent> = new Subject<CollaborationEvent>();
     contributions = new Set<CollaborationEvent>();
     apiservice: ExploreService
-    constructor(private api: ExploreService, private collection: string) {
+    configService : ConfigService
+    collection:string
+    constructor(private api: ExploreService, private config:ConfigService) {
         this.apiservice = api
+        this.configService=config
+        this.collection = config.getValueFromNameSpaceKey("arlas.server","collection")
     }
     public setFilter(collaborationEvent: CollaborationEvent) {
         this.contributions.add(collaborationEvent)
@@ -50,7 +55,6 @@ export class CollaborativesearchService implements CollaborativeSearch {
                             })
                         }
                     }
-
                 } else {
                     return
                 }
@@ -145,4 +149,3 @@ export class CollaborativesearchService implements CollaborativeSearch {
         }
     }
 }
-

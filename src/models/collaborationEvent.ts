@@ -4,6 +4,7 @@ import { Search } from 'api-arlas/model/search';
 import { Count } from 'api-arlas/model/count';
 import { AggregationModel } from 'api-arlas/model/aggregationModel';
 import { AggregationRequest } from 'api-arlas/model/aggregationRequest';
+
 export enum eventType {
     aggregate,
     geoaggregate,
@@ -20,9 +21,7 @@ export interface arlasProjection{
 }
 
 export interface CollaborationEvent {
-
   contributor:Object,
   eventType:any
   detail:arlasProjection
-
 }
