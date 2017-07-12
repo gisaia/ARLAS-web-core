@@ -83,7 +83,7 @@ export class CollaborativesearchService implements CollaborativeSearch {
                 if (filter.f) {
                     filter.f.forEach(filt => {
                         if (f.indexOf(filt) < 0) {
-                        f.push(filt)
+                            f.push(filt)
                         }
                     }
                     )
@@ -105,10 +105,19 @@ export class CollaborativesearchService implements CollaborativeSearch {
                 }
             }
         })
-        filter.f = f;
-        filter.q = q;
-        filter.before = before;
-        filter.after = after;
+        if (f.length > 0) {
+            filter.f = f;
+        }
+        if (q != "") {
+            filter.q = q;
+        }
+        if (before != 0) {
+            filter.before = before;
+        }
+        if (after != 0) {
+            filter.after = after;
+        }
+
         let aggregations: Aggregations = { aggregations: aggregationsModels }
         let aggregationRequest: AggregationRequest = {
             filter: filter,
