@@ -43,6 +43,7 @@
     "zone.js": "^0.8.4"
   },
   "dependencies": {
+    "arlas-api": "0.0.0",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
     "gulp-sourcemaps": "^2.6.0",

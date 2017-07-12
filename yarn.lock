@@ -173,6 +173,10 @@ argparse@^1.0.7:
   dependencies:
     sprintf-js "~1.0.2"
 
+arlas-api@0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/arlas-api/-/arlas-api-0.0.0.tgz#23637e65dde66b9197d17c394de2680e7e37040a"
+
 arr-diff@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/arr-diff/-/arr-diff-2.0.0.tgz#8f3b827f955a8bd669697e4a4256ac3ceae356cf"

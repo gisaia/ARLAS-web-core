@@ -1,16 +1,16 @@
 import { CollaborativeSearch } from '../models/collaborativesearch';
 import { Observable, Subject } from 'rxjs/Rx';
-import { ExploreService } from 'api-arlas/services/explore.service';
-import { AggregationModel } from "api-arlas/model/aggregationModel";
+import { ExploreService } from 'arlas-api/services/explore.service';
+import { AggregationModel } from "arlas-api/model/aggregationModel";
 import { CollaborationEvent, eventType } from '../models/collaborationEvent';
-import { AggregationRequest } from "api-arlas/model/aggregationRequest";
-import { Aggregations } from "api-arlas/model/aggregations";
-import { ArlasAggregation } from "api-arlas/model/arlasAggregation";
-import { Filter } from 'api-arlas/model/filter';
-import { FeatureCollection } from "api-arlas/model/featureCollection";
-import { ArlasHits } from "api-arlas/model/arlasHits";
-import { Count } from "api-arlas/model/count";
-import { Search } from "api-arlas/model/search";
+import { AggregationRequest } from "arlas-api/model/aggregationRequest";
+import { Aggregations } from "arlas-api/model/aggregations";
+import { ArlasAggregation } from "arlas-api/model/arlasAggregation";
+import { Filter } from 'arlas-api/model/filter';
+import { FeatureCollection } from "arlas-api/model/featureCollection";
+import { ArlasHits } from "arlas-api/model/arlasHits";
+import { Count } from "arlas-api/model/count";
+import { Search } from "arlas-api/model/search";
 import { ConfigService } from './config.service';
 
 
@@ -23,7 +23,6 @@ export class CollaborativesearchService implements CollaborativeSearch {
     constructor(private api: ExploreService, private config:ConfigService) {
         this.apiservice = api
         this.configService=config
-        this.collection = config.getValueFromNameSpaceKey("arlas.server","collection")
     }
     public setFilter(collaborationEvent: CollaborationEvent) {
         this.contributions.add(collaborationEvent)

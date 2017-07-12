@@ -1,9 +1,9 @@
 import { arlasProjection } from './collaborationEvent';
-import { Filter } from "api-arlas/model/filter";
-import { Search } from 'api-arlas/model/search';
-import { Count } from 'api-arlas/model/count';
-import { AggregationModel } from 'api-arlas/model/aggregationModel';
-import { AggregationRequest } from 'api-arlas/model/aggregationRequest';
+import { Filter } from "arlas-api/model/filter";
+import { Search } from 'arlas-api/model/search';
+import { Count } from 'arlas-api/model/count';
+import { AggregationModel } from 'arlas-api/model/aggregationModel';
+import { AggregationRequest } from 'arlas-api/model/aggregationRequest';
 
 export enum eventType {
     aggregate,
