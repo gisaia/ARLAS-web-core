@@ -6,6 +6,8 @@ This library of services writting in typescript should be use to create an app u
 
 ```
 git clone https://gitlab.com/GISAIA.ARLAS/ARLAS-web-core.git
+yarn install
+yarn build:prod / yarn build-release
 ```
 
 ### Prerequisites
