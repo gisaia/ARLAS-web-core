@@ -12,68 +12,44 @@ import { ArlasHits } from "arlas-api/model/arlasHits";
 import { Count } from "arlas-api/model/count";
 import { Search } from "arlas-api/model/search";
 import { ConfigService } from './config.service';
+import { Contributor } from "services/contributor";
+import { getObject } from './utils';
 
 
 export class CollaborativesearchService implements CollaborativeSearch {
     collaborationBus: Subject<CollaborationEvent> = new Subject<CollaborationEvent>();
-    contributions = new Set<CollaborationEvent>();
+    collaborationsEvents = new Map<string, CollaborationEvent>();
     apiservice: ExploreService
-    configService : ConfigService
-    collection:string
-    constructor(private api: ExploreService, private config:ConfigService) {
+    configService: ConfigService
+    collection: string
+    constructor(private api: ExploreService, private config: ConfigService) {
         this.apiservice = api
-        this.configService=config
+        this.configService = config
     }
     public setFilter(collaborationEvent: CollaborationEvent) {
-        this.contributions.add(collaborationEvent)
+        this.collaborationsEvents.set(collaborationEvent.contributorId, collaborationEvent)
         this.collaborationBus.next(collaborationEvent)
     }
     public removeFilter(collaborationEvent: CollaborationEvent) {
-        this.contributions.delete(collaborationEvent)
+        this.collaborationsEvents.delete(collaborationEvent.contributorId)
     }
     public removeAll() {
-        this.contributions = new Set<CollaborationEvent>();
+        this.collaborationsEvents.clear();
     }
-    public resolveButNot(projection: any, contributor?: Object): Observable<any> {
+    public resolveButNot(projection: [eventType.aggregate, Aggregations] | [eventType.search, Search] | [eventType.geoaggregate, Aggregations] | [eventType.geosearch, Search] | [eventType.count, Count], contributorId?: string): Observable<any> {
         let filters: Array<Filter> = new Array<Filter>()
         let aggregationsModels: Array<AggregationModel> = new Array<AggregationModel>()
-        if (contributor) {
-            this.contributions.forEach((k) => {
-                if (k.contributor != contributor) {
-                    if (k.detail.filter) { filters.push(k.detail.filter) }
-                    if (k.detail.search) { filters.push(k.detail.search.filter) }
-                    if (k.detail.count) { filters.push(k.detail.count.filter) }
-                    if (k.detail.aggregationRequest) { filters.push(k.detail.aggregationRequest.filter) }
-                    if (k.detail.aggregationRequest) {
-                        if (k.detail.aggregationRequest.aggregations.aggregations) {
-                            k.detail.aggregationRequest.aggregations.aggregations.forEach(agg => {
-                                if (aggregationsModels.lastIndexOf(agg) < 0) {
-                                    aggregationsModels.push(agg)
-
-                                }
-                            })
-                        }
-                    }
+        if (contributorId) {
+            this.collaborationsEvents.forEach((k, v) => {
+                if (v != contributorId) {
+                    this.feedParams(k, filters)
                 } else {
                     return
                 }
             })
         } else {
-            this.contributions.forEach((k) => {
-                if (k.detail.filter) { filters.push(k.detail.filter) }
-                if (k.detail.search) { filters.push(k.detail.search.filter) }
-                if (k.detail.count) { filters.push(k.detail.count.filter) }
-                if (k.detail.aggregationRequest) { filters.push(k.detail.aggregationRequest.filter) }
-                if (k.detail.aggregationRequest) {
-                    if (k.detail.aggregationRequest.aggregations.aggregations) {
-                        k.detail.aggregationRequest.aggregations.aggregations.forEach(agg => {
-                            if (aggregationsModels.lastIndexOf(agg) < 0) {
-                                aggregationsModels.push(agg)
-
-                            }
-                        })
-                    }
-                }
+            this.collaborationsEvents.forEach((k, v) => {
+                this.feedParams(k, filters)
             })
         }
         let filter: Filter = {};
@@ -120,31 +96,48 @@ export class CollaborativesearchService implements CollaborativeSearch {
         if (after != 0) {
             filter.after = after;
         }
+        let aggregationRequest: AggregationRequest;
+        let search: Search;
+        let result;
+        switch (projection[0]) {
+            case eventType.aggregate.valueOf():
+                aggregationRequest = <AggregationRequest>{
+                    filter: filter,
+                    aggregations: projection[1]
+                }
+                result = <Observable<ArlasAggregation>>this.apiservice.aggregatePost(this.collection, aggregationRequest);
+                break;
+            case eventType.geoaggregate.valueOf():
+                aggregationRequest;
+                aggregationRequest = <AggregationRequest>{
+                    filter: filter,
+                    aggregations: projection[1]
+                }
+                result = <Observable<FeatureCollection>>this.apiservice.geoaggregatePost(this.collection, aggregationRequest)
+                break;
 
-        let aggregations: Aggregations = { aggregations: aggregationsModels }
-        let aggregationRequest: AggregationRequest = {
-            filter: filter,
-            aggregations: aggregations
-        }
-        let count: Count = { filter: filter }
-        let search: Search = { filter: filter }
-        switch (projection) {
-            case eventType.aggregate:
-                let aggregResult: Observable<ArlasAggregation> = this.apiservice.aggregatePost(this.collection, aggregationRequest)
-                return aggregResult;
-            case eventType.geoaggregate:
-                let geoaggregResult: Observable<FeatureCollection> = this.apiservice.geoaggregatePost(this.collection, aggregationRequest)
-                return geoaggregResult;
-            case eventType.count:
-                let countResult: Observable<ArlasHits> = this.apiservice.countPost(this.collection, count)
-                return countResult
-            case eventType.search:
-                let searchResult: Observable<ArlasHits> = this.apiservice.searchPost(this.collection, search)
-                return searchResult;
-            case eventType.geosearch:
-                let geosearchResult: Observable<FeatureCollection> = this.apiservice.geosearchPost(this.collection, search)
-                return geosearchResult;
+            case eventType.count.valueOf():
+                let count = projection[1]
+                count["filter"] = filter
+                result = this.apiservice.countPost(this.collection, count)
+                break;
+
+            case eventType.search.valueOf():
+                search = projection[1]
+                search["filter"] = filter
+                result = <Observable<ArlasHits>>this.apiservice.searchPost(this.collection, search)
+                break;
+
+            case eventType.geosearch.valueOf():
+                search = projection[1]
+                search["filter"] = filter
+                result = <Observable<FeatureCollection>>this.apiservice.geosearchPost(this.collection, search)
+                break;
 
         }
+        return result
+    }
+    feedParams(k, filters) {
+        if (k.detail.filter) { filters.push(k.detail.filter) }
     }
 }

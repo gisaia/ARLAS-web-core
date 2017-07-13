@@ -1,4 +1,3 @@
-import { arlasProjection } from './collaborationEvent';
 import { Filter } from "arlas-api/model/filter";
 import { Search } from 'arlas-api/model/search';
 import { Count } from 'arlas-api/model/count';
@@ -13,15 +12,7 @@ export enum eventType {
     geosearch
 }
 
-export interface arlasProjection{
-  search?:Search
-  filter?:Filter
-  count?:Count
-  aggregationRequest?:AggregationRequest
-}
-
 export interface CollaborationEvent {
-  contributor:Object,
-  eventType:any
-  detail:arlasProjection
+  contributorId:string
+  detail:Filter
 }
