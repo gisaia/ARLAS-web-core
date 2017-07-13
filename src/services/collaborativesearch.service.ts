@@ -138,6 +138,6 @@ export class CollaborativesearchService implements CollaborativeSearch {
         return result
     }
     feedParams(k, filters) {
-        if (k.detail.filter) { filters.push(k.detail.filter) }
+        if (k.detail) { filters.push(k.detail) }
     }
 }
