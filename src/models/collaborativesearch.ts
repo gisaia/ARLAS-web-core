@@ -1,10 +1,12 @@
-import { Subject } from 'rxjs/Rx';
-import { CollaborationEvent } from './collaborationEvent';
+import { Subject, Observable } from 'rxjs/Rx';
+import { CollaborationEvent, eventType } from './collaborationEvent';
+import { Aggregations } from 'arlas-api/model/aggregations';
+import { Count } from 'arlas-api/model/count';
+import { Search } from 'arlas-api/model/search';
 export interface CollaborativeSearch {
-  contributions: Set<CollaborationEvent>
-  setFilter(contributor: any, filter: any),
-  removeFilter(contributor: any, filter: any),
+  collaborationsEvents: Map<string, CollaborationEvent>
+  setFilter(collaborationEvent: CollaborationEvent)
+  removeFilter(collaborationEvent: CollaborationEvent)
   removeAll(),
-  resolveButNot(projection: any,contributor?: any)
-
+  resolveButNot(projection: [eventType.aggregate, Aggregations] | [eventType.search, Search] | [eventType.geoaggregate, Aggregations] | [eventType.geosearch, Search] | [eventType.count, Count], contributorId?: string): Observable<any>
 }
