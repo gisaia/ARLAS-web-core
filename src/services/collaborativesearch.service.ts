@@ -36,7 +36,13 @@ export class CollaborativesearchService implements CollaborativeSearch {
     public removeAll() {
         this.collaborationsEvents.clear();
     }
-    public resolveButNot(projection: [eventType.aggregate, Aggregations] | [eventType.search, Search] | [eventType.geoaggregate, Aggregations] | [eventType.geosearch, Search] | [eventType.count, Count], contributorId?: string): Observable<any> {
+    public resolveButNot(projection: [eventType.aggregate, Aggregations]
+        | [eventType.search, Search]
+        | [eventType.geoaggregate, Aggregations]
+        | [eventType.geosearch, Search]
+        | [eventType.count, Count],
+        contributorId?: string
+      ): Observable<any> {
         let filters: Array<Filter> = new Array<Filter>()
         let aggregationsModels: Array<AggregationModel> = new Array<AggregationModel>()
         if (contributorId) {
