@@ -1,0 +1,7 @@
+arlas-core-test-before-push:
+  script:
+    - ./test-before-push/test-before-push.sh
+  only:
+    - branches
+  except:
+    - /^WIP.*$/
