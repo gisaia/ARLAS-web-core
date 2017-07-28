@@ -1,6 +1,9 @@
 arlas-core-test-before-push:
   script:
-    - ./test-before-push/test-before-push.sh
+    - sudo apt-get update -qy
+    - sudo apt-get install -y yarn
+    - yarn install tslint typescript
+    - sudo ./test-before-push/test-before-push.sh
   only:
     - branches
   except:
