@@ -28,7 +28,7 @@ export class CollaborativesearchService implements CollaborativeSearch {
         this.apiservice = api;
         this.configService = config;
     }
-    public setFilter(collaborationEvent: CollaborationEvent) {
+     setFilter(collaborationEvent: CollaborationEvent) {
         this.collaborationsEvents.set(collaborationEvent.contributorId, collaborationEvent);
         collaborationEvent.enabled = true;
         this.collaborationBus.next(collaborationEvent);
