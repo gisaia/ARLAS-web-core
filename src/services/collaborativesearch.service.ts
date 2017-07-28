@@ -18,12 +18,12 @@ import { getObject } from './utils';
 
 
 export class CollaborativesearchService implements CollaborativeSearch {
-    collaborationBus: Subject<CollaborationEvent> = new Subject<CollaborationEvent>();
-    collaborationsEvents = new Map<string, CollaborationEvent>();
-    apiservice: ExploreService;
-    configService: ConfigService;
-    collection: string;
-    countAllBus: Subject<number> = new Subject<number>();
+    public collaborationBus: Subject<CollaborationEvent> = new Subject<CollaborationEvent>();
+    public collaborationsEvents = new Map<string, CollaborationEvent>();
+    public apiservice: ExploreService;
+    public configService: ConfigService;
+    public collection: string;
+    public countAllBus: Subject<number> = new Subject<number>();
     constructor(private api: ExploreService, private config: ConfigService) {
         this.apiservice = api;
         this.configService = config;
