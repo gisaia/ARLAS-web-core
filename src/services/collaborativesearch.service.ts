@@ -2,18 +2,18 @@ import { Size } from 'arlas-api';
 import { CollaborativeSearch } from '../models/collaborativesearch';
 import { Observable, Subject } from 'rxjs/Rx';
 import { ExploreService } from 'arlas-api/services/explore.service';
-import { AggregationModel } from "arlas-api/model/aggregationModel";
+import { AggregationModel } from 'arlas-api/model/aggregationModel';
 import { CollaborationEvent, eventType } from '../models/collaborationEvent';
-import { AggregationRequest } from "arlas-api/model/aggregationRequest";
-import { Aggregations } from "arlas-api/model/aggregations";
-import { ArlasAggregation } from "arlas-api/model/arlasAggregation";
+import { AggregationRequest } from 'arlas-api/model/aggregationRequest';
+import { Aggregations } from 'arlas-api/model/aggregations';
+import { ArlasAggregation } from 'arlas-api/model/arlasAggregation';
 import { Filter } from 'arlas-api/model/filter';
-import { FeatureCollection } from "arlas-api/model/featureCollection";
-import { ArlasHits } from "arlas-api/model/arlasHits";
-import { Count } from "arlas-api/model/count";
-import { Search } from "arlas-api/model/search";
+import { FeatureCollection } from 'arlas-api/model/featureCollection';
+import { ArlasHits } from 'arlas-api/model/arlasHits';
+import { Count } from 'arlas-api/model/count';
+import { Search } from 'arlas-api/model/search';
 import { ConfigService } from './config.service';
-import { Contributor } from "services/contributor";
+import { Contributor } from 'services/contributor';
 import { getObject } from './utils';
 
 
@@ -30,6 +30,7 @@ export class CollaborativesearchService implements CollaborativeSearch {
     }
     public setFilter(collaborationEvent: CollaborationEvent) {
         this.collaborationsEvents.set(collaborationEvent.contributorId, collaborationEvent);
+        collaborationEvent.enabled = true;
         this.collaborationBus.next(collaborationEvent);
     }
     public removeFilter(collaborationEvent: CollaborationEvent) {
@@ -45,26 +46,28 @@ export class CollaborativesearchService implements CollaborativeSearch {
         | [eventType.count, Count],
         contributorId?: string
     ): Observable<any> {
-        let filters: Array<Filter> = new Array<Filter>();
-        let aggregationsModels: Array<AggregationModel> = new Array<AggregationModel>();
+        const filters: Array<Filter> = new Array<Filter>();
+        const aggregationsModels: Array<AggregationModel> = new Array<AggregationModel>();
         if (contributorId) {
             this.collaborationsEvents.forEach((k, v) => {
-                if (v != contributorId) {
+                if (v !== contributorId && k.enabled) {
                     this.feedParams(k, filters);
                 } else {
                     return;
                 }
-            })
+            });
         } else {
             this.collaborationsEvents.forEach((k, v) => {
-                this.feedParams(k, filters);
-            })
+                if (k.enabled) {
+                    this.feedParams(k, filters);
+                }
+            });
         }
-        let filter: Filter = {};
-        let f: Array<string> = new Array<string>();
-        let q: string = "";
-        let before: number = 0;
-        let after: number = 0;
+        const finalFilter: Filter = {};
+        const f: Array<string> = new Array<string>();
+        let q = '';
+        let before = 0;
+        let after = 0;
         filters.forEach(filter => {
             if (filter) {
                 if (filter.f) {
@@ -72,37 +75,38 @@ export class CollaborativesearchService implements CollaborativeSearch {
                         if (f.indexOf(filt) < 0) {
                             f.push(filt);
                         }
-                    }
-                    )
+                    });
                 }
-                if (filter.q) { q = q + filter.q + " " }
+                if (filter.q) {
+                    q = q + filter.q + ' ';
+                }
                 if (filter.before) {
-                    if (before == 0) {
+                    if (before === 0) {
                         before = filter.before;
                     } else if (filter.before <= before) {
                         before = filter.before;
                     }
                 }
                 if (filter.after) {
-                    if (after == 0) {
+                    if (after === 0) {
                         after = filter.after;
                     } else if (filter.after >= after) {
                         after = filter.after;
                     }
                 }
             }
-        })
+        });
         if (f.length > 0) {
-            filter.f = f;
+            finalFilter.f = f;
         }
-        if (q != "") {
-            filter.q = q;
+        if (q !== '') {
+            finalFilter.q = q;
         }
-        if (before != 0) {
-            filter.before = before;
+        if (before !== 0) {
+            finalFilter.before = before;
         }
-        if (after != 0) {
-            filter.after = after;
+        if (after !== 0) {
+            finalFilter.after = after;
         }
         let aggregationRequest: AggregationRequest;
         let search: Search;
@@ -110,47 +114,64 @@ export class CollaborativesearchService implements CollaborativeSearch {
         switch (projection[0]) {
             case eventType.aggregate.valueOf():
                 aggregationRequest = <AggregationRequest>{
-                    filter: filter,
+                    filter: finalFilter,
                     aggregations: projection[1]
-                }
+                };
                 result = <Observable<ArlasAggregation>>this.apiservice.aggregatePost(this.collection, aggregationRequest);
                 this.nextCountAll();
                 break;
             case eventType.geoaggregate.valueOf():
-                aggregationRequest;
                 aggregationRequest = <AggregationRequest>{
-                    filter: filter,
+                    filter: finalFilter,
                     aggregations: projection[1]
-                }
-                result = <Observable<FeatureCollection>>this.apiservice.geoaggregatePost(this.collection, aggregationRequest)
+                };
+                result = <Observable<FeatureCollection>>this.apiservice.geoaggregatePost(this.collection, aggregationRequest);
                 this.nextCountAll();
                 break;
             case eventType.count.valueOf():
-                let count = projection[1];
-                count["filter"] = filter;
+                const count = projection[1];
+                count['filter'] = finalFilter;
                 result = <Observable<ArlasHits>>this.apiservice.countPost(this.collection, count);
                 break;
             case eventType.search.valueOf():
                 search = projection[1];
-                search["filter"] = filter;
+                search['filter'] = finalFilter;
                 result = <Observable<ArlasHits>>this.apiservice.searchPost(this.collection, search);
                 this.nextCountAll();
                 break;
             case eventType.geosearch.valueOf():
                 search = projection[1];
-                search["filter"] = filter;
+                search['filter'] = finalFilter;
                 result = <Observable<FeatureCollection>>this.apiservice.geosearchPost(this.collection, search);
                 this.nextCountAll();
                 break;
         }
-        return result
+        return result;
     }
+
+    public enable(contributorId: string) {
+        this.setEnable(true, contributorId);
+
+    }
+
+    public disable(contributorId: string) {
+        this.setEnable(false, contributorId);
+    }
+
+    private setEnable(enabled: boolean, contributorId: string) {
+        const collaborationEvent = this.collaborationsEvents.get(contributorId);
+        if (collaborationEvent) {
+            collaborationEvent.enabled = enabled;
+        }
+
+    }
+
     private feedParams(k, filters) {
         if (k.detail) { filters.push(k.detail); }
     }
 
     private nextCountAll() {
-        let result: Observable<ArlasHits> = this.resolveButNot([eventType.count, {}]);
+        const result: Observable<ArlasHits> = this.resolveButNot([eventType.count, {}]);
         result.subscribe(data => this.countAllBus.next(data.totalnb));
     }
 }
