@@ -1,10 +1,10 @@
-arlas-core-test-before-push:
+image: node:6.0
+before_script:
+  - npm install
+lint:
   script:
-    - sudo apt-get update -qy
-    - sudo apt-get install -y yarn
-    - yarn install tslint typescript
-    - sudo ./test-before-push/test-before-push.sh
-  only:
-    - branches
-  except:
-    - /^WIP.*$/
+  - npm run tslint
+build:
+  script:
+  - npm run build-release
+
