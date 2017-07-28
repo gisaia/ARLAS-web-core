@@ -16,7 +16,6 @@ import { ConfigService } from './config.service';
 import { Contributor } from 'services/contributor';
 import { getObject } from './utils';
 
-
 export class CollaborativesearchService implements CollaborativeSearch {
     public collaborationBus: Subject<CollaborationEvent> = new Subject<CollaborationEvent>();
     public collaborationsEvents = new Map<string, CollaborationEvent>();
