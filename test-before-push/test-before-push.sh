@@ -1,2 +1,0 @@
-cd ..
-yarn build-release
