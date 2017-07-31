@@ -1,0 +1,13 @@
+image: node:6.0
+cache:
+  paths:
+  - node_modules/
+before_script:
+  - npm install
+lint:
+  script:
+  - npm run tslint
+build:
+  script:
+  - npm run build-release
+
