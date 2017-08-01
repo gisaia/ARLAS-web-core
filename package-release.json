@@ -1,5 +1,5 @@
 {
-  "name": "arlas-web-core",
+  "name": "@gisaia/arlas-web-core",
   "version": "0.0.10",
   "description": "Core Service Library for ARLAS Web App",
   "repository": {

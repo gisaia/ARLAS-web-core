@@ -23,7 +23,7 @@ usage(){
 	exit 1
 }
 
-function contains() {
+contains() {
     local n=$#
     local value=${!n}
     for ((i=1;i < $#;i++)) {
@@ -180,7 +180,6 @@ elif [ ! -z ${ARLAS_ALL+x} ];
         ARLAS_COMP_VERS="${TABCOMP[0]}";
         ARLAS_COMP_LEVEL="${TABCOMP[1]}";   
 fi
-
 
 if [ ! -z ${ARLAS_CORE_VERS+x} ] && [ ! -z ${ARLAS_CORE_LEVEL+x} ];
     then 
