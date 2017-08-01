@@ -90,10 +90,10 @@ releaseProd(){
     git checkout master
     git pull origin master
     git merge develop
-    jq  '.name = "arlas-web-$3"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
-    jq  '.name = "arlas-web-$3"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.name = "/arlas-web-"'$3'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
+    jq  '.name = "/arlas-web-"'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     git add .
-    commit_message_master = "prod automatic release"-"$1"
+    commit_message_master="prod automatic release"-"$1"
     git commit -m'$commit_message_master'
     git push origin master
     echo "=> Tag master"
