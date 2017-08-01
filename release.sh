@@ -71,7 +71,6 @@ checkInput(){
 }
 
 releaseProd(){
-    usage;
     if [ "$3" == "components" ]; 
         then
             cd ../ARLAS-web-components/
