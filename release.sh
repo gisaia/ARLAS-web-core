@@ -113,6 +113,15 @@ releaseProd(){
     echo "=> Merge master to develop"
     git checkout develop
     git merge master
+    IFS='.' read -ra TAB <<< "$1"
+    major=${TAB[0]}
+    minor=${TAB[1]}
+    newminor=$(( $minor + 1 ))
+    newDevVersion = ${major}.${newminor}.0
+    jq  '.name = "@gisaia/arlas-web-"'"$3"'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
+    jq  '.version = "'"$newDevVersion"'-dev0"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
+    jq  '.name = "@gisaia/arlas-web-"'"$3"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.version = "'"$newDevVersion"'-dev0"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     git add .
     commit_message_develop = "upadte package.json to"-"$1"
     git commit -m"$commit_message_develop"
