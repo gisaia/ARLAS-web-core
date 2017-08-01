@@ -92,11 +92,13 @@ releaseProd(){
     git pull origin master
     git merge develop
     git add .
-    commit_message_master = "automatic release"-"$1"
+    jq  '.name = "arlas-web-"'"$3"'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
+    jq  '.name = "arlas-web-"'"$3"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    commit_message_master = "prod automatic release"-"$1"
     git commit -m"$commit_message_master"
-    git push origin master""
+    git push origin master
     echo "=> Tag master"
-    git tag -a "$1"
+    git tag -a v"$1"
     git push origin "$1"
     yarn install
     yarn tslint
