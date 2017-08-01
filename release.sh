@@ -12,9 +12,9 @@ fi
 
 level_version=("major" "minor" "patch")
 usage(){ 
-	echo "Usage: ./release.sh -core='v1.0.0;major' -cont='v1.1.0;minor' -comp='v1.1.1;patch' -prod"
-	echo "Usage: ./release.sh -all='v1.0.0-dev0;minor'"
-	echo "Usage: ./release.sh -all='v1.0.0;major' -cont='v1.1.0;minor'"
+	echo "Usage: ./release.sh -core='1.0.0;major' -cont='1.1.0;minor' -comp='1.1.1;patch' -prod"
+	echo "Usage: ./release.sh -all='1.0.0-dev0;minor'"
+	echo "Usage: ./release.sh -all='1.0.0;major' -cont='1.1.0;minor'"
 	echo " -core|--arlas-web-core     arlas-web-core version release,level of evolution"
 	echo " -cont|--arlas-web-contributors      arlas-web-contributors version release,level of evolution"
 	echo " -comp|--arlas-web-components    arlas-web-components version release,level of evolution"
@@ -54,13 +54,13 @@ checkInput(){
                 usage;
         elif [ "$2" == "true" ];
             then
-                if ! [[ ${TAB[0]} =~ ^v[0-9]*\.[0-9]*\.[0-9]*$ ]]
+                if ! [[ ${TAB[0]} =~ ^[0-9]*\.[0-9]*\.[0-9]*$ ]]
                     then
                     echo ""${TAB[0]}" version value is not valid. Format : vX.Y.Z in --prod mode"
                     usage;     
                 fi           
         else
-            if ! [[ ${TAB[0]} =~ ^v[0-9]*\.[0-9]*\.[0-9]*-dev[0-9]*$ ]];
+            if ! [[ ${TAB[0]} =~ ^[0-9]*\.[0-9]*\.[0-9]*-dev[0-9]*$ ]];
                 then
                     echo ""${TAB[0]}" version value is not valid. Format :  vX.Y.Z-devN in dev mode"
                     usage;                
@@ -117,10 +117,11 @@ releaseProd(){
     git push origin develop
 }
 
-releaseDev(){
+releaseDev(){ 
     if [ "$3" == "components" ]; 
         then
             cd ../ARLAS-web-components/
+
     elif [ "$3" == "contributors" ]; 
         then 
         cd ../ARLAS-web-contributors/
@@ -132,9 +133,9 @@ releaseDev(){
     yarn install
     yarn tslint
     yarn build-release
-    jq  '.name = "@gisaia/arlas-web-core"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
-    jq  '.version = "'"$1"'"' package-release.json > tmp.$$.json && mv tmp.$$.json package.json
-    jq  '.name = "@gisaia/arlas-web-core"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.name = "@gisaia/arlas-web-"'"$3"'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
+    jq  '.version = "'"$1"'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
+    jq  '.name = "@gisaia/arlas-web-"'"$3"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     cp package-release.json  dist/package.json
     cd dist
