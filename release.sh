@@ -12,18 +12,20 @@ fi
 
 level_version=("major" "minor" "patch")
 usage(){ 
-	echo "Usage: ./release.sh -core='v1.0.0;major' -cont='v1.1.0;minor' -comp='v1.1.1;patch'"
-	echo "Usage: ./release.sh -all='v1.0.0;major'"
+	echo "Usage: ./release.sh -core='v1.0.0;major' -cont='v1.1.0;minor' -comp='v1.1.1;patch' -prod"
+	echo "Usage: ./release.sh -all='v1.0.0-dev0;minor'"
 	echo "Usage: ./release.sh -all='v1.0.0;major' -cont='v1.1.0;minor'"
 	echo " -core|--arlas-web-core     arlas-web-core version release,level of evolution"
 	echo " -cont|--arlas-web-contributors      arlas-web-contributors version release,level of evolution"
 	echo " -comp|--arlas-web-components    arlas-web-components version release,level of evolution"
 	echo " -all|--global    all project have same version release,level of evolution"
+    echo " -prod|--production    if present publish on public npm and tag from master git branch, if not publish on gisaia private npm and tag from develop, not present by defaut"
 	echo " if -all and -core or -cont or comp parametes are mixed, the specified version is released"
 	exit 1
 }
 
-contains() {
+
+contains(){
     local n=$#
     local value=${!n}
     for ((i=1;i < $#;i++)) {
@@ -44,22 +46,32 @@ checkInput(){
         then
             usage;
     else 
-    if [ $(contains "${level_version[@]}" "${TAB[1]}") == "n" ];
+        if [ $(contains "${level_version[@]}" "${TAB[1]}") == "n" ];
             then
                 echo "Unknown level of evolution value : ${TAB[1]}"
                 echo "Possible values : "
                 echo "   level for versions : ${level_version[*]}"
                 usage;
-        elif ! [[ ${TAB[0]} =~ ^v[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}$ ]];
+        elif [ "$2" == "true" ];
             then
-                echo ""${TAB[0]}" version value is not valid. Format : vX.Y.Z"
-                usage;                
+                if ! [[ ${TAB[0]} =~ ^v[0-9]*\.[0-9]*\.[0-9]*$ ]]
+                    then
+                    echo ""${TAB[0]}" version value is not valid. Format : vX.Y.Z in --prod mode"
+                    usage;     
+                fi           
+        else
+            if ! [[ ${TAB[0]} =~ ^v[0-9]*\.[0-9]*\.[0-9]*-dev[0-9]*$ ]];
+                then
+                    echo ""${TAB[0]}" version value is not valid. Format :  vX.Y.Z-devN in dev mode"
+                    usage;                
+            fi           
         fi
     fi
     
 }
 
-release(){
+releaseProd(){
+    usage;
     if [ "$3" == "components" ]; 
         then
             cd ../ARLAS-web-components/
@@ -105,6 +117,48 @@ release(){
     git push origin develop
 }
 
+releaseDev(){
+    if [ "$3" == "components" ]; 
+        then
+            cd ../ARLAS-web-components/
+    elif [ "$3" == "contributors" ]; 
+        then 
+        cd ../ARLAS-web-contributors/
+    fi
+    echo "=> Get develop branch of ARLAS-web-$3 project"
+    git checkout  develop
+    git pull origin develop
+    echo "=> Test to lint and build the project on develop branch"
+    yarn install
+    yarn tslint
+    yarn build-release
+    "name": "@gisaia/arlas-web-core",
+    "version": "0.0.10",
+    jq  '.name = "@gisaia/arlas-web-core"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
+    jq  '.version = "'"$1"'"' package-release.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.name = "@gisaia/arlas-web-core"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    cp package-release.json  dist/package.json
+    cd dist
+    npm publish
+    rm -rf dist
+    git add .
+    commit_message_develop = "upadte package.json to"-"$1"
+    git commit -m"$commit_message_develop"
+}
+
+release(){
+    if [ "$4" == "true" ];
+        then
+        releaseProd $1 $2 $3
+    else
+        releaseDev $1 $2 $3
+    fi
+
+}
+
+ARLAS_PROD="false"
+
 for i in "$@"
 do
 case $i in
@@ -128,6 +182,10 @@ case $i in
     ARLAS_HELP="true"
     shift # past argument=value
     ;;
+    -prod|--production)
+    ARLAS_PROD="true"
+    shift # past argument=value
+    ;;
     *)
             # unknown option
     ;;
@@ -141,13 +199,13 @@ fi
 
 if [ ! -z ${ARLAS_CORE+x} ]; 
     then
-        checkInput ${ARLAS_CORE}
+        checkInput ${ARLAS_CORE} ${ARLAS_PROD}
         IFS=';' read -ra TABCORE <<< "$ARLAS_CORE"       
         ARLAS_CORE_VERS="${TABCORE[0]}";
         ARLAS_CORE_LEVEL="${TABCORE[1]}";    
 elif [ ! -z ${ARLAS_ALL+x} ];
     then
-        checkInput ${ARLAS_ALL}
+        checkInput ${ARLAS_ALL} ${ARLAS_PROD}
         IFS=';' read -ra TABCORE <<< "$ARLAS_ALL"       
         ARLAS_CORE_VERS="${TABCORE[0]}";
         ARLAS_CORE_LEVEL="${TABCORE[1]}";   
@@ -155,13 +213,13 @@ fi
 
 if [ ! -z ${ARLAS_CONT+x} ]; 
     then
-        checkInput ${ARLAS_CONT}
+        checkInput ${ARLAS_CONT} ${ARLAS_PROD}
         IFS=';' read -ra TABCONT <<< "$ARLAS_CONT"       
         ARLAS_CONT_VERS="${TABCONT[0]}";
         ARLAS_CONT_LEVEL="${TABCONT[1]}";    
 elif [ ! -z ${ARLAS_ALL+x} ];
     then 
-        checkInput ${ARLAS_ALL}
+        checkInput ${ARLAS_ALL} ${ARLAS_PROD}
         IFS=';' read -ra TABCONT <<< "$ARLAS_ALL"       
         ARLAS_CONT_VERS="${TABCONT[0]}";
         ARLAS_CONT_LEVEL="${TABCONT[1]}";   
@@ -169,13 +227,13 @@ fi
 
 if [ ! -z ${ARLAS_COMP+x} ]; 
     then
-        checkInput ${ARLAS_COMP}
+        checkInput ${ARLAS_COMP} ${ARLAS_PROD}
         IFS=';' read -ra TABCOMP <<< "$ARLAS_COMP"       
         ARLAS_COMP_VERS="${TABCOMP[0]}";
         ARLAS_COMP_LEVEL="${TABCOMP[1]}";    
 elif [ ! -z ${ARLAS_ALL+x} ];
     then 
-        checkInput ${ARLAS_ALL}
+        checkInput ${ARLAS_ALL} ${ARLAS_PROD}
         IFS=';' read -ra TABCOMP <<< "$ARLAS_ALL"       
         ARLAS_COMP_VERS="${TABCOMP[0]}";
         ARLAS_COMP_LEVEL="${TABCOMP[1]}";   
@@ -184,17 +242,17 @@ fi
 if [ ! -z ${ARLAS_CORE_VERS+x} ] && [ ! -z ${ARLAS_CORE_LEVEL+x} ];
     then 
         echo "Release ARLAS-web-core  ${ARLAS_CORE_LEVEL} version                    : ${ARLAS_CORE_VERS}"; 
-        release ${ARLAS_CORE_VERS} ${ARLAS_CORE_LEVEL} "core"
+        release ${ARLAS_CORE_VERS} ${ARLAS_CORE_LEVEL} "core" ${ARLAS_PROD}
 fi
 
 if [ ! -z ${ARLAS_CONT_VERS+x} ] && [ ! -z ${ARLAS_CONT_LEVEL+x} ];
     then 
-        echo "Release ARLAS-web-contributors  ${ARLAS_CONT_VERS} version                    : ${ARLAS_CONT_LEVEL}"; 
-        release ${ARLAS_CONT_VERS} ${ARLAS_CONT_LEVEL} "contributors"
+        echo "Release ARLAS-web-components  ${ARLAS_CONT_VERS} version                    : ${ARLAS_CONT_LEVEL}"; 
+        release ${ARLAS_CONT_VERS} ${ARLAS_CONT_LEVEL} "contributors" ${ARLAS_PROD}
 fi
 
 if [ ! -z ${ARLAS_COMP_VERS+x} ] && [ ! -z ${ARLAS_COMP_LEVEL+x} ];
     then  
         echo "Release ARLAS-web-contributors  ${ARLAS_COMP_VERS} version                    : ${ARLAS_COMP_LEVEL}"; 
-        release ${ARLAS_COMP_VERS} ${ARLAS_COMP_LEVEL} "component"
+        release ${ARLAS_COMP_VERS} ${ARLAS_COMP_LEVEL} "components" ${ARLAS_PROD}
 fi
