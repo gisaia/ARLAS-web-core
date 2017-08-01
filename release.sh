@@ -132,8 +132,6 @@ releaseDev(){
     yarn install
     yarn tslint
     yarn build-release
-    "name": "@gisaia/arlas-web-core",
-    "version": "0.0.10",
     jq  '.name = "@gisaia/arlas-web-core"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
     jq  '.version = "'"$1"'"' package-release.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.name = "@gisaia/arlas-web-core"' package.json > tmp.$$.json && mv tmp.$$.json package.json
@@ -143,7 +141,7 @@ releaseDev(){
     npm publish
     rm -rf dist
     git add .
-    commit_message_develop = "upadte package.json to"-"$1"
+    commit_message_develop = "dev automatic release upadte package.json to"-"$1"
     git commit -m"$commit_message_develop"
 }
 
