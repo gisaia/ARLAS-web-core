@@ -91,8 +91,8 @@ releaseProd(){
     git pull origin master
     git merge develop
     git add .
-    jq  '.name = "arlas-web-"'"$3"'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
-    jq  '.name = "arlas-web-"'"$3"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.name = "arlas-web-"'$3'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
+    jq  '.name = "arlas-web-"'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     commit_message_master = "prod automatic release"-"$1"
     git commit -m"$commit_message_master"
     git push origin master
@@ -117,9 +117,9 @@ releaseProd(){
     minor=${TAB[1]}
     newminor=$(( $minor + 1 ))
     newDevVersion = ${major}.${newminor}.0
-    jq  '.name = "@gisaia/arlas-web-"'"$3"'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
+    jq  '.name = "@gisaia/arlas-web-"'$3'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
     jq  '.version = "'"$newDevVersion"'-dev0"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
-    jq  '.name = "@gisaia/arlas-web-"'"$3"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.name = "@gisaia/arlas-web-"'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$newDevVersion"'-dev0"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     git add .
     commit_message_develop = "upadte package.json to"-"$1"
