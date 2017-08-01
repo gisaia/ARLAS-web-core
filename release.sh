@@ -13,13 +13,13 @@ fi
 level_version=("major" "minor" "patch")
 usage(){ 
 	echo "Usage: ./release.sh -core='v1.0.0;major' -cont='v1.1.0;minor' -comp='v1.1.1;patch'"
-    echo "Usage: ./release.sh -all='v1.0.0;major'"
-    echo "Usage: ./release.sh -all='v1.0.0;major' -cont='v1.1.0;minor'"
+	echo "Usage: ./release.sh -all='v1.0.0;major'"
+	echo "Usage: ./release.sh -all='v1.0.0;major' -cont='v1.1.0;minor'"
 	echo " -core|--arlas-web-core     arlas-web-core version release,level of evolution"
 	echo " -cont|--arlas-web-contributors      arlas-web-contributors version release,level of evolution"
 	echo " -comp|--arlas-web-components    arlas-web-components version release,level of evolution"
 	echo " -all|--global    all project have same version release,level of evolution"
-    echo " if -all and -core or -cont or comp parametes are mixed, the specified version is released"
+	echo " if -all and -core or -cont or comp parametes are mixed, the specified version is released"
 	exit 1
 }
 
@@ -105,9 +105,6 @@ release(){
     git push origin develop
 }
 
-
-
-
 for i in "$@"
 do
 case $i in
@@ -136,6 +133,7 @@ case $i in
     ;;
 esac
 done
+
 if [ ! -z ${ARLAS_HELP+x} ]; 
     then
         usage;

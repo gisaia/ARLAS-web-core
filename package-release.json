@@ -1,0 +1,23 @@
+{
+  "name": "arlas-web-core",
+  "version": "0.0.10",
+  "description": "Core Service Library for ARLAS Web App",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/GISAIA.ARLAS/ARLAS-web-core.git"
+  },
+  "author": "gisaia-team",
+  "license": "apache2",
+  "dependencies": {
+    "arlas-api": "0.0.0",
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-sourcemaps": "^2.6.0",
+    "run-sequence": "^2.0.0",
+    "rxjs": "^5.1.0"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/GISAIA.ARLAS/ARLAS-web-core/issues"
+  },
+  "homepage": "https://gitlab.com/GISAIA.ARLAS/ARLAS-web-core/blob/master/README.md"
+}
