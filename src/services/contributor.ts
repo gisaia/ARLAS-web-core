@@ -23,4 +23,5 @@ export abstract class Contributor {
         return this.name;
     }
     public abstract getFilterDisplayName(): string;
+
 }
