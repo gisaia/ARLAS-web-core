@@ -142,12 +142,10 @@ releaseDev(){
     yarn install
     yarn tslint
     yarn build-release
-    jq  '.name = "@gisaia/arlas-web-"'"$3"'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
-    jq  '.version = "'"$1"'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
-    jq  '.name = "@gisaia/arlas-web-"'"$3"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
-    jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     cp package-release.json  dist/package.json
     cd dist
+    jq  '.name = "@gisaia/arlas-web-'$3'"' gt package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     npm publish
     rm -rf dist
     git add .
