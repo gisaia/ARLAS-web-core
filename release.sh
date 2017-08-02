@@ -119,7 +119,7 @@ releaseProd(){
     minor=${TAB[1]}
     newminor=$(( $minor + 1 ))
     newDevVersion=${major}.${newminor}.0
-    jq  '.name = "@gisaia/arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.name = "@gisaia-team/arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$newDevVersion"'-dev0"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     git add .
     commit_message_develop="upadte package.json to"-"$newDevVersion"
@@ -144,7 +144,7 @@ releaseDev(){
     yarn build-release
     cp package-release.json  dist/package.json
     cd dist
-    jq  '.name = "@gisaia/arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.name = "@gisaia-team/arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     npm publish
     rm -rf dist
