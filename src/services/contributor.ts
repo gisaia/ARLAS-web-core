@@ -1,7 +1,6 @@
 import { ConfigService } from './config.service';
 export abstract class Contributor {
     private name: string = this.getConfigValue('name');
-    private filterDisplayName: string = this.getConfigValue('filterDisplayName');
     constructor(public identifier: string, public configService: ConfigService) { }
     public setConfigService(configService: ConfigService): void {
         this.configService = configService;
