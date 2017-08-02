@@ -94,7 +94,7 @@ releaseProd(){
     jq  '.name = "arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     git add .
     commit_message_master="prod automatic release"-"$1"
-    git commit -m'$commit_message_master'
+    git commit -m"$commit_message_master"
     git push origin master
     echo "=> Tag master"
     git tag -a v"$1"
