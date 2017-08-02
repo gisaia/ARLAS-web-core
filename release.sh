@@ -144,7 +144,7 @@ releaseDev(){
     yarn build-release
     cp package-release.json  dist/package.json
     cd dist
-    jq  '.name = "@gisaia/arlas-web-'$3'"' gt package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.name = "@gisaia/arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     npm publish
     rm -rf dist
