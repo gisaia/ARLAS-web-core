@@ -118,7 +118,7 @@ releaseProd(){
     major=${TAB[0]}
     minor=${TAB[1]}
     newminor=$(( $minor + 1 ))
-    newDevVersion = ${major}.${newminor}.0
+    newDevVersion=${major}.${newminor}.0
     jq  '.name = "@gisaia/arlas-web-'$3'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
     jq  '.version = "'"$newDevVersion"'-dev0"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
     jq  '.name = "@gisaia/arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
