@@ -162,6 +162,22 @@ export class CollaborativesearchService implements CollaborativeSearch {
         this.setEnable(false, contributorId);
     }
 
+    public getAllContributors():Array<string>{
+        return Array.from(this.collaborationsEvents.keys());
+    }
+
+    public getEnableContributors():Array<string>{
+        return Array.from(this.collaborationsEvents.keys()).filter(x=>this.collaborationsEvents.get(x).enabled);
+
+    }
+    public getDisableContributors():Array<string>{
+        return Array.from(this.collaborationsEvents.keys()).filter(x=>!this.collaborationsEvents.get(x).enabled);
+    }
+
+    public isEnable(contributorId:string):boolean{
+        return this.collaborationsEvents.get(contributorId).enabled;
+    }
+
     private setEnable(enabled: boolean, contributorId: string) {
         const collaborationEvent = this.collaborationsEvents.get(contributorId);
         if (collaborationEvent) {
