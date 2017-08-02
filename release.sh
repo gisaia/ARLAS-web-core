@@ -99,7 +99,7 @@ releaseProd(){
     git commit -m"$commit_message_master" --allow-empty
     git push origin master
     echo "=> Tag master"
-    git tag -a v"$1"git  -m"$commit_message_master"
+    git tag -a v"$1"  -m"$commit_message_master"
     git push origin v"$1"
     yarn install
     yarn tslint
