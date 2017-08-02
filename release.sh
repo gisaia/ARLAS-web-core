@@ -92,7 +92,6 @@ releaseProd(){
     git checkout master
     git pull origin master
     git merge develop -m'merge develop to master'
-    jq  '.name = "arlas-web-'$3'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
     jq  '.name = "arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     git add .
     commit_message_master="prod automatic release"-"$1"
@@ -106,6 +105,7 @@ releaseProd(){
     #npm version "$2"
     #git push origin v"$1"
     cd dist
+    jq  '.name = "arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     echo "=> Publish to npm"
     #npm publish
@@ -119,12 +119,10 @@ releaseProd(){
     minor=${TAB[1]}
     newminor=$(( $minor + 1 ))
     newDevVersion=${major}.${newminor}.0
-    jq  '.name = "@gisaia/arlas-web-'$3'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
-    jq  '.version = "'"$newDevVersion"'-dev0"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
     jq  '.name = "@gisaia/arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$newDevVersion"'-dev0"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     git add .
-    commit_message_develop = "upadte package.json to"-"$1"
+    commit_message_develop="upadte package.json to"-"$1"
     git commit -m"$commit_message_develop" --allow-empty
     git push origin develop
 }
