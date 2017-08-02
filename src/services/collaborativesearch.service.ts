@@ -40,6 +40,28 @@ export class CollaborativesearchService implements CollaborativeSearch {
     public removeAll() {
         this.collaborationsEvents.clear();
     }
+
+    public resolve(projection: [eventType.aggregate, Aggregations]
+        | [eventType.search, Search]
+        | [eventType.geoaggregate, Aggregations]
+        | [eventType.geosearch, Search]
+        | [eventType.count, Count],
+        contributorId: string
+    ): Observable<any> {
+        try {
+            const filters: Array<Filter> = new Array<Filter>();
+            const collaborationEvent = this.collaborationsEvents.get(contributorId);
+            if (collaborationEvent !== undefined) {
+                if (collaborationEvent.enabled) {
+                    this.feedParams(collaborationEvent, filters);
+                }
+            }
+            return this.computeResolve(projection, filters);
+        } catch (ex) {
+            this.collaborationErrorBus.next((<Error>ex));
+        }
+    }
+
     public resolveButNot(projection: [eventType.aggregate, Aggregations]
         | [eventType.search, Search]
         | [eventType.geoaggregate, Aggregations]
@@ -65,94 +87,12 @@ export class CollaborativesearchService implements CollaborativeSearch {
                     }
                 });
             }
-            const finalFilter: Filter = {};
-            const f: Array<string> = new Array<string>();
-            let q = '';
-            let before = 0;
-            let after = 0;
-            filters.forEach(filter => {
-                if (filter) {
-                    if (filter.f) {
-                        filter.f.forEach(filt => {
-                            if (f.indexOf(filt) < 0) {
-                                f.push(filt);
-                            }
-                        });
-                    }
-                    if (filter.q) {
-                        q = q + filter.q + ' ';
-                    }
-                    if (filter.before) {
-                        if (before === 0) {
-                            before = filter.before;
-                        } else if (filter.before <= before) {
-                            before = filter.before;
-                        }
-                    }
-                    if (filter.after) {
-                        if (after === 0) {
-                            after = filter.after;
-                        } else if (filter.after >= after) {
-                            after = filter.after;
-                        }
-                    }
-                }
-            });
-            if (f.length > 0) {
-                finalFilter.f = f;
-            }
-            if (q !== '') {
-                finalFilter.q = q;
-            }
-            if (before !== 0) {
-                finalFilter.before = before;
-            }
-            if (after !== 0) {
-                finalFilter.after = after;
-            }
-            let aggregationRequest: AggregationRequest;
-            let search: Search;
-            let result;
-            switch (projection[0]) {
-                case eventType.aggregate.valueOf():
-                    aggregationRequest = <AggregationRequest>{
-                        filter: finalFilter,
-                        aggregations: projection[1]
-                    };
-                    result = <Observable<ArlasAggregation>>this.apiservice.aggregatePost(this.collection, aggregationRequest);
-                    this.nextCountAll();
-                    break;
-                case eventType.geoaggregate.valueOf():
-                    aggregationRequest = <AggregationRequest>{
-                        filter: finalFilter,
-                        aggregations: projection[1]
-                    };
-                    result = <Observable<FeatureCollection>>this.apiservice.geoaggregatePost(this.collection, aggregationRequest);
-                    this.nextCountAll();
-                    break;
-                case eventType.count.valueOf():
-                    const count = projection[1];
-                    count['filter'] = finalFilter;
-                    result = <Observable<ArlasHits>>this.apiservice.countPost(this.collection, count);
-                    break;
-                case eventType.search.valueOf():
-                    search = projection[1];
-                    search['filter'] = finalFilter;
-                    result = <Observable<ArlasHits>>this.apiservice.searchPost(this.collection, search);
-                    this.nextCountAll();
-                    break;
-                case eventType.geosearch.valueOf():
-                    search = projection[1];
-                    search['filter'] = finalFilter;
-                    result = <Observable<FeatureCollection>>this.apiservice.geosearchPost(this.collection, search);
-                    this.nextCountAll();
-                    break;
-            }
-            return result;
+            return this.computeResolve(projection, filters);
         } catch (ex) {
             this.collaborationErrorBus.next((<Error>ex));
         }
     }
+
 
     public enable(contributorId: string) {
         this.setEnable(true, contributorId);
@@ -197,5 +137,98 @@ export class CollaborativesearchService implements CollaborativeSearch {
                 this.collaborationErrorBus.next((<Error>error));
             }
         );
+    }
+
+    private computeResolve(projection: [eventType.aggregate, Aggregations]
+        | [eventType.search, Search]
+        | [eventType.geoaggregate, Aggregations]
+        | [eventType.geosearch, Search]
+        | [eventType.count, Count], filters: Array<Filter>
+    ): Observable<any> {
+
+        const finalFilter: Filter = {};
+        const f: Array<string> = new Array<string>();
+        let q = '';
+        let before = 0;
+        let after = 0;
+        filters.forEach(filter => {
+            if (filter) {
+                if (filter.f) {
+                    filter.f.forEach(filt => {
+                        if (f.indexOf(filt) < 0) {
+                            f.push(filt);
+                        }
+                    });
+                }
+                if (filter.q) {
+                    q = q + filter.q + ' ';
+                }
+                if (filter.before) {
+                    if (before === 0) {
+                        before = filter.before;
+                    } else if (filter.before <= before) {
+                        before = filter.before;
+                    }
+                }
+                if (filter.after) {
+                    if (after === 0) {
+                        after = filter.after;
+                    } else if (filter.after >= after) {
+                        after = filter.after;
+                    }
+                }
+            }
+        });
+        if (f.length > 0) {
+            finalFilter.f = f;
+        }
+        if (q !== '') {
+            finalFilter.q = q;
+        }
+        if (before !== 0) {
+            finalFilter.before = before;
+        }
+        if (after !== 0) {
+            finalFilter.after = after;
+        }
+        let aggregationRequest: AggregationRequest;
+        let search: Search;
+        let result;
+        switch (projection[0]) {
+            case eventType.aggregate.valueOf():
+                aggregationRequest = <AggregationRequest>{
+                    filter: finalFilter,
+                    aggregations: projection[1]
+                };
+                result = <Observable<ArlasAggregation>>this.apiservice.aggregatePost(this.collection, aggregationRequest);
+                this.nextCountAll();
+                break;
+            case eventType.geoaggregate.valueOf():
+                aggregationRequest = <AggregationRequest>{
+                    filter: finalFilter,
+                    aggregations: projection[1]
+                };
+                result = <Observable<FeatureCollection>>this.apiservice.geoaggregatePost(this.collection, aggregationRequest);
+                this.nextCountAll();
+                break;
+            case eventType.count.valueOf():
+                const count = projection[1];
+                count['filter'] = finalFilter;
+                result = <Observable<ArlasHits>>this.apiservice.countPost(this.collection, count);
+                break;
+            case eventType.search.valueOf():
+                search = projection[1];
+                search['filter'] = finalFilter;
+                result = <Observable<ArlasHits>>this.apiservice.searchPost(this.collection, search);
+                this.nextCountAll();
+                break;
+            case eventType.geosearch.valueOf():
+                search = projection[1];
+                search['filter'] = finalFilter;
+                result = <Observable<FeatureCollection>>this.apiservice.geosearchPost(this.collection, search);
+                this.nextCountAll();
+                break;
+        }
+        return result;
     }
 }
