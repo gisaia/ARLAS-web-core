@@ -70,6 +70,8 @@ checkInput(){
     
 }
 
+
+
 releaseProd(){
     if [ "$3" == "components" ]; 
         then
