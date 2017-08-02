@@ -1,6 +1,6 @@
 {
   "name": "arlas-web-core",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Core Service Library for ARLAS Web App",
   "scripts": {
     "start": "npm run server:dev",
