@@ -151,6 +151,7 @@ releaseDev(){
     git add .
     commit_message_develop="dev automatic release upadte package.json to"-"$1"
     git commit -m"$commit_message_develop" --allow-empty
+    git push origin develop
 }
 
 release(){
