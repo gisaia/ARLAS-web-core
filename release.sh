@@ -93,6 +93,8 @@ releaseProd(){
     git pull origin master
     git merge develop -m'merge develop to master'
     jq  '.name = "arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq -c 'del(.compilerOptions.paths)' tsconfig.json > tmp.$$.json && mv tmp.$$.json tsconfig.json
+    jq -c 'del(.compilerOptions.paths)' tsconfig-build.json > tmp.$$.json && mv tmp.$$.json tsconfig-build.json
     git add .
     commit_message_master="prod automatic release"-"$1"
     git commit -m"$commit_message_master" --allow-empty
@@ -147,6 +149,8 @@ releaseDev(){
     jq  '.name = "@gisaia-team/arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     npm publish
+    cd ..
+    jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     rm -rf dist
     git add .
     commit_message_develop="dev automatic release upadte package.json to"-"$1"
