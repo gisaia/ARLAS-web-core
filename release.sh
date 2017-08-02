@@ -103,12 +103,13 @@ releaseProd(){
     yarn tslint
     yarn build-release
     cp package-release.json  dist/package.json
-    npm version "$2"
-    git push origin v"$1"
+    #npm version "$2"
+    #git push origin v"$1"
     cd dist
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     echo "=> Publish to npm"
-    npm publish
+    #npm publish
+    cd ..
     rm -rf dist
     echo "=> Merge master to develop"
     git checkout develop
