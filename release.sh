@@ -91,7 +91,7 @@ releaseProd(){
     echo "=> Merge develop into master"
     git checkout master
     git pull origin master
-    git merge develop
+    git merge develop -m'merge develop to master'
     jq  '.name = "arlas-web-'$3'"' package-release.json > tmp.$$.json && mv tmp.$$.json package-release.json
     jq  '.name = "arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     git add .
@@ -99,8 +99,8 @@ releaseProd(){
     git commit -m"$commit_message_master" --allow-empty
     git push origin master
     echo "=> Tag master"
-    git tag -a v"$1" -m"$commit_message_master"
-    git push origin "$1"
+    git tag -a v"$1"git  -m"$commit_message_master"
+    git push origin v"$1"
     yarn install
     yarn tslint
     yarn build-release
