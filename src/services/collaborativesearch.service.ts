@@ -62,6 +62,30 @@ export class CollaborativesearchService implements CollaborativeSearch {
         }
     }
 
+    public resolveReplaceFilter(projection: [eventType.aggregate, Aggregations]
+        | [eventType.search, Search]
+        | [eventType.geoaggregate, Aggregations]
+        | [eventType.geosearch, Search]
+        | [eventType.count, Count],
+        contributorId: string, filter: Filter
+    ): Observable<any> {
+        try {
+            const filters: Array<Filter> = new Array<Filter>();
+            const collaborationEvent = this.collaborationsEvents.get(contributorId);
+            this.collaborationsEvents.forEach((k, v) => {
+                if (v !== contributorId && k.enabled) {
+                    this.feedParams(k, filters);
+                } else {
+                    return;
+                }
+            });
+            filters.push(filter);
+            return this.computeResolve(projection, filters);
+        } catch (ex) {
+            this.collaborationErrorBus.next((<Error>ex));
+        }
+    }
+
     public resolveButNot(projection: [eventType.aggregate, Aggregations]
         | [eventType.search, Search]
         | [eventType.geoaggregate, Aggregations]
