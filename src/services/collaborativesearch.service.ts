@@ -67,7 +67,7 @@ export class CollaborativesearchService implements CollaborativeSearch {
         | [eventType.geoaggregate, Aggregations]
         | [eventType.geosearch, Search]
         | [eventType.count, Count],
-        contributorId?: string,filter?: Filter
+        contributorId?: string, filter?: Filter
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
@@ -88,8 +88,8 @@ export class CollaborativesearchService implements CollaborativeSearch {
                 });
             }
 
-            if(filter){
-                filters.push(filter)
+            if (filter) {
+                filters.push(filter);
             }
             return this.computeResolve(projection, filters);
         } catch (ex) {
