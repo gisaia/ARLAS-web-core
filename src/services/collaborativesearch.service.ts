@@ -1,59 +1,71 @@
-import { tryCatch } from 'rxjs/util/tryCatch';
-import { Size } from 'arlas-api';
-import { CollaborativeSearch } from '../models/collaborativesearch';
+import { Expression } from 'arlas-api/model/Expression';
+import { AggregationResponse, Hits, Size } from 'arlas-api';
+import { CollaborativeSearch, projType } from '../models/collaborativesearch';
 import { Observable, Subject } from 'rxjs/Rx';
-import { ExploreService } from 'arlas-api/services/explore.service';
-import { AggregationModel } from 'arlas-api/model/aggregationModel';
-import { CollaborationEvent, eventType } from '../models/collaborationEvent';
-import { AggregationRequest } from 'arlas-api/model/aggregationRequest';
-import { Aggregations } from 'arlas-api/model/aggregations';
-import { ArlasAggregation } from 'arlas-api/model/arlasAggregation';
+import { ExploreApi } from 'arlas-api/api/exploreapi';
+import { Collaboration } from '../models/collaboration';
+import { AggregationsRequest } from 'arlas-api/model/aggregationsRequest';
+import { Aggregation } from 'arlas-api/model/aggregation';
 import { Filter } from 'arlas-api/model/filter';
 import { FeatureCollection } from 'arlas-api/model/featureCollection';
-import { ArlasHits } from 'arlas-api/model/arlasHits';
 import { Count } from 'arlas-api/model/count';
 import { Search } from 'arlas-api/model/search';
 import { ConfigService } from './config.service';
-import { Contributor } from 'services/contributor';
+import { Contributor } from './contributor';
 import { getObject } from './utils';
 
 export class CollaborativesearchService implements CollaborativeSearch {
-    public collaborationBus: Subject<CollaborationEvent> = new Subject<CollaborationEvent>();
-    public collaborationsEvents = new Map<string, CollaborationEvent>();
-    public apiservice: ExploreService;
+    public collaborationBus: Subject<string> = new Subject<string>();
+    public collaborations = new Map<string, Collaboration>();
+    public registry = new Map<string, Contributor>();
+    public apiservice: ExploreApi;
     public configService: ConfigService;
     public collection: string;
     public countAllBus: Subject<number> = new Subject<number>();
     public collaborationErrorBus: Subject<Error> = new Subject<Error>();
-    constructor(private api: ExploreService, private config: ConfigService) {
+    constructor(private api: ExploreApi, private config: ConfigService) {
         this.apiservice = api;
         this.configService = config;
     }
-    public setFilter(collaborationEvent: CollaborationEvent) {
-        this.collaborationsEvents.set(collaborationEvent.contributorId, collaborationEvent);
-        collaborationEvent.enabled = true;
-        this.collaborationBus.next(collaborationEvent);
+
+    public register(identifier:string,contributor:Contributor):void{
+        this.registry.set(identifier,contributor);
     }
-    public removeFilter(collaborationEvent: CollaborationEvent) {
-        this.collaborationsEvents.delete(collaborationEvent.contributorId);
+    public setFilter(contributorId: string, collaboration: Collaboration) {
+        this.collaborations.set(contributorId, collaboration);
+        collaboration.enabled = true;
+        this.collaborationBus.next(contributorId);
+    }
+    public removeFilter(contributorId: string) {
+        this.collaborations.delete(contributorId);
+        this.collaborationBus.next('all');
     }
     public removeAll() {
-        this.collaborationsEvents.clear();
+        this.collaborations.clear();
+        this.collaborationBus.next('all');
     }
 
-    public resolve(projection: [eventType.aggregate, Aggregations]
-        | [eventType.search, Search]
-        | [eventType.geoaggregate, Aggregations]
-        | [eventType.geosearch, Search]
-        | [eventType.count, Count],
+    public getFilter(contributorId): Filter {
+        if (this.collaborations.get(contributorId)) {
+            return this.collaborations.get(contributorId).filter;
+        } else {
+            return null;
+        }
+    }
+
+    public resolve(projection: [projType.aggregate, Array<Aggregation>]
+        | [projType.search, Search]
+        | [projType.geoaggregate, Array<Aggregation>]
+        | [projType.geosearch, Search]
+        | [projType.count, Count],
         contributorId: string
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
-            const collaborationEvent = this.collaborationsEvents.get(contributorId);
-            if (collaborationEvent !== undefined) {
-                if (collaborationEvent.enabled) {
-                    this.feedParams(collaborationEvent, filters);
+            const collaboration = this.collaborations.get(contributorId);
+            if (collaboration !== undefined) {
+                if (collaboration.enabled) {
+                    this.feedParams(collaboration, filters);
                 }
             }
             return this.computeResolve(projection, filters);
@@ -62,18 +74,17 @@ export class CollaborativesearchService implements CollaborativeSearch {
         }
     }
 
-    public resolveButNot(projection: [eventType.aggregate, Aggregations]
-        | [eventType.search, Search]
-        | [eventType.geoaggregate, Aggregations]
-        | [eventType.geosearch, Search]
-        | [eventType.count, Count],
+    public resolveButNot(projection: [projType.aggregate, Array<Aggregation>]
+        | [projType.search, Search]
+        | [projType.geoaggregate, Array<Aggregation>]
+        | [projType.geosearch, Search]
+        | [projType.count, Count],
         contributorId?: string, filter?: Filter
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
-            const aggregationsModels: Array<AggregationModel> = new Array<AggregationModel>();
             if (contributorId) {
-                this.collaborationsEvents.forEach((k, v) => {
+                this.collaborations.forEach((k, v) => {
                     if (v !== contributorId && k.enabled) {
                         this.feedParams(k, filters);
                     } else {
@@ -81,7 +92,7 @@ export class CollaborativesearchService implements CollaborativeSearch {
                     }
                 });
             } else {
-                this.collaborationsEvents.forEach((k, v) => {
+                this.collaborations.forEach((k, v) => {
                     if (k.enabled) {
                         this.feedParams(k, filters);
                     }
@@ -107,34 +118,37 @@ export class CollaborativesearchService implements CollaborativeSearch {
     }
 
     public getAllContributors(): Array<string> {
-        return Array.from(this.collaborationsEvents.keys());
+        return Array.from(this.collaborations.keys());
     }
 
     public getEnableContributors(): Array<string> {
-        return Array.from(this.collaborationsEvents.keys()).filter(x => this.collaborationsEvents.get(x).enabled);
+        return Array.from(this.collaborations.keys()).filter(x => this.collaborations.get(x).enabled);
 
     }
     public getDisableContributors(): Array<string> {
-        return Array.from(this.collaborationsEvents.keys()).filter(x => !this.collaborationsEvents.get(x).enabled);
+        return Array.from(this.collaborations.keys()).filter(x => !this.collaborations.get(x).enabled);
     }
 
     public isEnable(contributorId: string): boolean {
-        return this.collaborationsEvents.get(contributorId).enabled;
+        return this.collaborations.get(contributorId).enabled;
     }
 
     private setEnable(enabled: boolean, contributorId: string) {
-        const collaborationEvent = this.collaborationsEvents.get(contributorId);
-        if (collaborationEvent) {
-            collaborationEvent.enabled = enabled;
+        const collaboration = this.collaborations.get(contributorId);
+        if (collaboration) {
+            collaboration.enabled = enabled;
         }
+        this.collaborations.set(contributorId, collaboration);
+        this.collaborationBus.next('"all"');
+
     }
 
-    private feedParams(k, filters) {
-        if (k.detail) { filters.push(k.detail); }
+    private feedParams(k: Collaboration, filters) {
+        if (k.filter) { filters.push(k.filter); }
     }
 
     private nextCountAll() {
-        const result: Observable<ArlasHits> = this.resolveButNot([eventType.count, {}]);
+        const result: Observable<Hits> = this.resolveButNot([projType.count, {}]);
         result.subscribe(
             data => this.countAllBus.next(data.totalnb),
             error => {
@@ -143,15 +157,15 @@ export class CollaborativesearchService implements CollaborativeSearch {
         );
     }
 
-    private computeResolve(projection: [eventType.aggregate, Aggregations]
-        | [eventType.search, Search]
-        | [eventType.geoaggregate, Aggregations]
-        | [eventType.geosearch, Search]
-        | [eventType.count, Count], filters: Array<Filter>
+    private computeResolve(projection: [projType.aggregate, Array<Aggregation>]
+        | [projType.search, Search]
+        | [projType.geoaggregate, Array<Aggregation>]
+        | [projType.geosearch, Search]
+        | [projType.count, Count], filters: Array<Filter>
     ): Observable<any> {
 
         const finalFilter: Filter = {};
-        const f: Array<string> = new Array<string>();
+        const f: Array<Expression> = new Array<Expression>();
         let q = '';
         let before = 0;
         let after = 0;
@@ -195,38 +209,38 @@ export class CollaborativesearchService implements CollaborativeSearch {
         if (after !== 0) {
             finalFilter.after = after;
         }
-        let aggregationRequest: AggregationRequest;
+        let aggregationRequest: AggregationsRequest;
         let search: Search;
         let result;
         switch (projection[0]) {
-            case eventType.aggregate.valueOf():
-                aggregationRequest = <AggregationRequest>{
+            case projType.aggregate.valueOf():
+                aggregationRequest = <AggregationsRequest>{
                     filter: finalFilter,
                     aggregations: projection[1]
                 };
-                result = <Observable<ArlasAggregation>>this.apiservice.aggregatePost(this.collection, aggregationRequest);
+                result = <Observable<AggregationResponse>>this.apiservice.aggregatePost(this.collection, aggregationRequest);
                 this.nextCountAll();
                 break;
-            case eventType.geoaggregate.valueOf():
-                aggregationRequest = <AggregationRequest>{
+            case projType.geoaggregate.valueOf():
+                aggregationRequest = <AggregationsRequest>{
                     filter: finalFilter,
                     aggregations: projection[1]
                 };
                 result = <Observable<FeatureCollection>>this.apiservice.geoaggregatePost(this.collection, aggregationRequest);
                 this.nextCountAll();
                 break;
-            case eventType.count.valueOf():
+            case projType.count.valueOf():
                 const count = projection[1];
                 count['filter'] = finalFilter;
-                result = <Observable<ArlasHits>>this.apiservice.countPost(this.collection, count);
+                result = <Observable<Hits>>this.apiservice.countPost(this.collection, count);
                 break;
-            case eventType.search.valueOf():
+            case projType.search.valueOf():
                 search = projection[1];
                 search['filter'] = finalFilter;
-                result = <Observable<ArlasHits>>this.apiservice.searchPost(this.collection, search);
+                result = <Observable<Hits>>this.apiservice.searchPost(this.collection, search);
                 this.nextCountAll();
                 break;
-            case eventType.geosearch.valueOf():
+            case projType.geosearch.valueOf():
                 search = projection[1];
                 search['filter'] = finalFilter;
                 result = <Observable<FeatureCollection>>this.apiservice.geosearchPost(this.collection, search);
