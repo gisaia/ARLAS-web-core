@@ -28,8 +28,8 @@ export class CollaborativesearchService implements CollaborativeSearch {
         this.configService = config;
     }
 
-    public register(identifier:string,contributor:Contributor):void{
-        this.registry.set(identifier,contributor);
+    public register(identifier: string, contributor: Contributor): void {
+        this.registry.set(identifier, contributor);
     }
     public setFilter(contributorId: string, collaboration: Collaboration) {
         this.collaborations.set(contributorId, collaboration);
