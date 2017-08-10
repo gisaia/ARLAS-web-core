@@ -1,17 +1,28 @@
+import { AggregationsRequest } from 'arlas-api';
 import { Subject, Observable } from 'rxjs/Rx';
-import { CollaborationEvent, eventType } from './collaborationEvent';
-import { Aggregations } from 'arlas-api/model/aggregations';
-import { Count } from 'arlas-api/model/count';
+import { Collaboration } from './collaboration';
 import { Search } from 'arlas-api/model/search';
+import { Aggregation } from 'arlas-api/model/aggregation';
+import { Contributor } from '../services/contributor';
+import { Count } from 'arlas-api/model/count';
+export enum projType {
+  aggregate,
+  geoaggregate,
+  count,
+  search,
+  geosearch
+}
 export interface CollaborativeSearch {
-  collaborationsEvents: Map<string, CollaborationEvent>;
-  setFilter(collaborationEvent: CollaborationEvent);
-  removeFilter(collaborationEvent: CollaborationEvent);
+  collaborations: Map<string, Collaboration>;
+  registry: Map<string, Contributor>;
+  setFilter(contributor: string, collaborationEvent: Collaboration);
+  register(identifier: string, contributor: Contributor);
+  removeFilter(contributorId: string);
   removeAll();
-  resolveButNot(projection: [eventType.aggregate, Aggregations] |
-    [eventType.search, Search] |
-    [eventType.geoaggregate, Aggregations] |
-    [eventType.geosearch, Search] |
-    [eventType.count, Count],
+  resolveButNot(projection: [projType.aggregate, Array<Aggregation>] |
+    [projType.search, Search] |
+    [projType.geoaggregate, Array<Aggregation>] |
+    [projType.geosearch, Search] |
+    [projType.count, Count],
     contributorId?: string): Observable<any>;
 }
