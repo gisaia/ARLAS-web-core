@@ -18,16 +18,27 @@ export class CollaborativesearchService implements CollaborativeSearch {
     public collaborationBus: Subject<string> = new Subject<string>();
     public collaborations = new Map<string, Collaboration>();
     public registry = new Map<string, Contributor>();
-    public apiservice: ExploreApi;
-    public configService: ConfigService;
+    private apiservice: ExploreApi;
+    private configService: ConfigService;
     public collection: string;
     public countAllBus: Subject<number> = new Subject<number>();
     public collaborationErrorBus: Subject<Error> = new Subject<Error>();
-    constructor(private api: ExploreApi, private config: ConfigService) {
-        this.apiservice = api;
-        this.configService = config;
+    constructor() {
+
     }
 
+    public getExploreApi() {
+        return this.apiservice;
+    }
+    public setExploreApi(api: ExploreApi) {
+        this.apiservice = api;
+    }
+    public getConfigService(){
+        return this.configService;
+    }
+    public setConfigService(config:ConfigService){
+        this.configService=config;
+    }
     public register(identifier: string, contributor: Contributor): void {
         this.registry.set(identifier, contributor);
     }
