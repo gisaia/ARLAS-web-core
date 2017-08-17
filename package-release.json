@@ -14,7 +14,7 @@
     "gulp-clean": "^0.3.2",
     "gulp-sourcemaps": "^2.6.0",
     "run-sequence": "^2.0.0",
-    "rxjs": "^5.1.0"
+    "rxjs": "^5.4.2"
   },
   "bugs": {
     "url": "https://gitlab.com/GISAIA.ARLAS/ARLAS-web-core/issues"
