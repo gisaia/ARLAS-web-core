@@ -2,7 +2,7 @@ import { getObject } from './utils';
 import { Subject } from 'rxjs/Rx';
 export class ConfigService {
     public confErrorBus = new Subject<string>();
-    private config:Object;
+    private config: Object;
     constructor() {
     }
     public getValue(key: string): any {
@@ -19,11 +19,11 @@ export class ConfigService {
         this.confErrorBus.next(key);
     }
 
-    public getConfig():Object{
+    public getConfig(): Object {
         return this.config;
     }
-    
-    public setConfig(config:Object){
-        this.config=config;
+
+    public setConfig(config: Object) {
+        this.config = config;
     }
 }
