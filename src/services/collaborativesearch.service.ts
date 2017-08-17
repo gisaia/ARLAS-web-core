@@ -14,6 +14,7 @@ import { ConfigService } from './config.service';
 import { Contributor } from './contributor';
 import { getObject } from './utils';
 
+
 export class CollaborativesearchService implements CollaborativeSearch {
     public collaborationBus: Subject<string> = new Subject<string>();
     public collaborations = new Map<string, Collaboration>();
@@ -22,6 +23,7 @@ export class CollaborativesearchService implements CollaborativeSearch {
     private configService: ConfigService;
     public collection: string;
     public countAllBus: Subject<number> = new Subject<number>();
+    public countAll: number;
     public collaborationErrorBus: Subject<Error> = new Subject<Error>();
     constructor() {
 
@@ -33,11 +35,11 @@ export class CollaborativesearchService implements CollaborativeSearch {
     public setExploreApi(api: ExploreApi) {
         this.apiservice = api;
     }
-    public getConfigService(){
+    public getConfigService() {
         return this.configService;
     }
-    public setConfigService(config:ConfigService){
-        this.configService=config;
+    public setConfigService(config: ConfigService) {
+        this.configService = config;
     }
     public register(identifier: string, contributor: Contributor): void {
         this.registry.set(identifier, contributor);
@@ -70,7 +72,7 @@ export class CollaborativesearchService implements CollaborativeSearch {
         | [projType.geosearch, Search]
         | [projType.count, Count],
         contributorId: string
-    ): Observable<any> {
+    ): Observable<FeatureCollection> | Observable<AggregationResponse> | Observable<Hits> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
             const collaboration = this.collaborations.get(contributorId);
@@ -91,7 +93,7 @@ export class CollaborativesearchService implements CollaborativeSearch {
         | [projType.geosearch, Search]
         | [projType.count, Count],
         contributorId?: string, filter?: Filter
-    ): Observable<any> {
+    ): Observable<FeatureCollection> | Observable<AggregationResponse> | Observable<Hits> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
             if (contributorId) {
@@ -143,6 +145,15 @@ export class CollaborativesearchService implements CollaborativeSearch {
     public isEnable(contributorId: string): boolean {
         return this.collaborations.get(contributorId).enabled;
     }
+    public nextCountAll() {
+        const result: Observable<Hits> = this.resolveButNot([projType.count, {}]);
+        result.subscribe(
+            data => this.countAllBus.next(data.totalnb),
+            error => {
+                this.collaborationErrorBus.next((<Error>error));
+            }
+        );
+    }
 
     private setEnable(enabled: boolean, contributorId: string) {
         const collaboration = this.collaborations.get(contributorId);
@@ -157,23 +168,12 @@ export class CollaborativesearchService implements CollaborativeSearch {
     private feedParams(k: Collaboration, filters) {
         if (k.filter) { filters.push(k.filter); }
     }
-
-    private nextCountAll() {
-        const result: Observable<Hits> = this.resolveButNot([projType.count, {}]);
-        result.subscribe(
-            data => this.countAllBus.next(data.totalnb),
-            error => {
-                this.collaborationErrorBus.next((<Error>error));
-            }
-        );
-    }
-
     private computeResolve(projection: [projType.aggregate, Array<Aggregation>]
         | [projType.search, Search]
         | [projType.geoaggregate, Array<Aggregation>]
         | [projType.geosearch, Search]
         | [projType.count, Count], filters: Array<Filter>
-    ): Observable<any> {
+    ): Observable<FeatureCollection> | Observable<AggregationResponse> | Observable<Hits> {
 
         const finalFilter: Filter = {};
         const f: Array<Expression> = new Array<Expression>();
@@ -206,6 +206,10 @@ export class CollaborativesearchService implements CollaborativeSearch {
                         after = filter.after;
                     }
                 }
+                if (filter.pwithin) {
+                    finalFilter.pwithin = filter.pwithin;
+
+                }
             }
         });
         if (f.length > 0) {
@@ -230,7 +234,6 @@ export class CollaborativesearchService implements CollaborativeSearch {
                     aggregations: projection[1]
                 };
                 result = <Observable<AggregationResponse>>this.apiservice.aggregatePost(this.collection, aggregationRequest);
-                this.nextCountAll();
                 break;
             case projType.geoaggregate.valueOf():
                 aggregationRequest = <AggregationsRequest>{
@@ -238,7 +241,6 @@ export class CollaborativesearchService implements CollaborativeSearch {
                     aggregations: projection[1]
                 };
                 result = <Observable<FeatureCollection>>this.apiservice.geoaggregatePost(this.collection, aggregationRequest);
-                this.nextCountAll();
                 break;
             case projType.count.valueOf():
                 const count = projection[1];
@@ -249,13 +251,11 @@ export class CollaborativesearchService implements CollaborativeSearch {
                 search = projection[1];
                 search['filter'] = finalFilter;
                 result = <Observable<Hits>>this.apiservice.searchPost(this.collection, search);
-                this.nextCountAll();
                 break;
             case projType.geosearch.valueOf():
                 search = projection[1];
                 search['filter'] = finalFilter;
                 result = <Observable<FeatureCollection>>this.apiservice.geosearchPost(this.collection, search);
-                this.nextCountAll();
                 break;
         }
         return result;
