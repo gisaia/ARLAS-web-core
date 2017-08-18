@@ -1,10 +1,10 @@
 import { AggregationsRequest } from 'arlas-api';
 import { Subject, Observable } from 'rxjs/Rx';
 import { Collaboration } from './collaboration';
-import { Search } from 'arlas-api/model/search';
-import { Aggregation } from 'arlas-api/model/aggregation';
+import { Search } from 'arlas-api';
+import { Aggregation } from 'arlas-api';
 import { Contributor } from '../services/contributor';
-import { Count } from 'arlas-api/model/count';
+import { Count } from 'arlas-api';
 export enum projType {
   aggregate,
   geoaggregate,

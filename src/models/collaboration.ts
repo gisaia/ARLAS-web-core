@@ -1,4 +1,4 @@
-import { Filter } from 'arlas-api/model/filter';
+import { Filter } from 'arlas-api';
 
 export enum eventType {
   add,
