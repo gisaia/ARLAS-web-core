@@ -51,11 +51,11 @@ export class CollaborativesearchService implements CollaborativeSearch {
     }
     public removeFilter(contributorId: string) {
         this.collaborations.delete(contributorId);
-        this.collaborationBus.next('all');
+        this.collaborationBus.next('remove-' + contributorId);
     }
     public removeAll() {
         this.collaborations.clear();
-        this.collaborationBus.next('all');
+        this.collaborationBus.next('remove-all');
     }
 
     public getFilter(contributorId): Filter {
