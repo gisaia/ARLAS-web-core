@@ -22,11 +22,10 @@ export class CollaborativesearchService implements CollaborativeSearch {
     private apiservice: ExploreApi;
     private configService: ConfigService;
     public collection: string;
-    public countAllBus: Subject<number> = new Subject<number>();
     public countAll: number;
     public collaborationErrorBus: Subject<Error> = new Subject<Error>();
     constructor() {
-
+        this.collaborationBus.subscribe(value => this.setCountAll());
     }
 
     public getExploreApi() {
@@ -145,14 +144,17 @@ export class CollaborativesearchService implements CollaborativeSearch {
     public isEnable(contributorId: string): boolean {
         return this.collaborations.get(contributorId).enabled;
     }
-    public nextCountAll() {
+    public setCountAll() {
         const result: Observable<Hits> = this.resolveButNot([projType.count, {}]);
-        result.subscribe(
-            data => this.countAllBus.next(data.totalnb),
-            error => {
-                this.collaborationErrorBus.next((<Error>error));
-            }
-        );
+        if (result) {
+            result.subscribe(
+                data => this.countAll = data.totalnb,
+                error => {
+                    this.collaborationErrorBus.next((<Error>error));
+                }
+            );
+        }
+
     }
 
     private setEnable(enabled: boolean, contributorId: string) {
