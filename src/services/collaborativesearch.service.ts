@@ -70,15 +70,20 @@ export class CollaborativesearchService implements CollaborativeSearch {
         | [projType.geoaggregate, Array<Aggregation>]
         | [projType.geosearch, Search]
         | [projType.count, Count],
-        contributorId: string
+        contributorId?: string, filter?: Filter
     ): Observable<FeatureCollection> | Observable<AggregationResponse> | Observable<Hits> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
-            const collaboration = this.collaborations.get(contributorId);
-            if (collaboration !== undefined) {
-                if (collaboration.enabled) {
-                    this.feedParams(collaboration, filters);
+            if (contributorId) {
+                const collaboration = this.collaborations.get(contributorId);
+                if (collaboration !== undefined) {
+                    if (collaboration.enabled) {
+                        this.feedParams(collaboration, filters);
+                    }
                 }
+            }
+            if (filter) {
+                filters.push(filter);
             }
             return this.computeResolve(projection, filters);
         } catch (ex) {
