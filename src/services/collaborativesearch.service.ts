@@ -1,6 +1,5 @@
 import { Expression } from 'arlas-api';
 import { AggregationResponse, Hits, Size } from 'arlas-api';
-import { CollaborativeSearch, projType } from '../models/collaborativesearch';
 import { Observable, Subject } from 'rxjs/Rx';
 import { ExploreApi } from 'arlas-api';
 import { Collaboration } from '../models/collaboration';
@@ -11,53 +10,114 @@ import { FeatureCollection } from 'arlas-api';
 import { Count } from 'arlas-api';
 import { Search } from 'arlas-api';
 import { ConfigService } from './config.service';
-import { Contributor } from './contributor';
-import { getObject } from './utils';
+import { Contributor } from '../models/contributor';
+import { projType } from '../models/projections';
 
 
-export class CollaborativesearchService implements CollaborativeSearch {
+export class CollaborativesearchService {
+    /**
+    * Bus of string contributor identifiers.
+    */
     public collaborationBus: Subject<string> = new Subject<string>();
+    /**
+    * Registry of Collaborations, Map of contributor identifier,Collaboration.
+    */
     public collaborations = new Map<string, Collaboration>();
+    /**
+    * Registry of Contributor, Map of contributor identifier,Contributor.
+    */
     public registry = new Map<string, Contributor>();
-    private apiservice: ExploreApi;
-    private configService: ConfigService;
+    /**
+    * ARLAS SERVER collection used by the collaborativesearchService.
+    */
     public collection: string;
+    /**
+    * Number of entity return by the collaborativesearchService at any time
+    */
     public countAll: number;
+    /**
+    * Bus of Error.
+    */
     public collaborationErrorBus: Subject<Error> = new Subject<Error>();
+    /**
+    * ARLAS SERVER Explore Api used by the collaborativesearchService.
+    */
+    private exploreApi: ExploreApi;
+    /**
+    * Configuration Service used by the collaborativesearchService.
+    */
+    private configService: ConfigService;
+
     constructor() {
         this.collaborationBus.subscribe(value => this.setCountAll());
     }
-
+    /**
+    * Return the ARLAS Explore API.
+    * @returns ExploreApi.
+    */
     public getExploreApi() {
-        return this.apiservice;
+        return this.exploreApi;
     }
-    public setExploreApi(api: ExploreApi) {
-        this.apiservice = api;
+    /**
+    * Set the ARLAS Explore API.
+    * @param api : ExploreApi.
+    */
+    public setExploreApi(exploreApi: ExploreApi) {
+        this.exploreApi = exploreApi;
     }
+    /**
+    * Return the Configuraion Service.
+    * @returns ConfigService.
+    */
     public getConfigService() {
         return this.configService;
     }
-    public setConfigService(config: ConfigService) {
-        this.configService = config;
+    /**
+    * Set the Configuraion Service.
+    * @param configService ConfigService.
+    */
+    public setConfigService(configService: ConfigService) {
+        this.configService = configService;
     }
+    /**
+    *  Register contributor with its identifier in the map contributor registry.
+    */
     public register(identifier: string, contributor: Contributor): void {
         this.registry.set(identifier, contributor);
     }
+    /**
+    * Add Filter setted by a contributor in the registry of collaboration, notify the collaborationBus of a changement.
+    * @param contributorId  Sting identifier of contributor.
+    * @param collaboration  Collaboration added by the contributor.
+    */
     public setFilter(contributorId: string, collaboration: Collaboration) {
         this.collaborations.set(contributorId, collaboration);
         collaboration.enabled = true;
         this.collaborationBus.next(contributorId);
     }
+    /**
+    * Remove Filter from the registry of collaboration , notify the collaborationBus of a removing changement.
+    * @param contributorId  Sting identifier of contributor.
+    * @param collaboration  Collaboration added by the contributor.
+    */
     public removeFilter(contributorId: string) {
         this.collaborations.delete(contributorId);
         this.collaborationBus.next('remove-' + contributorId);
     }
+    /**
+    * Remove all the collaborations filters,  notify the collaborationBus of a all removing changement.
+    */
     public removeAll() {
         this.collaborations.clear();
         this.collaborationBus.next('remove-all');
     }
 
-    public getFilter(contributorId): Filter {
+    /**
+    * Retrieve the filter from a contributor identifier.
+    * @param contributorId  Identifier of a contributor.
+    * @returns ARLAS API Filter.
+    */
+    public getFilter(contributorId: string): Filter {
         if (this.collaborations.get(contributorId)) {
             return this.collaborations.get(contributorId).filter;
         } else {
@@ -65,6 +125,13 @@ export class CollaborativesearchService implements CollaborativeSearch {
         }
     }
 
+    /**
+    * Resolve an ARLAS Server request for an optional contributor and optional filters.
+    * @param projection  Type of projection of ARLAS Server request.
+    * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
     public resolve(projection: [projType.aggregate, Array<Aggregation>]
         | [projType.search, Search]
         | [projType.geoaggregate, Array<Aggregation>]
@@ -78,7 +145,7 @@ export class CollaborativesearchService implements CollaborativeSearch {
                 const collaboration = this.collaborations.get(contributorId);
                 if (collaboration !== undefined) {
                     if (collaboration.enabled) {
-                        this.feedParams(collaboration, filters);
+                        if (collaboration.filter) { filters.push(collaboration.filter); }
                     }
                 }
             }
@@ -90,7 +157,13 @@ export class CollaborativesearchService implements CollaborativeSearch {
             this.collaborationErrorBus.next((<Error>ex));
         }
     }
-
+    /**
+    * Resolve an ARLAS Server request with all the collaborations enabled in the collaboration registry expect for the contributor given in second optionnal parameter
+    * @param projection  Type of projection of ARLAS Server request.
+    * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
     public resolveButNot(projection: [projType.aggregate, Array<Aggregation>]
         | [projType.search, Search]
         | [projType.geoaggregate, Array<Aggregation>]
@@ -103,7 +176,7 @@ export class CollaborativesearchService implements CollaborativeSearch {
             if (contributorId) {
                 this.collaborations.forEach((k, v) => {
                     if (v !== contributorId && k.enabled) {
-                        this.feedParams(k, filters);
+                        if (k.filter) { filters.push(k.filter); }
                     } else {
                         return;
                     }
@@ -111,7 +184,7 @@ export class CollaborativesearchService implements CollaborativeSearch {
             } else {
                 this.collaborations.forEach((k, v) => {
                     if (k.enabled) {
-                        this.feedParams(k, filters);
+                        if (k.filter) { filters.push(k.filter); }
                     }
                 });
             }
@@ -124,33 +197,51 @@ export class CollaborativesearchService implements CollaborativeSearch {
             this.collaborationErrorBus.next((<Error>ex));
         }
     }
-
-
+    /**
+    * Enable a contributor collaboration from its identifier.
+    */
     public enable(contributorId: string) {
         this.setEnable(true, contributorId);
     }
-
+    /**
+    * Disable a contributor collaboration from its identifier.
+    */
     public disable(contributorId: string) {
         this.setEnable(false, contributorId);
     }
-
+    /**
+    * Retrieve all the contributor identifiers.
+    * @returns List of contributor idenfiers.
+    */
     public getAllContributors(): Array<string> {
         return Array.from(this.collaborations.keys());
     }
-
+    /**
+    * Retrieve the contributor identifiers for which the collaboration is enabled.
+    * @returns List of contributor idenfiers.
+    */
     public getEnableContributors(): Array<string> {
         return Array.from(this.collaborations.keys()).filter(x => this.collaborations.get(x).enabled);
-
     }
+    /**
+    * Retrieve the contributor identifiers for which the collaboration is disabled.
+    * @returns List of contributor idenfiers.
+    */
     public getDisableContributors(): Array<string> {
         return Array.from(this.collaborations.keys()).filter(x => !this.collaborations.get(x).enabled);
     }
-
+    /**
+    * Retrieve enabled parameter of collaboration from a contributor identifier.
+    * @returns Contributor collaboration enabled properties.
+    */
     public isEnable(contributorId: string): boolean {
         return this.collaborations.get(contributorId).enabled;
     }
+    /**
+    * Update countAll property.
+    */
     public setCountAll() {
-        const result: Observable<Hits> = this.resolveButNot([projType.count, {}]);
+        const result: Observable<any> = this.resolveButNot([projType.count, {}]);
         if (result) {
             result.subscribe(
                 data => this.countAll = data.totalnb,
@@ -161,7 +252,11 @@ export class CollaborativesearchService implements CollaborativeSearch {
         }
 
     }
-
+    /**
+    * Set enabled value of a collaboration from a contributor identifier.
+    * @param enabled  Enabled collaboration value.
+    * @param contributorId  Contributor identifier.
+    */
     private setEnable(enabled: boolean, contributorId: string) {
         const collaboration = this.collaborations.get(contributorId);
         if (collaboration) {
@@ -169,12 +264,14 @@ export class CollaborativesearchService implements CollaborativeSearch {
         }
         this.collaborations.set(contributorId, collaboration);
         this.collaborationBus.next('"all"');
-
     }
 
-    private feedParams(k: Collaboration, filters) {
-        if (k.filter) { filters.push(k.filter); }
-    }
+    /**
+    * Build an ARLAS Server request from an Array of Filter
+    * @param projection  Type of projection of ARLAS Server request.
+    * @param filters   ARLAS API filters list to resolve the request.
+    * @returns ARLAS Server observable.
+    */
     private computeResolve(projection: [projType.aggregate, Array<Aggregation>]
         | [projType.search, Search]
         | [projType.geoaggregate, Array<Aggregation>]
@@ -240,29 +337,29 @@ export class CollaborativesearchService implements CollaborativeSearch {
                     filter: finalFilter,
                     aggregations: projection[1]
                 };
-                result = <Observable<AggregationResponse>>this.apiservice.aggregatePost(this.collection, aggregationRequest);
+                result = <Observable<AggregationResponse>>this.exploreApi.aggregatePost(this.collection, aggregationRequest);
                 break;
             case projType.geoaggregate.valueOf():
                 aggregationRequest = <AggregationsRequest>{
                     filter: finalFilter,
                     aggregations: projection[1]
                 };
-                result = <Observable<FeatureCollection>>this.apiservice.geoaggregatePost(this.collection, aggregationRequest);
+                result = <Observable<FeatureCollection>>this.exploreApi.geoaggregatePost(this.collection, aggregationRequest);
                 break;
             case projType.count.valueOf():
                 const count = projection[1];
                 count['filter'] = finalFilter;
-                result = <Observable<Hits>>this.apiservice.countPost(this.collection, count);
+                result = <Observable<Hits>>this.exploreApi.countPost(this.collection, count);
                 break;
             case projType.search.valueOf():
                 search = projection[1];
                 search['filter'] = finalFilter;
-                result = <Observable<Hits>>this.apiservice.searchPost(this.collection, search);
+                result = <Observable<Hits>>this.exploreApi.searchPost(this.collection, search);
                 break;
             case projType.geosearch.valueOf():
                 search = projection[1];
                 search['filter'] = finalFilter;
-                result = <Observable<FeatureCollection>>this.apiservice.geosearchPost(this.collection, search);
+                result = <Observable<FeatureCollection>>this.exploreApi.geosearchPost(this.collection, search);
                 break;
         }
         return result;
