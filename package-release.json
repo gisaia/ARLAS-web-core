@@ -9,7 +9,7 @@
   "author": "gisaia-team",
   "license": "apache2",
   "dependencies": {
-    "arlas-api": "~1.0.9",
+    "arlas-api": "~1.0.10",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
     "gulp-sourcemaps": "^2.6.0",

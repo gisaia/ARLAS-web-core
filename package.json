@@ -44,7 +44,7 @@
     "zone.js": "^0.8.4"
   },
   "dependencies": {
-    "arlas-api": "~1.0.9",
+    "arlas-api": "~1.0.10",
     "arlas-kv-api": "~1.0.14",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
