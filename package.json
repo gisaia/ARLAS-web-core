@@ -44,6 +44,8 @@
     "zone.js": "^0.8.4"
   },
   "dependencies": {
+    "@angular/http": "^4.0.0",
+    "@angular/core": "^4.0.0",
     "arlas-api": "~1.0.10",
     "arlas-kv-api": "~1.0.14",
     "gulp": "^3.9.1",
