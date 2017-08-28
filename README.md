@@ -31,12 +31,6 @@ or
 npm install arlas-web-core --save
 ```
 
-To build this project with webpack run :
-
-```
-yarn build:prod
-```
-
 To build this project with tsc and gulp :
 
 ```
@@ -63,7 +57,6 @@ TODO
 
 ## Built With
 
-* [Webpack](https://webpack.github.io/docs/) - The flexible module bundler
 * [Gulp](http://gulpjs.com/) - Automate and enhance your workflow
 * [Yarn](https://yarnpkg.com/fr/) - Package manager
 * [Typescript](https://www.typescriptlang.org/) - Typed superset of JavaScript that compiles to plain JavaScript
