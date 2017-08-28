@@ -13,8 +13,7 @@ yarn build:prod / yarn build-release
 ### Prerequisites
 
 This library is a typescript npm/yarn project. You need to have typescript and yarn or npm.
-The build could use webpack so you need to install gulp, if you want to build a version.
-The build could use gulp so you need to install gulp, if you want to build a release.
+The build use gulp so you need to install gulp, if you want to build a release.
 
 
 ### Installing
@@ -79,4 +78,4 @@ See also the list of [contributors](https://gitlab.com/GISAIA.ARLAS/ARLAS-web-co
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the  Apache License 2.0 - see the [LICENSE.md](LICENSE.md) file for details
