@@ -1,6 +1,6 @@
 {
   "name": "@gisaia/arlas-web-core",
-  "version": "0.1.0-dev13",
+  "version": "0.1.0-dev14",
   "description": "Core Service Library for ARLAS Web App",
   "scripts": {
     "build-release": "tsc -p tsconfig-build.json && gulp",
@@ -13,7 +13,7 @@
     "url": "https://gitlab.com/GISAIA.ARLAS/ARLAS-web-core.git"
   },
   "author": "gisaia",
-  "license": "Apache License 2.0",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@angular/core": "^4.0.0",
     "@angular/http": "^4.0.0",

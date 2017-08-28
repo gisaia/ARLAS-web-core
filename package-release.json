@@ -7,7 +7,7 @@
     "url": "https://gitlab.com/GISAIA.ARLAS/ARLAS-web-core.git"
   },
   "author": "gisaia-team",
-  "license": "Apache License 2.0",
+  "license": "Apache-2.0",
   "dependencies": {
     "@angular/http": "^4.0.0",
     "@angular/core": "^4.0.0",
