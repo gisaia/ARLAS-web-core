@@ -158,7 +158,8 @@ export class CollaborativesearchService {
         }
     }
     /**
-    * Resolve an ARLAS Server request with all the collaborations enabled in the collaboration registry expect for the contributor given in second optionnal parameter
+    * Resolve an ARLAS Server request with all the collaborations enabled in the collaboration registry
+    expect for the contributor given in second optionnal parameter.
     * @param projection  Type of projection of ARLAS Server request.
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
