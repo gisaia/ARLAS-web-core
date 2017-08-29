@@ -8,10 +8,10 @@ lint:
   - npm run tslint
 arlas-web-core-doc:
   script:
-  - npm run build-release
+  - npm run build-release;mv dist/docs
   artifacts:
     paths:
-    - dist/docs
+    - docs
     name: "arlas-web-core-doc"
 
 
