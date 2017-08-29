@@ -11,7 +11,7 @@ arlas-web-core-doc:
   - npm run build-release;mv dist/docs .
   artifacts:
     paths:
-    - dist/docs
+    - docs
     name: "arlas-web-core-doc"
 
 
