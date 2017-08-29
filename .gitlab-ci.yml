@@ -9,4 +9,11 @@ lint:
 build:
   script:
   - npm run build-release
+    artifacts:
+    paths:
+    - dist/docs
+    name: "arlas-web-core-doc"
+
+
+
 

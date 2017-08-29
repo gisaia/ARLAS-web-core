@@ -49,7 +49,16 @@ export class CollaborativesearchService {
     private configService: ConfigService;
 
     constructor() {
-        this.collaborationBus.subscribe(value => this.setCountAll());
+        this.collaborationBus.subscribe(id => {
+            this.setCountAll();
+            if (id.split('-')[0] === 'remove') {
+                if (id.split('-')[1] === 'all') {
+                    this.collaborations.clear();
+                } else {
+                    this.collaborations.delete(id);
+                }
+            }
+        });
     }
     /**
     * Return the ARLAS Explore API.
