@@ -1,6 +1,6 @@
 {
   "name": "@gisaia/arlas-web-core",
-  "version": "0.1.0-dev14",
+  "version": "0.1.0-dev15",
   "description": "Core Service Library for ARLAS Web App",
   "scripts": {
     "build-release": "tsc -p tsconfig-build.json && gulp",
