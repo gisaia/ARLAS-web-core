@@ -6,7 +6,7 @@ before_script:
 lint:
   script:
   - npm run tslint
-build:
+arlas-web-core-doc:
   script:
   - npm run build-release
   artifacts:
