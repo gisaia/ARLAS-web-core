@@ -42,7 +42,7 @@ export class CollaborativesearchService {
     /**
     * Bus number of ongoing subscribe to the collaborativesearchService
     */
-    public totalSubscribe: number = 0;
+    public totalSubscribe = 0;
     /**
     * Bus of Error.
     */
