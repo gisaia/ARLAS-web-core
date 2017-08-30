@@ -36,6 +36,14 @@ export class CollaborativesearchService {
     */
     public countAll: number;
     /**
+    * Bus number of ongoing subscribe to the collaborativesearchService
+    */
+    public ongoingSubscribe: Subject<number> = new Subject<number>();
+    /**
+    * Bus number of ongoing subscribe to the collaborativesearchService
+    */
+    public totalSubscribe: number = 0;
+    /**
     * Bus of Error.
     */
     public collaborationErrorBus: Subject<Error> = new Subject<Error>();
@@ -47,8 +55,10 @@ export class CollaborativesearchService {
     * Configuration Service used by the collaborativesearchService.
     */
     private configService: ConfigService;
-
     constructor() {
+        this.ongoingSubscribe.subscribe(value => {
+            this.totalSubscribe = this.totalSubscribe + value;
+        });
         this.collaborationBus.subscribe(id => {
             this.setCountAll();
             if (id.split('-')[0] === 'remove') {
@@ -251,13 +261,16 @@ export class CollaborativesearchService {
     * Update countAll property.
     */
     public setCountAll() {
+        this.ongoingSubscribe.next(1);
         const result: Observable<any> = this.resolveButNot([projType.count, {}]);
         if (result) {
             result.subscribe(
                 data => this.countAll = data.totalnb,
                 error => {
                     this.collaborationErrorBus.next((<Error>error));
-                }
+                },
+                () => { this.ongoingSubscribe.next(-1); }
+
             );
         }
 
@@ -347,14 +360,14 @@ export class CollaborativesearchService {
                     filter: finalFilter,
                     aggregations: projection[1]
                 };
-                result = <Observable<AggregationResponse>>this.exploreApi.aggregatePost(this.collection, aggregationRequest);
+                result = <Observable<AggregationResponse>>this.exploreApi.aggregatePost(this.collection, aggregationRequest, 60);
                 break;
             case projType.geoaggregate.valueOf():
                 aggregationRequest = <AggregationsRequest>{
                     filter: finalFilter,
                     aggregations: projection[1]
                 };
-                result = <Observable<FeatureCollection>>this.exploreApi.geoaggregatePost(this.collection, aggregationRequest);
+                result = <Observable<FeatureCollection>>this.exploreApi.geoaggregatePost(this.collection, aggregationRequest, 60);
                 break;
             case projType.count.valueOf():
                 const count = projection[1];
@@ -364,7 +377,7 @@ export class CollaborativesearchService {
             case projType.search.valueOf():
                 search = projection[1];
                 search['filter'] = finalFilter;
-                result = <Observable<Hits>>this.exploreApi.searchPost(this.collection, search);
+                result = <Observable<Hits>>this.exploreApi.searchPost(this.collection, search, 60);
                 break;
             case projType.geosearch.valueOf():
                 search = projection[1];
