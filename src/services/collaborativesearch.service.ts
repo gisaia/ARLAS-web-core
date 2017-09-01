@@ -1,4 +1,6 @@
-import { Expression } from 'arlas-api';
+import { sanitizeHtml } from '@angular/platform-browser/src/security/html_sanitizer';
+import { filterQueryId } from '@angular/core/src/view/util';
+import { Expression, Sort } from 'arlas-api';
 import { AggregationResponse, Hits, Size } from 'arlas-api';
 import { Observable, Subject } from 'rxjs/Rx';
 import { ExploreApi } from 'arlas-api';
@@ -31,6 +33,10 @@ export class CollaborativesearchService {
     * ARLAS SERVER collection used by the collaborativesearchService.
     */
     public collection: string;
+    /**
+    * ARLAS SERVER max age cache used by the collaborativesearchService.
+    */
+    public max_age: number = 60;
     /**
     * Number of entity return by the collaborativesearchService at any time
     */
@@ -352,39 +358,133 @@ export class CollaborativesearchService {
             finalFilter.after = after;
         }
         let aggregationRequest: AggregationsRequest;
-        let search: Search;
+        let aggregationsForGet: string[];
+        let search: Search
+        let includes: string[] = [];
+        let excludes: string[] = [];
         let result;
+        const fForGet = this.buildFilterFieldGetParam('f', finalFilter);
+        const qForGet = this.buildFilterFieldGetParam('q', finalFilter);
+        const beforeForGet = this.buildFilterFieldGetParam('before', finalFilter);
+        const afterForGet = this.buildFilterFieldGetParam('after', finalFilter);
+        const pwithinForGet = [this.buildFilterFieldGetParam('pwithin', finalFilter)];
+        const gwithinForGet = [this.buildFilterFieldGetParam('gwithin', finalFilter)];
+        const gintersectForGet = [this.buildFilterFieldGetParam('gintersect', finalFilter)];
+        const notpwithinForGet = [this.buildFilterFieldGetParam('notpwithin', finalFilter)];
+        const notgwithinForGet = [this.buildFilterFieldGetParam('notgwithin', finalFilter)];
+        const notgintersectForGet = [this.buildFilterFieldGetParam('notgintersect', finalFilter)];
         switch (projection[0]) {
             case projType.aggregate.valueOf():
                 aggregationRequest = <AggregationsRequest>{
                     filter: finalFilter,
                     aggregations: projection[1]
                 };
-                result = <Observable<AggregationResponse>>this.exploreApi.aggregatePost(this.collection, aggregationRequest, 60);
+                aggregationsForGet = this.buildAggGetParam(projection[0], aggregationRequest);
+                result = <Observable<AggregationResponse>>this.exploreApi.aggregate(this.collection, aggregationsForGet, fForGet, qForGet, beforeForGet
+                    , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age);
                 break;
             case projType.geoaggregate.valueOf():
                 aggregationRequest = <AggregationsRequest>{
                     filter: finalFilter,
                     aggregations: projection[1]
                 };
-                result = <Observable<FeatureCollection>>this.exploreApi.geoaggregatePost(this.collection, aggregationRequest, 60);
+                aggregationsForGet = this.buildAggGetParam(projection[0], aggregationRequest);
+                result = <Observable<FeatureCollection>>this.exploreApi.geoaggregate(this.collection, aggregationsForGet, fForGet, qForGet, beforeForGet
+                    , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age);
                 break;
             case projType.count.valueOf():
-                const count = projection[1];
-                count['filter'] = finalFilter;
-                result = <Observable<Hits>>this.exploreApi.countPost(this.collection, count);
+                result = <Observable<Hits>>this.exploreApi.count(this.collection, fForGet, qForGet, beforeForGet
+                    , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age);
                 break;
             case projType.search.valueOf():
-                search = projection[1];
-                search['filter'] = finalFilter;
-                result = <Observable<Hits>>this.exploreApi.searchPost(this.collection, search, 60);
+                search = <Search>projection[1];
+                includes = [];
+                excludes = [];
+                if (search.projection !== undefined) {
+                    if (search.projection.excludes !== undefined) {
+                        excludes.push(search.projection.excludes)
+                    } if (search.projection.includes !== undefined) {
+                        includes.push(search.projection.includes)
+                    }
+                }
+                let sort: string;
+                if (search.sort === undefined) {
+                    sort = null;
+                } else {
+                    if (search.sort.sort === undefined) {
+                        sort = null;
+                    } else {
+                        sort = search.sort.sort;
+                    }
+                }
+                result = <Observable<Hits>>this.exploreApi.search(this.collection, fForGet, qForGet, beforeForGet
+                    , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                    , notgwithinForGet, notgintersectForGet, false, false, includes, excludes, search.size.size, search.size.from, sort, this.max_age);
                 break;
             case projType.geosearch.valueOf():
-                search = projection[1];
-                search['filter'] = finalFilter;
-                result = <Observable<FeatureCollection>>this.exploreApi.geosearchPost(this.collection, search);
+                search = <Search>projection[1];
+                includes = [];
+                excludes = [];
+                if (search.projection !== undefined) {
+                    if (search.projection.excludes !== undefined) {
+                        excludes.push(search.projection.excludes)
+                    } if (search.projection.includes !== undefined) {
+                        includes.push(search.projection.includes)
+                    }
+                }
+                result = <Observable<FeatureCollection>>this.exploreApi.geosearch(this.collection, fForGet, qForGet, beforeForGet
+                    , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                    , notgwithinForGet, notgintersectForGet, false, false, includes, excludes, search.size.size, search.size.from);
                 break;
         }
         return result;
+    }
+
+    private buildAggGetParam(projType: any, aggregationRequest: AggregationsRequest): string[] {
+        const aggregations: string[] = [];
+        aggregationRequest.aggregations.forEach(agg => {
+            let aggregation = agg.type + ":" + agg.field;
+            if (agg.interval !== undefined) {
+                if (agg.interval.value !== undefined) {
+                    aggregation = aggregation + ":interval-" + agg.interval.value
+                }
+                if (agg.interval.unit !== undefined) {
+                    aggregation = aggregation + agg.interval.unit
+                }
+            }
+            if (agg.format !== undefined) {
+                aggregation = aggregation + ":format-" + agg.format;
+            }
+            if (agg.collectField !== undefined) {
+                aggregation = aggregation + ":collect_field-" + agg.collectField;
+            }
+            if (agg.collectFct !== undefined) {
+                aggregation = aggregation + ":collect_fct-" + agg.collectFct;
+            }
+            if (agg.order !== undefined) {
+                aggregation = aggregation + ":order-" + agg.order;
+            }
+            if (agg.size !== undefined) {
+                aggregation = aggregation + ":size-" + agg.size;
+            }
+            aggregations.push(aggregation);
+        })
+        return aggregations;
+    }
+    private buildFilterFieldGetParam(field: string, filter: Filter): any {
+        if (field === 'f') {
+            const f: string[] = []
+            if (filter.f !== undefined) {
+                filter.f.forEach(e => {
+                    f.push(e.field + ":" + e.op + ":" + e.value);
+                })
+            }
+            return f;
+        } else {
+            return filter[field];
+        }
     }
 }
