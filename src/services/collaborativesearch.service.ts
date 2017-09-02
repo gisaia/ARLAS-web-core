@@ -36,7 +36,7 @@ export class CollaborativesearchService {
     /**
     * ARLAS SERVER max age cache used by the collaborativesearchService.
     */
-    public max_age: number = 60;
+    public max_age = 60;
     /**
     * Number of entity return by the collaborativesearchService at any time
     */
@@ -292,7 +292,7 @@ export class CollaborativesearchService {
             collaboration.enabled = enabled;
         }
         this.collaborations.set(contributorId, collaboration);
-        this.collaborationBus.next('"all"');
+        this.collaborationBus.next('all');
     }
 
     /**
@@ -359,7 +359,7 @@ export class CollaborativesearchService {
         }
         let aggregationRequest: AggregationsRequest;
         let aggregationsForGet: string[];
-        let search: Search
+        let search: Search;
         let includes: string[] = [];
         let excludes: string[] = [];
         let result;
@@ -380,7 +380,8 @@ export class CollaborativesearchService {
                     aggregations: projection[1]
                 };
                 aggregationsForGet = this.buildAggGetParam(projection[0], aggregationRequest);
-                result = <Observable<AggregationResponse>>this.exploreApi.aggregate(this.collection, aggregationsForGet, fForGet, qForGet, beforeForGet
+                result = <Observable<AggregationResponse>>this.exploreApi.aggregate(this.collection, aggregationsForGet,
+                    fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                     , notgwithinForGet, notgintersectForGet, false, false, this.max_age);
                 break;
@@ -390,7 +391,8 @@ export class CollaborativesearchService {
                     aggregations: projection[1]
                 };
                 aggregationsForGet = this.buildAggGetParam(projection[0], aggregationRequest);
-                result = <Observable<FeatureCollection>>this.exploreApi.geoaggregate(this.collection, aggregationsForGet, fForGet, qForGet, beforeForGet
+                result = <Observable<FeatureCollection>>this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
+                    fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                     , notgwithinForGet, notgintersectForGet, false, false, this.max_age);
                 break;
@@ -405,9 +407,9 @@ export class CollaborativesearchService {
                 excludes = [];
                 if (search.projection !== undefined) {
                     if (search.projection.excludes !== undefined) {
-                        excludes.push(search.projection.excludes)
+                        excludes.push(search.projection.excludes);
                     } if (search.projection.includes !== undefined) {
-                        includes.push(search.projection.includes)
+                        includes.push(search.projection.includes);
                     }
                 }
                 let sort: string;
@@ -422,7 +424,8 @@ export class CollaborativesearchService {
                 }
                 result = <Observable<Hits>>this.exploreApi.search(this.collection, fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, includes, excludes, search.size.size, search.size.from, sort, this.max_age);
+                    , notgwithinForGet, notgintersectForGet, false, false, includes, excludes, search.size.size,
+                    search.size.from, sort, this.max_age);
                 break;
             case projType.geosearch.valueOf():
                 search = <Search>projection[1];
@@ -430,9 +433,9 @@ export class CollaborativesearchService {
                 excludes = [];
                 if (search.projection !== undefined) {
                     if (search.projection.excludes !== undefined) {
-                        excludes.push(search.projection.excludes)
+                        excludes.push(search.projection.excludes);
                     } if (search.projection.includes !== undefined) {
-                        includes.push(search.projection.includes)
+                        includes.push(search.projection.includes);
                     }
                 }
                 result = <Observable<FeatureCollection>>this.exploreApi.geosearch(this.collection, fForGet, qForGet, beforeForGet
@@ -446,41 +449,41 @@ export class CollaborativesearchService {
     private buildAggGetParam(projType: any, aggregationRequest: AggregationsRequest): string[] {
         const aggregations: string[] = [];
         aggregationRequest.aggregations.forEach(agg => {
-            let aggregation = agg.type + ":" + agg.field;
+            let aggregation = agg.type + ':' + agg.field;
             if (agg.interval !== undefined) {
                 if (agg.interval.value !== undefined) {
-                    aggregation = aggregation + ":interval-" + agg.interval.value
+                    aggregation = aggregation + ':interval-' + agg.interval;
                 }
                 if (agg.interval.unit !== undefined) {
-                    aggregation = aggregation + agg.interval.unit
+                    aggregation = aggregation + agg.interval.unit;
                 }
             }
             if (agg.format !== undefined) {
-                aggregation = aggregation + ":format-" + agg.format;
+                aggregation = aggregation + ':format-' + agg.format;
             }
             if (agg.collectField !== undefined) {
-                aggregation = aggregation + ":collect_field-" + agg.collectField;
+                aggregation = aggregation + ':collect_field-' + agg.collectField;
             }
             if (agg.collectFct !== undefined) {
-                aggregation = aggregation + ":collect_fct-" + agg.collectFct;
+                aggregation = aggregation + ':collect_fct-' + agg.collectFct;
             }
             if (agg.order !== undefined) {
-                aggregation = aggregation + ":order-" + agg.order;
+                aggregation = aggregation + ':order-' + agg.order;
             }
             if (agg.size !== undefined) {
-                aggregation = aggregation + ":size-" + agg.size;
+                aggregation = aggregation + ':size-' + agg.size;
             }
             aggregations.push(aggregation);
-        })
+        });
         return aggregations;
     }
     private buildFilterFieldGetParam(field: string, filter: Filter): any {
         if (field === 'f') {
-            const f: string[] = []
+            const f: string[] = [];
             if (filter.f !== undefined) {
                 filter.f.forEach(e => {
-                    f.push(e.field + ":" + e.op + ":" + e.value);
-                })
+                    f.push(e.field + ':' + e.op + ':' + e.value);
+                });
             }
             return f;
         } else {
