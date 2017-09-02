@@ -452,7 +452,7 @@ export class CollaborativesearchService {
             let aggregation = agg.type + ':' + agg.field;
             if (agg.interval !== undefined) {
                 if (agg.interval.value !== undefined) {
-                    aggregation = aggregation + ':interval-' + agg.interval;
+                    aggregation = aggregation + ':interval-' + agg.interval.value;
                 }
                 if (agg.interval.unit !== undefined) {
                     aggregation = aggregation + agg.interval.unit;
