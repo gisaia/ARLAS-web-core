@@ -379,27 +379,27 @@ export class CollaborativesearchService {
                     filter: finalFilter,
                     aggregations: projection[1]
                 };
-                aggregationsForGet = this.buildAggGetParam(projection[0], aggregationRequest);
+                aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<AggregationResponse>>this.exploreApi.aggregate(this.collection, aggregationsForGet,
                     fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet,null, false, false, this.max_age);
+                    , notgwithinForGet, notgintersectForGet, null, false, false, this.max_age);
                 break;
             case projType.geoaggregate.valueOf():
                 aggregationRequest = <AggregationsRequest>{
                     filter: finalFilter,
                     aggregations: projection[1]
                 };
-                aggregationsForGet = this.buildAggGetParam(projection[0], aggregationRequest);
+                aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<FeatureCollection>>this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
                     fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet,null, false, false, this.max_age);
+                    , notgwithinForGet, notgintersectForGet, null, false, false, this.max_age);
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>this.exploreApi.count(this.collection, fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, null,false, false, this.max_age);
+                    , notgwithinForGet, notgintersectForGet, null, false, false, this.max_age);
                 break;
             case projType.search.valueOf():
                 search = <Search>projection[1];
@@ -424,7 +424,7 @@ export class CollaborativesearchService {
                 }
                 result = <Observable<Hits>>this.exploreApi.search(this.collection, fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, null,false, false, includes, excludes, search.size.size,
+                    , notgwithinForGet, notgintersectForGet, null, false, false, includes, excludes, search.size.size,
                     search.size.from, sort, this.max_age);
                 break;
             case projType.geosearch.valueOf():
@@ -440,13 +440,13 @@ export class CollaborativesearchService {
                 }
                 result = <Observable<FeatureCollection>>this.exploreApi.geosearch(this.collection, fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet,null, false, false, includes, excludes, search.size.size, search.size.from);
+                    , notgwithinForGet, notgintersectForGet, null, false, false, includes, excludes, search.size.size, search.size.from);
                 break;
         }
         return result;
     }
 
-    private buildAggGetParam(projType: any, aggregationRequest: AggregationsRequest): string[] {
+    private buildAggGetParam(aggregationRequest: AggregationsRequest): string[] {
         const aggregations: string[] = [];
         aggregationRequest.aggregations.forEach(agg => {
             let aggregation = agg.type + ':' + agg.field;
