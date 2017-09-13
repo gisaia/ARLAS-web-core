@@ -383,7 +383,7 @@ export class CollaborativesearchService {
                 result = <Observable<AggregationResponse>>this.exploreApi.aggregate(this.collection, aggregationsForGet,
                     fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age);
+                    , notgwithinForGet, notgintersectForGet,null, false, false, this.max_age);
                 break;
             case projType.geoaggregate.valueOf():
                 aggregationRequest = <AggregationsRequest>{
@@ -394,12 +394,12 @@ export class CollaborativesearchService {
                 result = <Observable<FeatureCollection>>this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
                     fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age);
+                    , notgwithinForGet, notgintersectForGet,null, false, false, this.max_age);
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>this.exploreApi.count(this.collection, fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age);
+                    , notgwithinForGet, notgintersectForGet, null,false, false, this.max_age);
                 break;
             case projType.search.valueOf():
                 search = <Search>projection[1];
@@ -424,7 +424,7 @@ export class CollaborativesearchService {
                 }
                 result = <Observable<Hits>>this.exploreApi.search(this.collection, fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, includes, excludes, search.size.size,
+                    , notgwithinForGet, notgintersectForGet, null,false, false, includes, excludes, search.size.size,
                     search.size.from, sort, this.max_age);
                 break;
             case projType.geosearch.valueOf():
@@ -440,7 +440,7 @@ export class CollaborativesearchService {
                 }
                 result = <Observable<FeatureCollection>>this.exploreApi.geosearch(this.collection, fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, includes, excludes, search.size.size, search.size.from);
+                    , notgwithinForGet, notgintersectForGet,null, false, false, includes, excludes, search.size.size, search.size.from);
                 break;
         }
         return result;
