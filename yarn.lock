@@ -37,12 +37,6 @@
     normalize-path "^2.0.1"
     through2 "^2.0.3"
 
-"@types/fs-extra@^3.0.0":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-3.0.3.tgz#1d66eb670ebf657e57c0fda014df340c19d8aa0c"
-  dependencies:
-    "@types/node" "*"
-
 "@types/fs-extra@^4.0.0":
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-4.0.2.tgz#7b9b1bbf85962cbe029b5a83c9b530d7c75af3ba"
@@ -131,9 +125,9 @@ archy@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/archy/-/archy-1.0.0.tgz#f9c8c13757cc1dd7bc379ac77b2c62a5c2868c40"
 
-arlas-api@~1.0.10:
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/arlas-api/-/arlas-api-1.0.13.tgz#97df3f51d2f14adb5137fdae6775d4c659ecd300"
+arlas-api@1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/arlas-api/-/arlas-api-1.0.10.tgz#0c00e56329261a3ddc1924b5a424d89957223800"
 
 arlas-kv-api@~1.0.14:
   version "1.0.15"
@@ -569,14 +563,6 @@ fs-exists-sync@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/fs-exists-sync/-/fs-exists-sync-0.1.0.tgz#982d6893af918e72d08dec9e8673ff2b5a8d6add"
 
-fs-extra@^3.0.0:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-3.0.1.tgz#3794f378c58b342ea7dbbb23095109c4b3b62291"
-  dependencies:
-    graceful-fs "^4.1.2"
-    jsonfile "^3.0.0"
-    universalify "^0.1.0"
-
 fs-extra@^4.0.0:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-4.0.2.tgz#f91704c53d1b461f893452b0c307d9997647ab6b"
@@ -997,12 +983,6 @@ isobject@^3.0.0, isobject@^3.0.1:
 js-tokens@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-3.0.2.tgz#9866df395102130e38f7f996bceb65443209c25b"
-
-jsonfile@^3.0.0:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/jsonfile/-/jsonfile-3.0.1.tgz#a5ecc6f65f53f662c4415c7675a0331d0992ec66"
-  optionalDependencies:
-    graceful-fs "^4.1.6"
 
 jsonfile@^4.0.0:
   version "4.0.0"
@@ -1944,28 +1924,6 @@ typedoc-default-themes@^0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/typedoc-default-themes/-/typedoc-default-themes-0.5.0.tgz#6dc2433e78ed8bea8e887a3acde2f31785bd6227"
 
-typedoc@0.7.2:
-  version "0.7.2"
-  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.7.2.tgz#d9859422b2d7ea604bc4f217e901f82aa1ab2c46"
-  dependencies:
-    "@types/fs-extra" "^3.0.0"
-    "@types/handlebars" "^4.0.31"
-    "@types/highlight.js" "^9.1.8"
-    "@types/lodash" "^4.14.37"
-    "@types/marked" "0.0.28"
-    "@types/minimatch" "^2.0.29"
-    "@types/shelljs" "^0.7.0"
-    fs-extra "^3.0.0"
-    handlebars "^4.0.6"
-    highlight.js "^9.0.0"
-    lodash "^4.13.1"
-    marked "^0.3.5"
-    minimatch "^3.0.0"
-    progress "^2.0.0"
-    shelljs "^0.7.0"
-    typedoc-default-themes "^0.5.0"
-    typescript "2.3.4"
-
 typedoc@^0.8.0:
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.8.0.tgz#d7172bc6a29964f451b7609c005beadadefe2361"
@@ -1987,10 +1945,6 @@ typedoc@^0.8.0:
     shelljs "^0.7.0"
     typedoc-default-themes "^0.5.0"
     typescript "2.4.1"
-
-typescript@2.3.4:
-  version "2.3.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.3.4.tgz#3d38321828231e434f287514959c37a82b629f42"
 
 typescript@2.4.1:
   version "2.4.1"
