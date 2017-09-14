@@ -105,6 +105,7 @@ releaseProd(){
     yarn tslint
     yarn build-release
     cp package-release.json  dist/package.json
+    git tag -a v"$1" -m"$commit_message_master"
     git push origin v"$1"
     cd dist
     jq  '.name = "arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
