@@ -105,7 +105,6 @@ releaseProd(){
     yarn tslint
     yarn build-release
     cp package-release.json  dist/package.json
-    npm version "$2"
     git push origin v"$1"
     cd dist
     jq  '.name = "arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
