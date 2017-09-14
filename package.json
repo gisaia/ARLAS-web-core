@@ -1,6 +1,6 @@
 {
   "name": "arlas-web-core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Core Service Library for ARLAS Web App",
   "scripts": {
     "build-release": "tsc -p tsconfig-build.json && gulp",
