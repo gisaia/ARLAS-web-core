@@ -11,7 +11,7 @@
   "dependencies": {
     "@angular/http": "^4.0.0",
     "@angular/core": "^4.0.0",
-    "arlas-api": "~1.0.10",
+    "arlas-api": "1.0.10",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
     "gulp-sourcemaps": "^2.6.0",
