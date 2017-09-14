@@ -19,6 +19,7 @@
     "@angular/http": "^4.0.0",
     "@angular/platform-browser": "^4.0.0",
     "@angular/platform-browser-dynamic": "^4.0.0",
+    "@angular/common": "^4.0.0",
     "cross-env": "^3.1.4",
     "eslint": "^3.14.0",
     "rimraf": "^2.5.4",
@@ -27,8 +28,11 @@
     "zone.js": "^0.8.4"
   },
   "dependencies": {
-    "@angular/http": "^4.0.0",
     "@angular/core": "^4.0.0",
+    "@angular/http": "^4.0.0",
+    "@angular/platform-browser": "^4.0.0",
+    "@angular/platform-browser-dynamic": "^4.0.0",
+    "@angular/common": "^4.0.0",
     "arlas-api": "1.0.10",
     "arlas-kv-api": "~1.0.14",
     "gulp": "^3.9.1",

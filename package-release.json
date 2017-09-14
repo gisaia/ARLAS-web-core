@@ -11,12 +11,16 @@
   "dependencies": {
     "@angular/http": "^4.0.0",
     "@angular/core": "^4.0.0",
+    "@angular/platform-browser": "^4.0.0",
+    "@angular/platform-browser-dynamic": "^4.0.0",
+    "@angular/common": "^4.0.0",
     "arlas-api": "1.0.10",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
     "gulp-sourcemaps": "^2.6.0",
     "run-sequence": "^2.0.0",
-    "rxjs": "^5.4.2"
+    "rxjs": "^5.4.2",
+    "zone.js": "^0.8.4"
   },
   "bugs": {
     "url": "https://gitlab.com/GISAIA.ARLAS/ARLAS-web-core/issues"
