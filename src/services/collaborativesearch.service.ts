@@ -62,9 +62,15 @@ export class CollaborativesearchService {
     */
     private configService: ConfigService;
     constructor() {
+        /**
+        * Subscribe ongoingSubscribe bus to know how many subscribe are on going.
+        */
         this.ongoingSubscribe.subscribe(value => {
             this.totalSubscribe = this.totalSubscribe + value;
         });
+        /**
+        * Subscribe collaborationBus bus to set countAll and remove collaboration.
+        */
         this.collaborationBus.subscribe(id => {
             this.setCountAll();
             if (id.split('-')[0] === 'remove') {
@@ -136,7 +142,6 @@ export class CollaborativesearchService {
         this.collaborations.clear();
         this.collaborationBus.next('remove-all');
     }
-
     /**
     * Retrieve the filter from a contributor identifier.
     * @param contributorId  Identifier of a contributor.
@@ -149,79 +154,90 @@ export class CollaborativesearchService {
             return null;
         }
     }
-
     /**
-    * Resolve an ARLAS Server request for an optional contributor and optional filters.
-    * @param projection  Type of projection of ARLAS Server request.
-    * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
-    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
-    * @returns ARLAS Server observable.
-    */
-    public resolve(projection: [projType.aggregate, Array<Aggregation>]
-        | [projType.search, Search]
-        | [projType.geoaggregate, Array<Aggregation>]
-        | [projType.geosearch, Search]
-        | [projType.count, Count],
-        contributorId?: string, filter?: Filter
-    ): Observable<FeatureCollection> | Observable<AggregationResponse> | Observable<Hits> {
-        try {
-            const filters: Array<Filter> = new Array<Filter>();
-            if (contributorId) {
-                const collaboration = this.collaborations.get(contributorId);
-                if (collaboration !== undefined) {
-                    if (collaboration.enabled) {
-                        if (collaboration.filter) { filters.push(collaboration.filter); }
-                    }
-                }
-            }
-            if (filter) {
-                filters.push(filter);
-            }
-            return this.computeResolve(projection, filters);
-        } catch (ex) {
-            this.collaborationErrorBus.next((<Error>ex));
-        }
-    }
-    /**
-    * Resolve an ARLAS Server request with all the collaborations enabled in the collaboration registry
+    * Resolve an ARLAS Server Search or Count request with all the collaborations enabled in the collaboration registry
     expect for the contributor given in second optionnal parameter.
-    * @param projection  Type of projection of ARLAS Server request.
+    * @param projection  Type of projection of ARLAS Server request:Search or Count.
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
     * @returns ARLAS Server observable.
     */
-    public resolveButNot(projection: [projType.aggregate, Array<Aggregation>]
-        | [projType.search, Search]
-        | [projType.geoaggregate, Array<Aggregation>]
-        | [projType.geosearch, Search]
+    public resolveButNotHits(projection:
+        [projType.search, Search]
         | [projType.count, Count],
         contributorId?: string, filter?: Filter
-    ): Observable<FeatureCollection> | Observable<AggregationResponse> | Observable<Hits> {
-        try {
-            const filters: Array<Filter> = new Array<Filter>();
-            if (contributorId) {
-                this.collaborations.forEach((k, v) => {
-                    if (v !== contributorId && k.enabled) {
-                        if (k.filter) { filters.push(k.filter); }
-                    } else {
-                        return;
-                    }
-                });
-            } else {
-                this.collaborations.forEach((k, v) => {
-                    if (k.enabled) {
-                        if (k.filter) { filters.push(k.filter); }
-                    }
-                });
-            }
-
-            if (filter) {
-                filters.push(filter);
-            }
-            return this.computeResolve(projection, filters);
-        } catch (ex) {
-            this.collaborationErrorBus.next((<Error>ex));
-        }
+    ): Observable<Hits> {
+        return this.resolveButNot(projection, contributorId, filter);
+    }
+    /**
+    * Resolve an ARLAS Server Search or Count  request for an optional contributor and optional filters.
+    * @param projection  Type of projection of ARLAS Server request :Search or Count .
+    * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
+    public resolveHits(projection:
+        [projType.search, Search]
+        | [projType.count, Count],
+        contributorId?: string, filter?: Filter
+    ): Observable<Hits> {
+        return this.resolve(projection, contributorId, filter);
+    }
+    /**
+    * Resolve an ARLAS Server Geosearch or Geoaggregate request with all the collaborations enabled in the collaboration registry
+    expect for the contributor given in second optionnal parameter.
+    * @param projection  Type of projection of ARLAS Server request:Geosearch or Geoaggregate.
+    * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
+    public resolveButNotFeatureCollection(projection:
+        [projType.geosearch, Search]
+        | [projType.geoaggregate, Array<Aggregation>],
+        contributorId?: string, filter?: Filter
+    ): Observable<FeatureCollection> {
+        return this.resolveButNot(projection, contributorId, filter);
+    }
+    /**
+    * Resolve an ARLAS Server Geosearch or Geoaggregate  request for an optional contributor and optional filters.
+    * @param projection  Type of projection of ARLAS Server request :Geosearch or Geoaggregate.
+    * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
+    public resolveFeatureCollection(projection:
+        [projType.geosearch, Search]
+        | [projType.geoaggregate, Array<Aggregation>],
+        contributorId?: string, filter?: Filter
+    ): Observable<FeatureCollection> {
+        return this.resolve(projection, contributorId, filter);
+    }
+    /**
+    * Resolve an ARLAS Server Aggregation request with all the collaborations enabled in the collaboration registry
+    expect for the contributor given in second optionnal parameter.
+    * @param projection  Type of projection of ARLAS Server request:Aggregation.
+    * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
+    public resolveButNotAggregation(projection:
+        [projType.aggregate, Array<Aggregation>],
+        contributorId?: string, filter?: Filter
+    ): Observable<AggregationResponse> {
+        return this.resolveButNot(projection, contributorId, filter);
+    }
+    /**
+    * Resolve an ARLAS Server Aggregation request for an optional contributor and optional filters.
+    * @param projection  Type of projection of ARLAS Server request :Aggregation.
+    * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
+    public resolveAggregation(projection:
+        [projType.aggregate, Array<Aggregation>],
+        contributorId?: string, filter?: Filter
+    ): Observable<AggregationResponse> {
+        return this.resolve(projection, contributorId, filter);
     }
     /**
     * Enable a contributor collaboration from its identifier.
@@ -294,6 +310,79 @@ export class CollaborativesearchService {
         this.collaborations.set(contributorId, collaboration);
         this.collaborationBus.next('all');
     }
+    /**
+    * Resolve an ARLAS Server request for an optional contributor and optional filters.
+    * @param projection  Type of projection of ARLAS Server request.
+    * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
+    private resolve(projection: [projType.aggregate, Array<Aggregation>]
+        | [projType.search, Search]
+        | [projType.geoaggregate, Array<Aggregation>]
+        | [projType.geosearch, Search]
+        | [projType.count, Count],
+        contributorId?: string, filter?: Filter
+    ): Observable<any> {
+        try {
+            const filters: Array<Filter> = new Array<Filter>();
+            if (contributorId) {
+                const collaboration = this.collaborations.get(contributorId);
+                if (collaboration !== undefined) {
+                    if (collaboration.enabled) {
+                        if (collaboration.filter) { filters.push(collaboration.filter); }
+                    }
+                }
+            }
+            if (filter) {
+                filters.push(filter);
+            }
+            return this.computeResolve(projection, filters);
+        } catch (ex) {
+            this.collaborationErrorBus.next((<Error>ex));
+        }
+    }
+    /**
+    * Resolve an ARLAS Server request with all the collaborations enabled in the collaboration registry
+    expect for the contributor given in second optionnal parameter.
+    * @param projection  Type of projection of ARLAS Server request.
+    * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
+    private resolveButNot(projection: [projType.aggregate, Array<Aggregation>]
+        | [projType.search, Search]
+        | [projType.geoaggregate, Array<Aggregation>]
+        | [projType.geosearch, Search]
+        | [projType.count, Count],
+        contributorId?: string, filter?: Filter
+    ): Observable<any> {
+        try {
+            const filters: Array<Filter> = new Array<Filter>();
+            if (contributorId) {
+                this.collaborations.forEach((k, v) => {
+                    if (v !== contributorId && k.enabled) {
+                        if (k.filter) { filters.push(k.filter); }
+                    } else {
+                        return;
+                    }
+                });
+            } else {
+                this.collaborations.forEach((k, v) => {
+                    if (k.enabled) {
+                        if (k.filter) { filters.push(k.filter); }
+                    }
+                });
+            }
+
+            if (filter) {
+                filters.push(filter);
+            }
+            return this.computeResolve(projection, filters);
+        } catch (ex) {
+            this.collaborationErrorBus.next((<Error>ex));
+        }
+    }
 
     /**
     * Build an ARLAS Server request from an Array of Filter
@@ -306,8 +395,8 @@ export class CollaborativesearchService {
         | [projType.geoaggregate, Array<Aggregation>]
         | [projType.geosearch, Search]
         | [projType.count, Count], filters: Array<Filter>
-    ): Observable<FeatureCollection> | Observable<AggregationResponse> | Observable<Hits> {
-
+    ): Observable<any> {
+        this.ongoingSubscribe.next(1);
         const finalFilter: Filter = {};
         const f: Array<Expression> = new Array<Expression>();
         let q = '';
@@ -379,27 +468,27 @@ export class CollaborativesearchService {
                     filter: finalFilter,
                     aggregations: projection[1]
                 };
-                aggregationsForGet = this.buildAggGetParam(projection[0], aggregationRequest);
+                aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<AggregationResponse>>this.exploreApi.aggregate(this.collection, aggregationsForGet,
                     fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age);
+                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age, null);
                 break;
             case projType.geoaggregate.valueOf():
                 aggregationRequest = <AggregationsRequest>{
                     filter: finalFilter,
                     aggregations: projection[1]
                 };
-                aggregationsForGet = this.buildAggGetParam(projection[0], aggregationRequest);
+                aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<FeatureCollection>>this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
                     fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age);
+                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age, null);
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>this.exploreApi.count(this.collection, fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age);
+                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age, null);
                 break;
             case projType.search.valueOf():
                 search = <Search>projection[1];
@@ -443,10 +532,16 @@ export class CollaborativesearchService {
                     , notgwithinForGet, notgintersectForGet, false, false, includes, excludes, search.size.size, search.size.from);
                 break;
         }
-        return result;
+        return result.finally(() => this.ongoingSubscribe.next(-1))
+;
     }
 
-    private buildAggGetParam(projType: any, aggregationRequest: AggregationsRequest): string[] {
+    /**
+    * Build an AggregationsRequest String[] for get mode request
+    * @param aggregationRequest  AggregationsRequest arlas object use in post request.
+    * @returns aggregations as string[].
+    */
+    private buildAggGetParam(aggregationRequest: AggregationsRequest): string[] {
         const aggregations: string[] = [];
         aggregationRequest.aggregations.forEach(agg => {
             let aggregation = agg.type + ':' + agg.field;
@@ -477,6 +572,13 @@ export class CollaborativesearchService {
         });
         return aggregations;
     }
+
+    /**
+    * Build an filter String[] or string for get mode request
+    * @param field
+    * @param filter
+    * @returns aggregations as string[].
+    */
     private buildFilterFieldGetParam(field: string, filter: Filter): any {
         if (field === 'f') {
             const f: string[] = [];

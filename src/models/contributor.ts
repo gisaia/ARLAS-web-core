@@ -18,8 +18,8 @@ export abstract class Contributor {
     public abstract getPackageName(): string;
 
     /**
-    * @param fieldName  string fieldName to retrieve in configuration.
-    * @returns configuration value of fieldName.
+    * @param fieldName  string fieldName find in configuration.
+    * @returns value of fieldName in configuration.
     */
     public getConfigValue(fieldName: string): any {
         const packageName: string = this.getPackageName();
