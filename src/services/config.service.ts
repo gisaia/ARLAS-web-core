@@ -6,7 +6,7 @@ export class ConfigService {
     */
     public confErrorBus = new Subject<string>();
     /**
-    * Object which contains the configuration.
+    * Object which contains the configuration (json format).
     */
     private config: Object;
     constructor() {
@@ -31,14 +31,14 @@ export class ConfigService {
         this.confErrorBus.next(key);
     }
     /**
-    * Retrieve configuration object.
+    * Get configuration object.
     * @returns configuration Object
     */
     public getConfig(): Object {
         return this.config;
     }
     /**
-    * Set configuration object in configuation service.
+    * Set configuration object.
     * @param config Object
     */
     public setConfig(config: Object) {

@@ -62,9 +62,15 @@ export class CollaborativesearchService {
     */
     private configService: ConfigService;
     constructor() {
+        /**
+        * Subscribe ongoingSubscribe bus to know how many subscribe are on going.
+        */
         this.ongoingSubscribe.subscribe(value => {
             this.totalSubscribe = this.totalSubscribe + value;
         });
+        /**
+        * Subscribe collaborationBus bus to set countAll and remove collaboration.
+        */
         this.collaborationBus.subscribe(id => {
             this.setCountAll();
             if (id.split('-')[0] === 'remove') {
@@ -136,7 +142,6 @@ export class CollaborativesearchService {
         this.collaborations.clear();
         this.collaborationBus.next('remove-all');
     }
-
     /**
     * Retrieve the filter from a contributor identifier.
     * @param contributorId  Identifier of a contributor.
@@ -149,6 +154,14 @@ export class CollaborativesearchService {
             return null;
         }
     }
+    /**
+    * Resolve an ARLAS Server Search or Count request with all the collaborations enabled in the collaboration registry
+    expect for the contributor given in second optionnal parameter.
+    * @param projection  Type of projection of ARLAS Server request:Search or Count.
+    * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
     public resolveButNotHits(projection:
         [projType.search, Search]
         | [projType.count, Count],
@@ -156,6 +169,13 @@ export class CollaborativesearchService {
     ): Observable<Hits> {
         return this.resolveButNot(projection, contributorId, filter);
     }
+    /**
+    * Resolve an ARLAS Server Search or Count  request for an optional contributor and optional filters.
+    * @param projection  Type of projection of ARLAS Server request :Search or Count .
+    * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
     public resolveHits(projection:
         [projType.search, Search]
         | [projType.count, Count],
@@ -163,6 +183,14 @@ export class CollaborativesearchService {
     ): Observable<Hits> {
         return this.resolve(projection, contributorId, filter);
     }
+    /**
+    * Resolve an ARLAS Server Geosearch or Geoaggregate request with all the collaborations enabled in the collaboration registry
+    expect for the contributor given in second optionnal parameter.
+    * @param projection  Type of projection of ARLAS Server request:Geosearch or Geoaggregate.
+    * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
     public resolveButNotFeatureCollection(projection:
         [projType.geosearch, Search]
         | [projType.geoaggregate, Array<Aggregation>],
@@ -170,6 +198,13 @@ export class CollaborativesearchService {
     ): Observable<FeatureCollection> {
         return this.resolveButNot(projection, contributorId, filter);
     }
+    /**
+    * Resolve an ARLAS Server Geosearch or Geoaggregate  request for an optional contributor and optional filters.
+    * @param projection  Type of projection of ARLAS Server request :Geosearch or Geoaggregate.
+    * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
     public resolveFeatureCollection(projection:
         [projType.geosearch, Search]
         | [projType.geoaggregate, Array<Aggregation>],
@@ -177,19 +212,33 @@ export class CollaborativesearchService {
     ): Observable<FeatureCollection> {
         return this.resolve(projection, contributorId, filter);
     }
+    /**
+    * Resolve an ARLAS Server Aggregation request with all the collaborations enabled in the collaboration registry
+    expect for the contributor given in second optionnal parameter.
+    * @param projection  Type of projection of ARLAS Server request:Aggregation.
+    * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
     public resolveButNotAggregation(projection:
         [projType.aggregate, Array<Aggregation>],
         contributorId?: string, filter?: Filter
     ): Observable<AggregationResponse> {
         return this.resolveButNot(projection, contributorId, filter);
     }
+    /**
+    * Resolve an ARLAS Server Aggregation request for an optional contributor and optional filters.
+    * @param projection  Type of projection of ARLAS Server request :Aggregation.
+    * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
     public resolveAggregation(projection:
         [projType.aggregate, Array<Aggregation>],
         contributorId?: string, filter?: Filter
     ): Observable<AggregationResponse> {
         return this.resolve(projection, contributorId, filter);
     }
-
     /**
     * Enable a contributor collaboration from its identifier.
     */
@@ -262,12 +311,12 @@ export class CollaborativesearchService {
         this.collaborationBus.next('all');
     }
     /**
-* Resolve an ARLAS Server request for an optional contributor and optional filters.
-* @param projection  Type of projection of ARLAS Server request.
-* @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
-* @param filter  ARLAS API filter to resolve the request with this filter in addition.
-* @returns ARLAS Server observable.
-*/
+    * Resolve an ARLAS Server request for an optional contributor and optional filters.
+    * @param projection  Type of projection of ARLAS Server request.
+    * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
     private resolve(projection: [projType.aggregate, Array<Aggregation>]
         | [projType.search, Search]
         | [projType.geoaggregate, Array<Aggregation>]
@@ -347,7 +396,7 @@ export class CollaborativesearchService {
         | [projType.geosearch, Search]
         | [projType.count, Count], filters: Array<Filter>
     ): Observable<any> {
-
+        this.ongoingSubscribe.next(1);
         const finalFilter: Filter = {};
         const f: Array<Expression> = new Array<Expression>();
         let q = '';
@@ -483,9 +532,15 @@ export class CollaborativesearchService {
                     , notgwithinForGet, notgintersectForGet, false, false, includes, excludes, search.size.size, search.size.from);
                 break;
         }
-        return result;
+        return result.finally(() => this.ongoingSubscribe.next(-1))
+;
     }
 
+    /**
+    * Build an AggregationsRequest String[] for get mode request
+    * @param aggregationRequest  AggregationsRequest arlas object use in post request.
+    * @returns aggregations as string[].
+    */
     private buildAggGetParam(aggregationRequest: AggregationsRequest): string[] {
         const aggregations: string[] = [];
         aggregationRequest.aggregations.forEach(agg => {
@@ -517,6 +572,13 @@ export class CollaborativesearchService {
         });
         return aggregations;
     }
+
+    /**
+    * Build an filter String[] or string for get mode request
+    * @param field
+    * @param filter
+    * @returns aggregations as string[].
+    */
     private buildFilterFieldGetParam(field: string, filter: Filter): any {
         if (field === 'f') {
             const f: string[] = [];
