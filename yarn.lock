@@ -2,6 +2,12 @@
 # yarn lockfile v1
 
 
+"@angular/common@^4.0.0":
+  version "4.3.6"
+  resolved "https://registry.yarnpkg.com/@angular/common/-/common-4.3.6.tgz#ed37e9307c7506dd834797c1a6cf675e52b5b6ee"
+  dependencies:
+    tslib "^1.7.1"
+
 "@angular/core@^4.0.0":
   version "4.3.6"
   resolved "https://registry.yarnpkg.com/@angular/core/-/core-4.3.6.tgz#bbac63d68d0f7bcb389d12b34208652be3287e96"

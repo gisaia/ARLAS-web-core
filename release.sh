@@ -93,6 +93,7 @@ releaseProd(){
     git pull origin master
     git merge develop -m'merge develop to master'
     jq  '.name = "arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq -c 'del(.compilerOptions.paths)' tsconfig.json > tmp.$$.json && mv tmp.$$.json tsconfig.json
     jq -c 'del(.compilerOptions.paths)' tsconfig-build.json > tmp.$$.json && mv tmp.$$.json tsconfig-build.json
     git add .
@@ -104,7 +105,7 @@ releaseProd(){
     yarn tslint
     yarn build-release
     cp package-release.json  dist/package.json
-    npm version "$2"
+    git tag -a v"$1" -m"$commit_message_master"
     git push origin v"$1"
     cd dist
     jq  '.name = "arlas-web-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
