@@ -568,6 +568,9 @@ export class CollaborativesearchService {
             if (agg.size !== undefined) {
                 aggregation = aggregation + ':size-' + agg.size;
             }
+            if (agg.withGeoCentroid !== undefined) {
+                aggregation = aggregation + ':withGeoCentroid-' + agg.withGeoCentroid;
+            }
             aggregations.push(aggregation);
         });
         return aggregations;
