@@ -569,7 +569,8 @@ export class CollaborativesearchService {
                         includes.push(search.projection.includes);
                     }
                 }
-                result = <Observable<FeatureCollection>>this.exploreApi.tiledgeosearch(this.collection, x, y, z, fForGet, qForGet, beforeForGet
+                result = <Observable<FeatureCollection>>this.exploreApi.tiledgeosearch(this.collection, x, y, z
+                    , fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                     , notgwithinForGet, notgintersectForGet, false, false, includes, excludes, search.size.size, search.size.from);
                 break;

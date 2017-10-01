@@ -1,7 +1,7 @@
 import { Filter, Search, Aggregation } from 'arlas-api';
-    /**
-    * Enum  ARLAS SERVER type of request.
-    */
+/**
+* Enum  ARLAS SERVER type of request.
+*/
 export enum projType {
   aggregate,
   geoaggregate,
@@ -13,14 +13,14 @@ export enum projType {
 
 }
 
-export interface TiledSearch{
-  search:Search,
-  x:number,
-  y:number,
-  z:number
+export interface TiledSearch {
+  search: Search;
+  x: number;
+  y: number;
+  z: number;
 }
 
-export interface GeohashAggregation{
-  geohash:string,
-  aggregations:Array<Aggregation>
+export interface GeohashAggregation {
+  geohash: string;
+  aggregations: Array<Aggregation>;
 }
