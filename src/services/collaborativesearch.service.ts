@@ -13,7 +13,7 @@ import { Count } from 'arlas-api';
 import { Search } from 'arlas-api';
 import { ConfigService } from './config.service';
 import { Contributor } from '../models/contributor';
-import { projType } from '../models/projections';
+import { projType, GeohashAggregation, TiledSearch } from '../models/projections';
 
 
 export class CollaborativesearchService {
@@ -193,6 +193,8 @@ export class CollaborativesearchService {
     */
     public resolveButNotFeatureCollection(projection:
         [projType.geosearch, Search]
+        | [projType.tiledgeosearch, TiledSearch]
+        | [projType.geohashgeoaggregate, GeohashAggregation]
         | [projType.geoaggregate, Array<Aggregation>],
         contributorId?: string, filter?: Filter
     ): Observable<FeatureCollection> {
@@ -207,6 +209,8 @@ export class CollaborativesearchService {
     */
     public resolveFeatureCollection(projection:
         [projType.geosearch, Search]
+        | [projType.tiledgeosearch, TiledSearch]
+        | [projType.geohashgeoaggregate, GeohashAggregation]
         | [projType.geoaggregate, Array<Aggregation>],
         contributorId?: string, filter?: Filter
     ): Observable<FeatureCollection> {
@@ -320,7 +324,9 @@ export class CollaborativesearchService {
     private resolve(projection: [projType.aggregate, Array<Aggregation>]
         | [projType.search, Search]
         | [projType.geoaggregate, Array<Aggregation>]
+        | [projType.geohashgeoaggregate, GeohashAggregation]
         | [projType.geosearch, Search]
+        | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count],
         contributorId?: string, filter?: Filter
     ): Observable<any> {
@@ -353,7 +359,9 @@ export class CollaborativesearchService {
     private resolveButNot(projection: [projType.aggregate, Array<Aggregation>]
         | [projType.search, Search]
         | [projType.geoaggregate, Array<Aggregation>]
+        | [projType.geohashgeoaggregate, GeohashAggregation]
         | [projType.geosearch, Search]
+        | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count],
         contributorId?: string, filter?: Filter
     ): Observable<any> {
@@ -393,7 +401,9 @@ export class CollaborativesearchService {
     private computeResolve(projection: [projType.aggregate, Array<Aggregation>]
         | [projType.search, Search]
         | [projType.geoaggregate, Array<Aggregation>]
+        | [projType.geohashgeoaggregate, GeohashAggregation]
         | [projType.geosearch, Search]
+        | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count], filters: Array<Filter>
     ): Observable<any> {
         this.ongoingSubscribe.next(1);
@@ -472,7 +482,7 @@ export class CollaborativesearchService {
                 result = <Observable<AggregationResponse>>this.exploreApi.aggregate(this.collection, aggregationsForGet,
                     fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age, null);
+                    , notgwithinForGet, notgintersectForGet, false, this.max_age, null);
                 break;
             case projType.geoaggregate.valueOf():
                 aggregationRequest = <AggregationsRequest>{
@@ -483,12 +493,25 @@ export class CollaborativesearchService {
                 result = <Observable<FeatureCollection>>this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
                     fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                    , notgwithinForGet, notgintersectForGet, false, this.max_age, null);
+                break;
+            case projType.geohashgeoaggregate.valueOf():
+                const aggregations: Array<Aggregation> = (<GeohashAggregation>projection[1]).aggregations;
+                const geohash = (<GeohashAggregation>projection[1]).geohash;
+                aggregationRequest = <AggregationsRequest>{
+                    filter: finalFilter,
+                    aggregations: aggregations
+                };
+                aggregationsForGet = this.buildAggGetParam(aggregationRequest);
+                result = <Observable<FeatureCollection>>this.exploreApi.geohashgeoaggregate(this.collection, geohash, aggregationsForGet,
+                    fForGet, qForGet, beforeForGet
+                    , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                     , notgwithinForGet, notgintersectForGet, false, false, this.max_age, null);
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>this.exploreApi.count(this.collection, fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age, null);
+                    , notgwithinForGet, notgintersectForGet, false, this.max_age, null);
                 break;
             case projType.search.valueOf():
                 search = <Search>projection[1];
@@ -513,7 +536,7 @@ export class CollaborativesearchService {
                 }
                 result = <Observable<Hits>>this.exploreApi.search(this.collection, fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, includes, excludes, search.size.size,
+                    , notgwithinForGet, notgintersectForGet, false, includes, excludes, search.size.size,
                     search.size.from, sort, this.max_age);
                 break;
             case projType.geosearch.valueOf():
@@ -529,11 +552,31 @@ export class CollaborativesearchService {
                 }
                 result = <Observable<FeatureCollection>>this.exploreApi.geosearch(this.collection, fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                    , notgwithinForGet, notgintersectForGet, false, includes, excludes, search.size.size, search.size.from);
+                break;
+            case projType.tiledgeosearch.valueOf():
+
+                search = (<TiledSearch>projection[1]).search;
+                const x = (<TiledSearch>projection[1]).x;
+                const y = (<TiledSearch>projection[1]).y;
+                const z = (<TiledSearch>projection[1]).z;
+                includes = [];
+                excludes = [];
+                if (search.projection !== undefined) {
+                    if (search.projection.excludes !== undefined) {
+                        excludes.push(search.projection.excludes);
+                    } if (search.projection.includes !== undefined) {
+                        includes.push(search.projection.includes);
+                    }
+                }
+                result = <Observable<FeatureCollection>>this.exploreApi.tiledgeosearch(this.collection, x, y, z
+                    , fForGet, qForGet, beforeForGet
+                    , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                     , notgwithinForGet, notgintersectForGet, false, false, includes, excludes, search.size.size, search.size.from);
                 break;
         }
         return result.finally(() => this.ongoingSubscribe.next(-1))
-;
+            ;
     }
 
     /**
