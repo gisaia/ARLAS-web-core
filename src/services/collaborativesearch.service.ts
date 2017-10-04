@@ -552,7 +552,8 @@ export class CollaborativesearchService {
                 }
                 result = <Observable<FeatureCollection>>this.exploreApi.geosearch(this.collection, fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, includes, excludes, search.size.size, search.size.from);
+                    , notgwithinForGet, notgintersectForGet, false, includes, excludes, search.size.size,
+                    search.size.from, null, this.max_age);
                 break;
             case projType.tiledgeosearch.valueOf():
 
@@ -572,7 +573,8 @@ export class CollaborativesearchService {
                 result = <Observable<FeatureCollection>>this.exploreApi.tiledgeosearch(this.collection, x, y, z
                     , fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, includes, excludes, search.size.size, search.size.from);
+                    , notgwithinForGet, notgintersectForGet, false, false, includes, excludes,
+                    search.size.size, search.size.from, null, this.max_age);
                 break;
         }
         return result.finally(() => this.ongoingSubscribe.next(-1))
