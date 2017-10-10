@@ -143,6 +143,9 @@ releaseDev(){
     git pull origin develop
     echo "=> Test to lint and build the project on develop branch"
     yarn install
+    if [[ -d ./node_modules/@gisaia-team/ ]] ; then
+    mv node_modules/@gisaia-team/arlas-web-core node_modules 2>/dev/null
+    fi
     yarn tslint
     yarn build-release
     cp package-release.json  dist/package.json
