@@ -1,10 +1,8 @@
-import { sanitizeHtml } from '@angular/platform-browser/src/security/html_sanitizer';
-import { filterQueryId } from '@angular/core/src/view/util';
 import { Expression, Sort } from 'arlas-api';
 import { AggregationResponse, Hits, Size } from 'arlas-api';
 import { Observable, Subject } from 'rxjs/Rx';
 import { ExploreApi } from 'arlas-api';
-import { Collaboration } from '../models/collaboration';
+import { Collaboration, CollaborationEvent, OperationEnum } from '../models/collaboration';
 import { AggregationsRequest } from 'arlas-api';
 import { Aggregation } from 'arlas-api';
 import { Filter } from 'arlas-api';
@@ -18,9 +16,9 @@ import { projType, GeohashAggregation, TiledSearch } from '../models/projections
 
 export class CollaborativesearchService {
     /**
-    * Bus of string contributor identifiers.
+    * Bus of CollaborationEvent.
     */
-    public collaborationBus: Subject<string> = new Subject<string>();
+    public collaborationBus: Subject<CollaborationEvent> = new Subject<CollaborationEvent>();
     /**
     * Registry of Collaborations, Map of contributor identifier,Collaboration.
     */
@@ -71,13 +69,13 @@ export class CollaborativesearchService {
         /**
         * Subscribe collaborationBus bus to set countAll and remove collaboration.
         */
-        this.collaborationBus.subscribe(id => {
+        this.collaborationBus.subscribe(collaborationEvent => {
             this.setCountAll();
-            if (id.split('-')[0] === 'remove') {
-                if (id.split('-')[1] === 'all') {
+            if (collaborationEvent.operation === OperationEnum.remove) {
+                if (collaborationEvent.all) {
                     this.collaborations.clear();
                 } else {
-                    this.collaborations.delete(id);
+                    this.collaborations.delete(collaborationEvent.id);
                 }
             }
         });
@@ -122,9 +120,14 @@ export class CollaborativesearchService {
     * @param collaboration  Collaboration added by the contributor.
     */
     public setFilter(contributorId: string, collaboration: Collaboration) {
-        this.collaborations.set(contributorId, collaboration);
         collaboration.enabled = true;
-        this.collaborationBus.next(contributorId);
+        this.collaborations.set(contributorId, collaboration);
+        const collaborationEvent: CollaborationEvent = {
+            id: contributorId,
+            operation: OperationEnum.add,
+            all: false
+        };
+        this.collaborationBus.next(collaborationEvent);
     }
     /**
     * Remove Filter from the registry of collaboration , notify the collaborationBus of a removing changement.
@@ -133,14 +136,24 @@ export class CollaborativesearchService {
     */
     public removeFilter(contributorId: string) {
         this.collaborations.delete(contributorId);
-        this.collaborationBus.next('remove-' + contributorId);
+        const collaborationEvent: CollaborationEvent = {
+            id: contributorId,
+            operation: OperationEnum.remove,
+            all: false
+        };
+        this.collaborationBus.next(collaborationEvent);
     }
     /**
     * Remove all the collaborations filters,  notify the collaborationBus of a all removing changement.
     */
     public removeAll() {
         this.collaborations.clear();
-        this.collaborationBus.next('remove-all');
+        const collaborationEvent: CollaborationEvent = {
+            id: 'all',
+            operation: OperationEnum.remove,
+            all: true
+        };
+        this.collaborationBus.next(collaborationEvent);
     }
     /**
     * Retrieve the filter from a contributor identifier.
@@ -312,7 +325,12 @@ export class CollaborativesearchService {
             collaboration.enabled = enabled;
         }
         this.collaborations.set(contributorId, collaboration);
-        this.collaborationBus.next('all');
+        const collaborationEvent: CollaborationEvent = {
+            id: 'all',
+            operation: OperationEnum.add,
+            all: true
+        };
+        this.collaborationBus.next(collaborationEvent);
     }
     /**
     * Resolve an ARLAS Server request for an optional contributor and optional filters.

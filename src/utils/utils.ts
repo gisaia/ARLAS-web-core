@@ -1,44 +1,17 @@
 /**
- * Checks through entire datalayer object tree to see if object value exists
- * sample usage: getObject(object, 'object.key1.key2.key3')
+ * Get object or String value of an object from key
+ * sample usage: getObject(object,key1.key2)
  * @param {object} datalayer - datalayer object
  * @param {string} objectKey? - optional
- * @returns {string} returns value
- */
-export function getObjectValue(datalayer: object, objectKey?: string): string {
-  const object = objectCheck(datalayer, objectKey);
-  if (typeof object === 'string') {
-    return object;
-  }
-  return null;
-}
-
-/**
- * Checks through entire datalayer object tree to see if object exists
- * sample usage: getObject(object.key)
- * @param {object} datalayer - datalayer object
- * @param {string} objectKey? - optional
- * @returns {any} returns object by key
+ * @returns {any} returns object by key or string value
  */
 export function getObject(datalayer: object, objectKey?: string): any {
-  return objectCheck(datalayer, objectKey);
-}
-
-/**
- * Main logic for getting object or string value from object key
- * @param {object} datalayer
- * @param {string} objectKey? - optional
- * @returns {any} current - returns either string or object
- */
-const objectCheck = (datalayer: object, objectKey?: string): any => {
-  // if datalayer doesn't exists, just return
+    // if datalayer doesn't exists, just return
   if (!datalayer) {
     return null;
   }
-
   // default return datalayer
   let current = datalayer;
-
   // check every layer
   if (typeof objectKey === 'string') {
     const numberOfObjectHierarchy = objectKey.match(/\./g).length;
@@ -52,4 +25,5 @@ const objectCheck = (datalayer: object, objectKey?: string): any => {
   }
 
   return current;
-};
+}
+
