@@ -19,6 +19,11 @@ export class CollaborativesearchService {
     * Bus of CollaborationEvent.
     */
     public collaborationBus: Subject<CollaborationEvent> = new Subject<CollaborationEvent>();
+
+    /**
+    * Bus of CollaborationEvent.
+    */
+    public contribFilterBus: Subject<Contributor> = new Subject<Contributor>();
     /**
     * Registry of Collaborations, Map of contributor identifier,Collaboration.
     */
@@ -38,7 +43,7 @@ export class CollaborativesearchService {
     /**
     * Number of entity return by the collaborativesearchService at any time
     */
-    public countAll: number;
+    public countAll: Observable<number>;
     /**
     * Bus number of ongoing subscribe to the collaborativesearchService
     */
@@ -155,14 +160,49 @@ export class CollaborativesearchService {
         };
         this.collaborationBus.next(collaborationEvent);
     }
+
+    public dataModelBuilder(filter: string): Object {
+        const dataModel = JSON.parse(filter);
+        return dataModel;
+    }
+
+    public urlBuilder(): string {
+        const dataModel = {};
+        Array.from(this.collaborations.keys()).forEach(identifier => {
+            dataModel[identifier] = this.collaborations.get(identifier);
+        });
+        const url = 'filter=' + JSON.stringify(dataModel);
+        return url;
+    }
+
     /**
-    * Retrieve the filter from a contributor identifier.
-    * @param contributorId  Identifier of a contributor.
-    * @returns ARLAS API Filter.
+    * Initialize all the contributor in the state of dataModel.
+    * @param dataModel
     */
-    public getFilter(contributorId: string): Filter {
+    public setCollaborations(dataModel: Object) {
+        this.collaborations.clear();
+        Array.from(this.registry.keys()).forEach(identifier => {
+            if (dataModel[identifier] !== undefined) {
+                const collaboration: Collaboration = dataModel[identifier];
+                this.collaborations.set(identifier, collaboration);
+            }
+        });
+        const collaborationEvent: CollaborationEvent = {
+            id: 'url',
+            operation: OperationEnum.add,
+            all: true
+        };
+        this.collaborationBus.next(collaborationEvent);
+    }
+
+    /**
+    * Retrieve the collaboration from a contributor identifier.
+    * @param contributorId  Identifier of a contributor.
+    * @returns Collaboration.
+    */
+    public getCollaboration(contributorId: string): Collaboration {
         if (this.collaborations.get(contributorId)) {
-            return this.collaborations.get(contributorId).filter;
+            return this.collaborations.get(contributorId);
         } else {
             return null;
         }
@@ -300,19 +340,8 @@ export class CollaborativesearchService {
     * Update countAll property.
     */
     public setCountAll() {
-        this.ongoingSubscribe.next(1);
-        const result: Observable<any> = this.resolveButNot([projType.count, {}]);
-        if (result) {
-            result.subscribe(
-                data => this.countAll = data.totalnb,
-                error => {
-                    this.collaborationErrorBus.next((<Error>error));
-                },
-                () => { this.ongoingSubscribe.next(-1); }
-
-            );
-        }
-
+        const result: Observable<Hits> = this.resolveButNot([projType.count, {}]);
+        this.countAll = result.map(c => c.totalnb);
     }
     /**
     * Set enabled value of a collaboration from a contributor identifier.
@@ -424,7 +453,6 @@ export class CollaborativesearchService {
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count], filters: Array<Filter>
     ): Observable<any> {
-        this.ongoingSubscribe.next(1);
         const finalFilter: Filter = {};
         const f: Array<Expression> = new Array<Expression>();
         let q = '';
@@ -574,7 +602,6 @@ export class CollaborativesearchService {
                     search.size.from, null, this.max_age);
                 break;
             case projType.tiledgeosearch.valueOf():
-
                 search = (<TiledSearch>projection[1]).search;
                 const x = (<TiledSearch>projection[1]).x;
                 const y = (<TiledSearch>projection[1]).y;
@@ -595,8 +622,7 @@ export class CollaborativesearchService {
                     search.size.size, search.size.from, null, this.max_age);
                 break;
         }
-        return result.finally(() => this.ongoingSubscribe.next(-1))
-            ;
+        return result;
     }
 
     /**
