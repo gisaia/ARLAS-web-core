@@ -2,6 +2,6 @@ export { CollaborativesearchService } from './services/collaborativesearch.servi
 export { ConfigService } from './services/config.service';
 export { projType, TiledSearch, GeohashAggregation } from './models/projections';
 export { Contributor } from './models/contributor';
-export { Collaboration, OperationEnum } from './models/collaboration';
+export { Collaboration, OperationEnum, CollaborationEvent } from './models/collaboration';
 
 
