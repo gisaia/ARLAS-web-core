@@ -552,7 +552,7 @@ export class CollaborativesearchService {
                 result = <Observable<FeatureCollection>>this.exploreApi.geohashgeoaggregate(this.collection, geohash, aggregationsForGet,
                     fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, this.max_age, null);
+                    , notgwithinForGet, notgintersectForGet, false, this.max_age, null);
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>this.exploreApi.count(this.collection, fForGet, qForGet, beforeForGet
@@ -618,7 +618,7 @@ export class CollaborativesearchService {
                 result = <Observable<FeatureCollection>>this.exploreApi.tiledgeosearch(this.collection, x, y, z
                     , fForGet, qForGet, beforeForGet
                     , afterForGet, pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, false, includes, excludes,
+                    , notgwithinForGet, notgintersectForGet, false, includes, excludes,
                     search.size.size, search.size.from, null, this.max_age);
                 break;
         }
@@ -659,6 +659,9 @@ export class CollaborativesearchService {
             }
             if (agg.withGeoCentroid !== undefined) {
                 aggregation = aggregation + ':withGeoCentroid-' + agg.withGeoCentroid;
+            }
+            if (agg.include !== undefined) {
+                aggregation = aggregation + ':include-' + agg.include;
             }
             aggregations.push(aggregation);
         });
