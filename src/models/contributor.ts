@@ -73,7 +73,9 @@ export abstract class Contributor {
                 this.collaborativeSearcheService.ongoingSubscribe.
                     next(-1);
             })
-            .subscribe(data => data);
+            .subscribe(data => data,
+            error => this.collaborativeSearcheService.collaborationErrorBus.next(error)
+            );
     }
 
 
