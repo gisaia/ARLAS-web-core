@@ -125,9 +125,9 @@ archy@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/archy/-/archy-1.0.0.tgz#f9c8c13757cc1dd7bc379ac77b2c62a5c2868c40"
 
-arlas-api@1.0.15:
-  version "1.0.15"
-  resolved "https://registry.yarnpkg.com/arlas-api/-/arlas-api-1.0.15.tgz#9ca8b43142c916352e24ae08c79ec48c9c19eacf"
+arlas-api@1.0.17:
+  version "1.0.17"
+  resolved "https://registry.yarnpkg.com/arlas-api/-/arlas-api-1.0.17.tgz#ab000f39b981eceb56a1263edc2e91aaf982b797"
 
 arlas-kv-api@~1.0.14:
   version "1.0.15"
