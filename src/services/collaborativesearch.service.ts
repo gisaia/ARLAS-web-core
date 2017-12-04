@@ -454,8 +454,8 @@ export class CollaborativesearchService {
         | [projType.count, Count], filters: Array<Filter>
     ): Observable<any> {
         const finalFilter: Filter = {};
-        const f: Array<Expression> = new Array<Expression>();
-        let q = '';
+        const f: Array<Array<Expression>> = new Array<Array<Expression>>();
+        const q: Array<Array<string>> = new Array<Array<string>>();
         filters.forEach(filter => {
             if (filter) {
                 if (filter.f) {
@@ -466,7 +466,11 @@ export class CollaborativesearchService {
                     });
                 }
                 if (filter.q) {
-                    q = q + filter.q + ' ';
+                    filter.q.forEach(qFilter => {
+                        if (q.indexOf(qFilter) < 0) {
+                            q.push(qFilter);
+                        }
+                    });
                 }
                 if (filter.pwithin) {
                     finalFilter.pwithin = filter.pwithin;
@@ -476,7 +480,7 @@ export class CollaborativesearchService {
         if (f.length > 0) {
             finalFilter.f = f;
         }
-        if (q !== '') {
+        if (q.length > 0) {
             finalFilter.q = q;
         }
 
@@ -655,7 +659,9 @@ export class CollaborativesearchService {
             const f: string[] = [];
             if (filter.f !== undefined) {
                 filter.f.forEach(e => {
-                    f.push(e.field + ':' + e.op + ':' + e.value);
+                    e.forEach(i => {
+                        f.push(i.field + ':' + i.op + ':' + i.value);
+                    });
                 });
             }
             return f;
