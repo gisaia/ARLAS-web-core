@@ -236,6 +236,21 @@ export class CollaborativesearchService {
     ): Observable<Hits> {
         return this.resolve(projection, contributorId, filter);
     }
+
+    /**
+    * Resolve an ARLAS Server Search or Count  request for an array of filter.
+    * @param projection  Type of projection of ARLAS Server request :Search or Count .
+    * @param filters  ARLAS API filters to resolve the request with compute
+    * @returns ARLAS Server observable.
+    */
+    public resolveComputeHits(projection:
+        [projType.search, Search]
+        | [projType.count, Count],
+        filters: Array<Filter>
+    ): Observable<Hits> {
+        return this.computeResolve(projection, filters);
+    }
+
     /**
     * Resolve an ARLAS Server Geosearch or Geoaggregate request with all the collaborations enabled in the collaboration registry
     expect for the contributor given in second optionnal parameter.
@@ -456,6 +471,7 @@ export class CollaborativesearchService {
         const finalFilter: Filter = {};
         const f: Array<Array<Expression>> = new Array<Array<Expression>>();
         const q: Array<Array<string>> = new Array<Array<string>>();
+        const p: Array<Array<string>> = new Array<Array<string>>();
         filters.forEach(filter => {
             if (filter) {
                 if (filter.f) {
@@ -473,7 +489,11 @@ export class CollaborativesearchService {
                     });
                 }
                 if (filter.pwithin) {
-                    finalFilter.pwithin = filter.pwithin;
+                    filter.pwithin.forEach(pwiFilter => {
+                        if (p.indexOf(pwiFilter) < 0) {
+                            p.push(pwiFilter);
+                        }
+                    });
                 }
             }
         });
@@ -483,7 +503,9 @@ export class CollaborativesearchService {
         if (q.length > 0) {
             finalFilter.q = q;
         }
-
+        if (p.length > 0) {
+            finalFilter.pwithin = p;
+        }
         let aggregationRequest: AggregationsRequest;
         let aggregationsForGet: string[];
         let search: Search;
@@ -659,14 +681,28 @@ export class CollaborativesearchService {
             const f: string[] = [];
             if (filter.f !== undefined) {
                 filter.f.forEach(e => {
+                    let union = '';
                     e.forEach(i => {
-                        f.push(i.field + ':' + i.op + ':' + i.value);
+                        union = union + i.field + ':' + i.op + ':' + i.value + ';';
                     });
+                    f.push(union.substring(0, union.length - 1));
                 });
             }
             return f;
         } else {
-            return filter[field];
+            const f: string[] = [];
+            if (filter[field] !== undefined) {
+                filter[field].forEach(e => {
+                    let union = '';
+                    e.forEach(i => {
+                        union = union + i + ';';
+                    });
+                    f.push(union.substring(0, union.length - 1));
+                });
+                return f;
+            } else {
+                return undefined;
+            }
         }
     }
 }
