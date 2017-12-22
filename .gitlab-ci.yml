@@ -8,7 +8,7 @@ lint:
   - npm run tslint
 arlas-web-core-doc:
   script:
-  - rm -rf dist/;npm run build-release;mv dist/docs .
+  - npm run build-release;mv dist/docs .
   artifacts:
     paths:
     - docs
