@@ -80,14 +80,13 @@ checkInput(){
 
 
 releaseProd(){
+    local folder="web"
     if [ "$3" == "components" ]; 
         then
         cd ../ARLAS-web-components/
-        local folder="web"
     elif [ "$3" == "contributors" ]; 
         then 
         cd ../ARLAS-web-contributors/
-        local folder="web"
     elif [ "$3" == "toolkit" ]; 
         then 
         cd ../ARLAS-wui-toolkit/
@@ -143,15 +142,14 @@ releaseProd(){
     git push origin develop
 }
 
-releaseDev(){ 
+releaseDev(){
+    local folder="web"
     if [ "$3" == "components" ]; 
         then
         cd ../ARLAS-web-components/
-        local folder="web"
     elif [ "$3" == "contributors" ]; 
         then 
         cd ../ARLAS-web-contributors/
-        local folder="web"
     elif [ "$3" == "toolkit" ]; 
         then 
         cd ../ARLAS-wui-toolkit/
