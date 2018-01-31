@@ -363,7 +363,7 @@ export class CollaborativesearchService {
      * Build query parameters from aggregation and filters
      * @return Url encoded string
      */
-    public getUrl(projection: [projType.geoaggregate, Array<Aggregation>], filters: Array<Filter>): string {
+    public getUrl(projection: [projType.geoaggregate | projType.geosearch, Array<Aggregation>], filters: Array<Filter>): string {
 
       const finalFilter = this.getFinalFilter(filters);
       let aggregationRequest: AggregationsRequest;
