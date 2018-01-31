@@ -358,6 +358,94 @@ export class CollaborativesearchService {
         const result: Observable<Hits> = this.resolveButNot([projType.count, {}]);
         this.countAll = result.map(c => c.totalnb);
     }
+
+    /**
+     * Build query parameters from aggregation and filters
+     * @return Url encoded string
+     */
+    public getUrl(
+        projection: [
+          projType.geoaggregate | projType.geosearch | projType.aggregate |
+          projType.count | projType.geohashgeoaggregate | projType.search | projType.tiledgeosearch,
+          Array<Aggregation>
+        ],
+        filters: Array<Filter>): string {
+
+      const finalFilter = this.getFinalFilter(filters);
+      let aggregationRequest: AggregationsRequest;
+      let aggregationsForGet: string[];
+
+      const fForGet = this.buildFilterFieldGetParam('f', finalFilter);
+      const qForGet = this.buildFilterFieldGetParam('q', finalFilter);
+      const pwithinForGet = [this.buildFilterFieldGetParam('pwithin', finalFilter)];
+      const gwithinForGet = [this.buildFilterFieldGetParam('gwithin', finalFilter)];
+      const gintersectForGet = [this.buildFilterFieldGetParam('gintersect', finalFilter)];
+      const notpwithinForGet = [this.buildFilterFieldGetParam('notpwithin', finalFilter)];
+      const notgwithinForGet = [this.buildFilterFieldGetParam('notgwithin', finalFilter)];
+      const notgintersectForGet = [this.buildFilterFieldGetParam('notgintersect', finalFilter)];
+
+      const queryParameters = new URLSearchParams();
+      aggregationRequest = <AggregationsRequest>{
+          filter: finalFilter,
+          aggregations: projection[1]
+      };
+      aggregationsForGet = this.buildAggGetParam(aggregationRequest);
+
+      if (aggregationsForGet
+        && (projection[0] === projType.geoaggregate
+        || projection[0] === projType.aggregate
+        || projection[0] === projType.geohashgeoaggregate)
+      ) {
+        aggregationsForGet.filter(element => element !== undefined).forEach(function (element) {
+              queryParameters.append('agg', element);
+          });
+      }
+      if (fForGet) {
+          fForGet.filter(element => element !== undefined).forEach(function (element) {
+              queryParameters.append('f', element);
+          });
+      }
+      if (qForGet !== undefined) {
+          queryParameters.set('q', qForGet);
+      }
+      if (pwithinForGet) {
+        pwithinForGet.filter(element => element !== undefined).forEach(function (element) {
+              queryParameters.append('pwithin', element);
+          });
+      }
+      if (gwithinForGet) {
+        gwithinForGet.filter(element => element !== undefined).forEach(function (element) {
+              queryParameters.append('gwithin', element);
+          });
+      }
+      if (gintersectForGet) {
+        gintersectForGet.filter(element => element !== undefined).forEach(function (element) {
+              queryParameters.append('gintersect', element);
+          });
+      }
+      if (notpwithinForGet) {
+        notpwithinForGet.filter(element => element !== undefined).forEach(function (element) {
+              queryParameters.append('notpwithin', element);
+          });
+      }
+      if (notgwithinForGet) {
+        notgwithinForGet.filter(element => element !== undefined).forEach(function (element) {
+              queryParameters.append('notgwithin', element);
+          });
+      }
+      if (notgintersectForGet) {
+        notgintersectForGet.filter(element => element !== undefined).forEach(function (element) {
+              queryParameters.append('notgintersect', element);
+          });
+      }
+      queryParameters.set('pretty', 'false');
+
+      if (this.max_age !== undefined) {
+          queryParameters.set('max-age-cache', this.max_age.toString());
+      }
+      return queryParameters.toString();
+    }
+
     /**
     * Set enabled value of a collaboration from a contributor identifier.
     * @param enabled  Enabled collaboration value.
@@ -468,44 +556,7 @@ export class CollaborativesearchService {
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count], filters: Array<Filter>
     ): Observable<any> {
-        const finalFilter: Filter = {};
-        const f: Array<Array<Expression>> = new Array<Array<Expression>>();
-        const q: Array<Array<string>> = new Array<Array<string>>();
-        const p: Array<Array<string>> = new Array<Array<string>>();
-        filters.forEach(filter => {
-            if (filter) {
-                if (filter.f) {
-                    filter.f.forEach(filt => {
-                        if (f.indexOf(filt) < 0) {
-                            f.push(filt);
-                        }
-                    });
-                }
-                if (filter.q) {
-                    filter.q.forEach(qFilter => {
-                        if (q.indexOf(qFilter) < 0) {
-                            q.push(qFilter);
-                        }
-                    });
-                }
-                if (filter.pwithin) {
-                    filter.pwithin.forEach(pwiFilter => {
-                        if (p.indexOf(pwiFilter) < 0) {
-                            p.push(pwiFilter);
-                        }
-                    });
-                }
-            }
-        });
-        if (f.length > 0) {
-            finalFilter.f = f;
-        }
-        if (q.length > 0) {
-            finalFilter.q = q;
-        }
-        if (p.length > 0) {
-            finalFilter.pwithin = p;
-        }
+        const finalFilter = this.getFinalFilter(filters);
         let aggregationRequest: AggregationsRequest;
         let aggregationsForGet: string[];
         let search: Search;
@@ -625,6 +676,48 @@ export class CollaborativesearchService {
                 break;
         }
         return result;
+    }
+
+    private getFinalFilter(filters: Array<Filter>): Filter {
+      const finalFilter: Filter = {};
+      const f: Array<Array<Expression>> = new Array<Array<Expression>>();
+      const q: Array<Array<string>> = new Array<Array<string>>();
+      const p: Array<Array<string>> = new Array<Array<string>>();
+      filters.forEach(filter => {
+          if (filter) {
+              if (filter.f) {
+                  filter.f.forEach(filt => {
+                      if (f.indexOf(filt) < 0) {
+                          f.push(filt);
+                      }
+                  });
+              }
+              if (filter.q) {
+                  filter.q.forEach(qFilter => {
+                      if (q.indexOf(qFilter) < 0) {
+                          q.push(qFilter);
+                      }
+                  });
+              }
+              if (filter.pwithin) {
+                  filter.pwithin.forEach(pwiFilter => {
+                      if (p.indexOf(pwiFilter) < 0) {
+                          p.push(pwiFilter);
+                      }
+                  });
+              }
+          }
+      });
+      if (f.length > 0) {
+          finalFilter.f = f;
+      }
+      if (q.length > 0) {
+          finalFilter.q = q;
+      }
+      if (p.length > 0) {
+          finalFilter.pwithin = p;
+      }
+      return finalFilter;
     }
 
     /**
