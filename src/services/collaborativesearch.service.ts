@@ -391,7 +391,10 @@ export class CollaborativesearchService {
       };
       aggregationsForGet = this.buildAggGetParam(aggregationRequest);
 
-      if (aggregationsForGet) {
+      if (aggregationsForGet
+        && projection[0] !== projType.geoaggregate
+        && projection[0] !== projType.aggregate
+        && projection[0] !== projType.geohashgeoaggregate) {
         aggregationsForGet.filter(element => element !== undefined).forEach(function (element) {
               queryParameters.append('agg', element);
           });
