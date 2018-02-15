@@ -1,19 +1,19 @@
 cache:
   paths:
   - node_modules/
-before_script:
-  - npm install
 lint:
   script:
   - npm run tslint
 arlas-web-core-doc:
   script:
+  - npm install
   - npm run build-release;mv dist/docs .
   artifacts:
     paths:
     - docs
     name: "arlas-web-core-doc"
-
-
+mkdocs:
+  script:
+  - ./mkDocs.sh
 
 
