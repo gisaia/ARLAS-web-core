@@ -1,5 +1,7 @@
 # ARLAS WEB CORE
 
+![Build Status](https://img.shields.io/travis/gisaia/ARLAS-web-core/develop.svg?label=develop)
+
 This library of services writting in typescript should be use to create an app using ARLAS-Server with ARLAS-web-components and ARLAS-web-contributors.
 
 ## Getting Started
