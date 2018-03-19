@@ -683,6 +683,7 @@ export class CollaborativesearchService {
       const f: Array<Array<Expression>> = new Array<Array<Expression>>();
       const q: Array<Array<string>> = new Array<Array<string>>();
       const p: Array<Array<string>> = new Array<Array<string>>();
+      const gi: Array<Array<string>> = new Array<Array<string>>();
       filters.forEach(filter => {
           if (filter) {
               if (filter.f) {
@@ -706,6 +707,13 @@ export class CollaborativesearchService {
                       }
                   });
               }
+              if (filter.gintersect) {
+                  filter.gintersect.forEach(giFilter => {
+                      if (gi.indexOf(giFilter) < 0) {
+                          gi.push(giFilter);
+                      }
+                  });
+              }
           }
       });
       if (f.length > 0) {
@@ -716,6 +724,9 @@ export class CollaborativesearchService {
       }
       if (p.length > 0) {
           finalFilter.pwithin = p;
+      }
+      if (gi.length > 0) {
+          finalFilter.gintersect = gi;
       }
       return finalFilter;
     }
