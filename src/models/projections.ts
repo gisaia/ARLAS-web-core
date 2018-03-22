@@ -18,6 +18,7 @@
  */
 
 import { Filter, Search, Aggregation } from 'arlas-api';
+
 /**
 * Enum  ARLAS SERVER type of request.
 */
