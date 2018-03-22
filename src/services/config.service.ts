@@ -19,6 +19,7 @@
 
 import { Subject } from 'rxjs/Rx';
 import { getObject } from '../utils/utils';
+
 export class ConfigService {
     /**
     * Bus of configuration error.

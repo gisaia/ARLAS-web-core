@@ -24,6 +24,7 @@
  * @param {string} objectKey? - optional
  * @returns {any} returns object by key or string value
  */
+
 export function getObject(datalayer: object, objectKey?: string): any {
     // if datalayer doesn't exists, just return
   if (!datalayer) {

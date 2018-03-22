@@ -17,11 +17,11 @@
  * under the License.
  */
 
-import { asElementData } from '@angular/core/src/view';
 import { ConfigService } from '../services/config.service';
 import { CollaborativesearchService } from '../services/collaborativesearch.service';
 import { OperationEnum, CollaborationEvent, Collaboration } from './collaboration';
 import { Observable } from 'rxjs/Rx';
+
 export abstract class Contributor {
 
     /**
