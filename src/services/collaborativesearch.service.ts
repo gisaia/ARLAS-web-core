@@ -82,7 +82,9 @@ export class CollaborativesearchService {
     * Configuration Service used by the collaborativesearchService.
     */
     private configService: ConfigService;
-    private options = {query: null, headers: null};
+    private options = {
+        credentials: 'include'
+    };
     constructor() {
         /**
         * Subscribe ongoingSubscribe bus to know how many subscribe are on going.
@@ -601,7 +603,7 @@ export class CollaborativesearchService {
                   this.exploreApi.aggregate(this.collection, aggregationsForGet,
                     fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, this.max_age)
+                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.options)
                 );
                 break;
             case projType.geoaggregate.valueOf():
@@ -614,7 +616,7 @@ export class CollaborativesearchService {
                   this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
                     fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, this.max_age)
+                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.options)
                 );
                 break;
             case projType.geohashgeoaggregate.valueOf():
@@ -629,14 +631,14 @@ export class CollaborativesearchService {
                   this.exploreApi.geohashgeoaggregate(this.collection, geohash, aggregationsForGet,
                     fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, this.max_age)
+                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.options)
                 );
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>Observable.fromPromise(
                   this.exploreApi.count(this.collection, fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, this.max_age)
+                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.options)
                 );
                 break;
             case projType.search.valueOf():
@@ -664,7 +666,7 @@ export class CollaborativesearchService {
                   this.exploreApi.search(this.collection, fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                     , notgwithinForGet, notgintersectForGet, false, includes, excludes, search.size.size,
-                    search.size.from, sort, this.max_age)
+                    search.size.from, sort, this.max_age, this.options)
                 );
                 break;
             case projType.geosearch.valueOf():
@@ -682,7 +684,7 @@ export class CollaborativesearchService {
                   this.exploreApi.geosearch(this.collection, fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                     , notgwithinForGet, notgintersectForGet, false, includes, excludes, search.size.size,
-                    search.size.from, null, this.max_age)
+                    search.size.from, null, this.max_age, this.options)
                 );
                 break;
             case projType.tiledgeosearch.valueOf():
@@ -704,7 +706,7 @@ export class CollaborativesearchService {
                     , fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                     , notgwithinForGet, notgintersectForGet, false, includes, excludes,
-                    search.size.size, search.size.from, null, this.max_age)
+                    search.size.size, search.size.from, null, this.max_age, this.options)
                 );
                 break;
         }
