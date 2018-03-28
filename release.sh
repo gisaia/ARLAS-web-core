@@ -15,22 +15,27 @@ if [[ ! -d ../ARLAS-wui-toolkit/ ]] ; then
     exit
 fi
 
+if [[ ! -d ../ARLAS-d3/ ]] ; then
+    echo 'Directory "../ARLAS-d3/" is not there, aborting.'
+    exit
+fi
+
 level_version=("major" "minor" "patch")
 
-usage(){ 
+usage(){
 	echo "Usage: ./release.sh -core='1.0.0;major' -cont='1.1.0;minor' -comp='1.1.1;patch' -prod"
 	echo "Usage: ./release.sh -all='1.0.0-dev0;minor'"
 	echo "Usage: ./release.sh -all='1.0.0;major' -cont='1.1.0;minor'"
 	echo " -core|--arlas-web-core     arlas-web-core version release,level of evolution"
-	echo " -cont|--arlas-web-contributors      arlas-web-contributors version release,level of evolution"
-	echo " -comp|--arlas-web-components    arlas-web-components version release,level of evolution"
-    echo " -tool|--arlas-wui-toolkit    arlas-wui-toolkit version release,level of evolution"
-	echo " -all|--global    all project have same version release,level of evolution"
-    echo " -prod|--production    if present publish on public npm and tag from master git branch, if not publish on gisaia private npm and tag from develop, not present by defaut"
-	echo " if -all and -core or -cont or comp parametes are mixed, the specified version is released"
+	echo " -cont|--arlas-web-contributors      arlas-web-contributors version release, level of evolution"
+	echo " -comp|--arlas-web-components    arlas-web-components version release, level of evolution"
+	echo " -d3|--arlas-d3    arlas-d3 version release, level of evolution"
+  echo " -tool|--arlas-wui-toolkit    arlas-wui-toolkit version release, level of evolution"
+	echo " -all|--global    all project have same version release, level of evolution"
+  echo " -prod|--production    if present publish on public npm and tag from master git branch, if not publish on gisaia private npm and tag from develop, not present by defaut"
+	echo " if -all and -core or -cont or -comp or -d3 parametes are mixed, the specified version is released"
 	exit 1
 }
-
 
 contains(){
     local n=$#
@@ -52,7 +57,7 @@ checkInput(){
     if [ "$TABLEN" -ne "$TWO" ];
         then
             usage;
-    else 
+    else
         if [ $(contains "${level_version[@]}" "${TAB[1]}") == "n" ];
             then
                 echo "Unknown level of evolution value : ${TAB[1]}"
@@ -64,35 +69,41 @@ checkInput(){
                 if ! [[ ${TAB[0]} =~ ^[0-9]*\.[0-9]*\.[0-9]*$ ]]
                     then
                     echo ""${TAB[0]}" version value is not valid. Format : vX.Y.Z in --prod mode"
-                    usage;     
-                fi           
+                    usage;
+                fi
         else
             if ! [[ ${TAB[0]} =~ ^[0-9]*\.[0-9]*\.[0-9]*-dev[0-9]*$ ]];
                 then
                     echo ""${TAB[0]}" version value is not valid. Format :  vX.Y.Z-devN in dev mode"
-                    usage;                
-            fi           
+                    usage;
+            fi
         fi
     fi
-    
+
 }
 
 
 
 releaseProd(){
-    local folder="web"
-    if [ "$3" == "components" ]; 
+    local folder="web-core"
+    if [ "$3" == "components" ];
         then
         cd ../ARLAS-web-components/
-    elif [ "$3" == "contributors" ]; 
-        then 
+        local folder="web-components"
+    elif [ "$3" == "d3" ];
+        then
+        cd ../ARLAS-d3/
+        local folder="d3"
+    elif [ "$3" == "contributors" ];
+        then
         cd ../ARLAS-web-contributors/
-    elif [ "$3" == "toolkit" ]; 
-        then 
+        local folder="web-contributors"
+    elif [ "$3" == "toolkit" ];
+        then
         cd ../ARLAS-wui-toolkit/
-        local folder="wui"
+        local folder="wui-toolkit"
     fi
-    echo "=> Get develop branch of ARLAS-$folder-$3 project"
+    echo "=> Get develop branch of ARLAS-$folder project"
     git checkout  develop
     git pull origin develop
     echo "=> Test to lint and build the project on develop branch"
@@ -104,7 +115,7 @@ releaseProd(){
     git checkout master
     git pull origin master
     git merge develop -m'merge develop to master'
-    jq  '.name = "arlas-'$folder'-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.name = "arlas-'$folder'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq -c 'del(.compilerOptions.paths)' tsconfig.json > tmp.$$.json && mv tmp.$$.json tsconfig.json
     jq -c 'del(.compilerOptions.paths)' tsconfig-build.json > tmp.$$.json && mv tmp.$$.json tsconfig-build.json
@@ -120,7 +131,7 @@ releaseProd(){
     git tag -a v"$1" -m"$commit_message_master"
     git push origin v"$1"
     cd dist
-    jq  '.name = "arlas-'$folder'-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.name = "arlas-'$folder'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     echo "=> Publish to npm"
     npm publish
@@ -134,7 +145,7 @@ releaseProd(){
     minor=${TAB[1]}
     newminor=$(( $minor + 1 ))
     newDevVersion=${major}.${newminor}.0
-    jq  '.name = "@gisaia-team/arlas-'$folder'-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.name = "@gisaia-team/arlas-'$folder'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$newDevVersion"'-dev0"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     git add .
     commit_message_develop="upadte package.json to"-"$newDevVersion"
@@ -143,19 +154,25 @@ releaseProd(){
 }
 
 releaseDev(){
-    local folder="web"
-    if [ "$3" == "components" ]; 
+    local folder="web-core"
+    if [ "$3" == "components" ];
         then
         cd ../ARLAS-web-components/
-    elif [ "$3" == "contributors" ]; 
-        then 
+        local folder="web-components"
+    elif [ "$3" == "d3" ];
+        then
+        cd ../ARLAS-d3/
+        local folder="d3"
+    elif [ "$3" == "contributors" ];
+        then
         cd ../ARLAS-web-contributors/
-    elif [ "$3" == "toolkit" ]; 
-        then 
+        local folder="web-contributors"
+    elif [ "$3" == "toolkit" ];
+        then
         cd ../ARLAS-wui-toolkit/
-        local folder="wui"
+        local folder="wui-toolkit"
     fi
-    echo "=> Get develop branch of ARLAS-$folder-$3 project"
+    echo "=> Get develop branch of ARLAS-$folder project"
     git checkout  develop
     git pull origin develop
     echo "=> Test to lint and build the project on develop branch"
@@ -167,7 +184,7 @@ releaseDev(){
     yarn build-release
     cp package-release.json  dist/package.json
     cd dist
-    jq  '.name = "@gisaia-team/arlas-'$folder'-'$3'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
+    jq  '.name = "@gisaia-team/arlas-'$folder'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     npm publish
     cd ..
@@ -206,6 +223,10 @@ case $i in
     ARLAS_COMP="${i#*=}"
     shift # past argument=value
     ;;
+    -d3=*|--arlas-d3=*)
+    ARLAS_D3="${i#*=}"
+    shift # past argument=value
+    ;;
     -tool=*|--arlas-wui-toolkit=*)
     ARLAS_TOOL="${i#*=}"
     shift # past argument=value
@@ -228,86 +249,107 @@ case $i in
 esac
 done
 
-if [ ! -z ${ARLAS_HELP+x} ]; 
+if [ ! -z ${ARLAS_HELP+x} ];
     then
         usage;
 fi
 
-if [ ! -z ${ARLAS_CORE+x} ]; 
+if [ ! -z ${ARLAS_CORE+x} ];
     then
         checkInput ${ARLAS_CORE} ${ARLAS_PROD}
-        IFS=';' read -ra TABCORE <<< "$ARLAS_CORE"       
+        IFS=';' read -ra TABCORE <<< "$ARLAS_CORE"
         ARLAS_CORE_VERS="${TABCORE[0]}";
-        ARLAS_CORE_LEVEL="${TABCORE[1]}";    
+        ARLAS_CORE_LEVEL="${TABCORE[1]}";
 elif [ ! -z ${ARLAS_ALL+x} ];
     then
         checkInput ${ARLAS_ALL} ${ARLAS_PROD}
-        IFS=';' read -ra TABCORE <<< "$ARLAS_ALL"       
+        IFS=';' read -ra TABCORE <<< "$ARLAS_ALL"
         ARLAS_CORE_VERS="${TABCORE[0]}";
-        ARLAS_CORE_LEVEL="${TABCORE[1]}";   
+        ARLAS_CORE_LEVEL="${TABCORE[1]}";
 fi
 
-if [ ! -z ${ARLAS_CONT+x} ]; 
+if [ ! -z ${ARLAS_CONT+x} ];
     then
         checkInput ${ARLAS_CONT} ${ARLAS_PROD}
-        IFS=';' read -ra TABCONT <<< "$ARLAS_CONT"       
+        IFS=';' read -ra TABCONT <<< "$ARLAS_CONT"
         ARLAS_CONT_VERS="${TABCONT[0]}";
-        ARLAS_CONT_LEVEL="${TABCONT[1]}";    
+        ARLAS_CONT_LEVEL="${TABCONT[1]}";
 elif [ ! -z ${ARLAS_ALL+x} ];
-    then 
+    then
         checkInput ${ARLAS_ALL} ${ARLAS_PROD}
-        IFS=';' read -ra TABCONT <<< "$ARLAS_ALL"       
+        IFS=';' read -ra TABCONT <<< "$ARLAS_ALL"
         ARLAS_CONT_VERS="${TABCONT[0]}";
-        ARLAS_CONT_LEVEL="${TABCONT[1]}";   
+        ARLAS_CONT_LEVEL="${TABCONT[1]}";
 fi
 
-if [ ! -z ${ARLAS_COMP+x} ]; 
+if [ ! -z ${ARLAS_COMP+x} ];
     then
         checkInput ${ARLAS_COMP} ${ARLAS_PROD}
-        IFS=';' read -ra TABCOMP <<< "$ARLAS_COMP"       
+        IFS=';' read -ra TABCOMP <<< "$ARLAS_COMP"
         ARLAS_COMP_VERS="${TABCOMP[0]}";
-        ARLAS_COMP_LEVEL="${TABCOMP[1]}";    
+        ARLAS_COMP_LEVEL="${TABCOMP[1]}";
 elif [ ! -z ${ARLAS_ALL+x} ];
-    then 
+    then
         checkInput ${ARLAS_ALL} ${ARLAS_PROD}
-        IFS=';' read -ra TABCOMP <<< "$ARLAS_ALL"       
+        IFS=';' read -ra TABCOMP <<< "$ARLAS_ALL"
         ARLAS_COMP_VERS="${TABCOMP[0]}";
-        ARLAS_COMP_LEVEL="${TABCOMP[1]}";   
+        ARLAS_COMP_LEVEL="${TABCOMP[1]}";
 fi
 
-if [ ! -z ${ARLAS_TOOL+x} ]; 
+if [ ! -z ${ARLAS_D3+x} ];
+    then
+        checkInput ${ARLAS_D3} ${ARLAS_PROD}
+        IFS=';' read -ra TABD3 <<< "$ARLAS_D3"
+        ARLAS_D3_VERS="${TABD3[0]}";
+        ARLAS_D3_LEVEL="${TABD3[1]}";
+elif [ ! -z ${ARLAS_ALL+x} ];
+    then
+        checkInput ${ARLAS_ALL} ${ARLAS_PROD}
+        IFS=';' read -ra TABD3 <<< "$ARLAS_ALL"
+        ARLAS_D3_VERS="${TABD3[0]}";
+        ARLAS_D3_LEVEL="${TABD3[1]}";
+fi
+
+if [ ! -z ${ARLAS_TOOL+x} ];
     then
         checkInput ${ARLAS_TOOL} ${ARLAS_PROD}
-        IFS=';' read -ra TABCOMP <<< "$ARLAS_TOOL"       
+        IFS=';' read -ra TABCOMP <<< "$ARLAS_TOOL"
         ARLAS_TOOL_VERS="${TABCOMP[0]}";
-        ARLAS_TOOL_LEVEL="${TABCOMP[1]}";    
+        ARLAS_TOOL_LEVEL="${TABCOMP[1]}";
 elif [ ! -z ${ARLAS_ALL+x} ];
-    then 
+    then
         checkInput ${ARLAS_ALL} ${ARLAS_PROD}
-        IFS=';' read -ra TABCOMP <<< "$ARLAS_ALL"       
+        IFS=';' read -ra TABCOMP <<< "$ARLAS_ALL"
         ARLAS_TOOL_VERS="${TABCOMP[0]}";
-        ARLAS_TOOL_LEVEL="${TABCOMP[1]}";   
+        ARLAS_TOOL_LEVEL="${TABCOMP[1]}";
 fi
 
 if [ ! -z ${ARLAS_CORE_VERS+x} ] && [ ! -z ${ARLAS_CORE_LEVEL+x} ];
-    then 
-        echo "Release ARLAS-web-core  ${ARLAS_CORE_LEVEL} version                    : ${ARLAS_CORE_VERS}"; 
+    then
+        echo "Release ARLAS-web-core  ${ARLAS_CORE_LEVEL} version                    : ${ARLAS_CORE_VERS}";
         release ${ARLAS_CORE_VERS} ${ARLAS_CORE_LEVEL} "core" ${ARLAS_PROD}
 fi
 
 if [ ! -z ${ARLAS_CONT_VERS+x} ] && [ ! -z ${ARLAS_CONT_LEVEL+x} ];
-    then 
-        echo "Release ARLAS-web-components  ${ARLAS_CONT_VERS} version                    : ${ARLAS_CONT_LEVEL}"; 
+    then
+        echo "Release ARLAS-web-contributors  ${ARLAS_CONT_VERS} version                    : ${ARLAS_CONT_LEVEL}";
         release ${ARLAS_CONT_VERS} ${ARLAS_CONT_LEVEL} "contributors" ${ARLAS_PROD}
 fi
 
 if [ ! -z ${ARLAS_COMP_VERS+x} ] && [ ! -z ${ARLAS_COMP_LEVEL+x} ];
-    then  
-        echo "Release ARLAS-web-contributors  ${ARLAS_COMP_VERS} version                    : ${ARLAS_COMP_LEVEL}"; 
+    then
+        echo "Release ARLAS-web-components  ${ARLAS_COMP_VERS} version                    : ${ARLAS_COMP_LEVEL}";
         release ${ARLAS_COMP_VERS} ${ARLAS_COMP_LEVEL} "components" ${ARLAS_PROD}
 fi
+
+if [ ! -z ${ARLAS_D3_VERS+x} ] && [ ! -z ${ARLAS_D3_LEVEL+x} ];
+    then
+        echo "Release ARLAS-d3  ${ARLAS_D3_VERS} version                    : ${ARLAS_D3_LEVEL}";
+        release ${ARLAS_D3_VERS} ${ARLAS_D3_LEVEL} "d3" ${ARLAS_PROD}
+fi
+
 if [ ! -z ${ARLAS_TOOL_VERS+x} ] && [ ! -z ${ARLAS_TOOL_LEVEL+x} ];
-    then  
-        echo "Release ARLAS-wui-toolkit  ${ARLAS_TOOL_VERS} version                    : ${ARLAS_TOOL_LEVEL}"; 
+    then
+        echo "Release ARLAS-wui-toolkit  ${ARLAS_TOOL_VERS} version                    : ${ARLAS_TOOL_LEVEL}";
         release ${ARLAS_TOOL_VERS} ${ARLAS_TOOL_LEVEL} "toolkit" ${ARLAS_PROD}
 fi
