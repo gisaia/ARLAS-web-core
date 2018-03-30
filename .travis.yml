@@ -14,8 +14,14 @@ cache:
 jobs:
   include:
     - before_script: yarn global add tslint typescript
+      env:
+        - job=lint
       script: npm run tslint
-    - script:
+    - env:
+        - job=build_release
+      script:
       - npm install
       - npm run build-release; mv dist/docs .
-    - script: ./mkDocs.sh
+    - env:
+        - job=generate_documentation
+      script: ./mkDocs.sh
