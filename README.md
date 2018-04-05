@@ -1,6 +1,7 @@
 # ARLAS WEB CORE
 
 [![Build Status](https://travis-ci.org/gisaia/ARLAS-web-core.svg?branch=develop)](https://travis-ci.org/gisaia/ARLAS-web-core)
+[![npm version](https://badge.fury.io/js/arlas-web-core.svg)](https://badge.fury.io/js/arlas-web-core)
 
 This library of services writting in typescript should be use to create an app using ARLAS-Server with ARLAS-web-components and ARLAS-web-contributors.
 
