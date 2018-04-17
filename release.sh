@@ -82,6 +82,18 @@ checkInput(){
 
 }
 
+checkfilesize(){
+    file=$1
+    minimumsize=1
+    actualsize=$(wc -c <"$file")
+    if [ $actualsize -ge $minimumsize ]; then
+        echo  "$file" size is over $minimumsize bytes
+    else
+        echo "Dist build contains empty js or ts file,  "$file" try again"
+        exit 1
+    fi
+}
+
 
 
 releaseProd(){
@@ -127,6 +139,11 @@ releaseProd(){
     yarn install
     yarn tslint
     yarn build-release
+    #check dist files size
+    for file in $(find dist -name '*.js' -or -name '*.ts');
+    do
+    checkfilesize $file
+    done
     cp package-release.json  dist/package.json
     git tag -a v"$1" -m"$commit_message_master"
     git push origin v"$1"
@@ -182,6 +199,11 @@ releaseDev(){
     fi
     yarn tslint
     yarn build-release
+    #check dist files size
+    for file in $(find dist -name '*.js' -or -name '*.ts');
+    do
+    checkfilesize $file
+    done
     cp package-release.json  dist/package.json
     cd dist
     jq  '.name = "@gisaia-team/arlas-'$folder'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
