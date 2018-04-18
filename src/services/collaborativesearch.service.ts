@@ -467,6 +467,59 @@ export class CollaborativesearchService {
       return queryParameters.toString();
     }
 
+    public getFinalFilter(filters: Array<Filter>): Filter {
+      const finalFilter: Filter = {};
+      const f: Array<Array<Expression>> = new Array<Array<Expression>>();
+      const q: Array<Array<string>> = new Array<Array<string>>();
+      const p: Array<Array<string>> = new Array<Array<string>>();
+      const gi: Array<Array<string>> = new Array<Array<string>>();
+      filters.forEach(filter => {
+          if (filter) {
+              if (filter.f) {
+                  filter.f.forEach(filt => {
+                      if (f.indexOf(filt) < 0) {
+                          f.push(filt);
+                      }
+                  });
+              }
+              if (filter.q) {
+                  filter.q.forEach(qFilter => {
+                      if (q.indexOf(qFilter) < 0) {
+                          q.push(qFilter);
+                      }
+                  });
+              }
+              if (filter.pwithin) {
+                  filter.pwithin.forEach(pwiFilter => {
+                      if (p.indexOf(pwiFilter) < 0) {
+                          p.push(pwiFilter);
+                      }
+                  });
+              }
+              if (filter.gintersect) {
+                  filter.gintersect.forEach(giFilter => {
+                      if (gi.indexOf(giFilter) < 0) {
+                          gi.push(giFilter);
+                      }
+                  });
+              }
+          }
+      });
+      if (f.length > 0) {
+          finalFilter.f = f;
+      }
+      if (q.length > 0) {
+          finalFilter.q = q;
+      }
+      if (p.length > 0) {
+          finalFilter.pwithin = p;
+      }
+      if (gi.length > 0) {
+          finalFilter.gintersect = gi;
+      }
+      return finalFilter;
+    }
+
     /**
     * Set enabled value of a collaboration from a contributor identifier.
     * @param enabled  Enabled collaboration value.
@@ -711,59 +764,6 @@ export class CollaborativesearchService {
                 break;
         }
         return result;
-    }
-
-    private getFinalFilter(filters: Array<Filter>): Filter {
-      const finalFilter: Filter = {};
-      const f: Array<Array<Expression>> = new Array<Array<Expression>>();
-      const q: Array<Array<string>> = new Array<Array<string>>();
-      const p: Array<Array<string>> = new Array<Array<string>>();
-      const gi: Array<Array<string>> = new Array<Array<string>>();
-      filters.forEach(filter => {
-          if (filter) {
-              if (filter.f) {
-                  filter.f.forEach(filt => {
-                      if (f.indexOf(filt) < 0) {
-                          f.push(filt);
-                      }
-                  });
-              }
-              if (filter.q) {
-                  filter.q.forEach(qFilter => {
-                      if (q.indexOf(qFilter) < 0) {
-                          q.push(qFilter);
-                      }
-                  });
-              }
-              if (filter.pwithin) {
-                  filter.pwithin.forEach(pwiFilter => {
-                      if (p.indexOf(pwiFilter) < 0) {
-                          p.push(pwiFilter);
-                      }
-                  });
-              }
-              if (filter.gintersect) {
-                  filter.gintersect.forEach(giFilter => {
-                      if (gi.indexOf(giFilter) < 0) {
-                          gi.push(giFilter);
-                      }
-                  });
-              }
-          }
-      });
-      if (f.length > 0) {
-          finalFilter.f = f;
-      }
-      if (q.length > 0) {
-          finalFilter.q = q;
-      }
-      if (p.length > 0) {
-          finalFilter.pwithin = p;
-      }
-      if (gi.length > 0) {
-          finalFilter.gintersect = gi;
-      }
-      return finalFilter;
     }
 
     /**
