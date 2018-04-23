@@ -16,21 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import { Expression, Sort } from 'arlas-api';
-import { AggregationResponse, Hits, Size } from 'arlas-api';
+import { Aggregation, AggregationResponse, AggregationsRequest,
+  CollectionReferenceDescription, Count, ExploreApi, Expression,
+  FeatureCollection, Filter, Hits, Search, WriteApi, TagRequest, UpdateResponse
+} from 'arlas-api';
 import { Observable, Subject } from 'rxjs/Rx';
-import { ExploreApi } from 'arlas-api';
 import { Collaboration, CollaborationEvent, OperationEnum } from '../models/collaboration';
-import { AggregationsRequest } from 'arlas-api';
-import { Aggregation } from 'arlas-api';
-import { Filter } from 'arlas-api';
-import { FeatureCollection } from 'arlas-api';
-import { Count } from 'arlas-api';
-import { Search } from 'arlas-api';
-import { ConfigService } from './config.service';
 import { Contributor } from '../models/contributor';
-import { projType, GeohashAggregation, TiledSearch } from '../models/projections';
+import { GeohashAggregation, TiledSearch, projType } from '../models/projections';
+import { ConfigService } from './config.service';
 
 export class CollaborativesearchService {
     /**
@@ -79,6 +73,10 @@ export class CollaborativesearchService {
     */
     private exploreApi: ExploreApi;
     /**
+    * ARLAS SERVER Write Api used by the collaborativesearchService.
+    */
+    private writeApi: WriteApi;
+    /**
     * Configuration Service used by the collaborativesearchService.
     */
     private configService: ConfigService;
@@ -119,6 +117,20 @@ export class CollaborativesearchService {
     */
     public setExploreApi(exploreApi: ExploreApi) {
         this.exploreApi = exploreApi;
+    }
+    /**
+    * Return the ARLAS Write API.
+    * @returns WriteApi.
+    */
+    public getWriteApi() {
+      return this.writeApi;
+    }
+    /**
+    * Set the ARLAS Write API.
+    * @param api : WriteApi.
+    */
+    public setWriteApi(writeApi: WriteApi) {
+        this.writeApi = writeApi;
     }
     /**
     * Return the Configuraion Service.
@@ -518,6 +530,48 @@ export class CollaborativesearchService {
           finalFilter.gintersect = gi;
       }
       return finalFilter;
+    }
+
+    /**
+     * Describe the structure and the content of the given collection.
+     * @param collection collection name
+     * @param pretty Whether pretty print or not
+     * @param maxAgeCache max-age-cache
+     * @param options Override http request options
+     */
+    public describe(collection: string, pretty?: boolean, maxAgeCache?: number, options?: any): Observable<CollectionReferenceDescription> {
+      const result = <Observable<CollectionReferenceDescription>>Observable.fromPromise(
+        this.exploreApi.describe(collection, pretty, maxAgeCache, options)
+      );
+      return result;
+    }
+
+    /**
+     * Search and tag the elements found in the collection, given the filters
+     * @param collection collection name
+     * @param body Request body
+     * @param pretty Whether pretty print or not
+     * @param options Override http request options
+     */
+    public tag(collection: string, body?: TagRequest, pretty?: boolean, options?: any): Observable<UpdateResponse> {
+      const result = <Observable<UpdateResponse>>Observable.fromPromise(
+        this.writeApi.tagPost(collection, body, pretty, options)
+      );
+      return result;
+    }
+
+    /**
+     * Search and untag the elements found in the collection, given the filters
+     * @param collection collection name
+     * @param body Request body
+     * @param pretty Whether pretty print or not
+     * @param options Override http request options
+     */
+    public untag(collection: string, body?: TagRequest, pretty?: boolean, options?: any): Observable<UpdateResponse> {
+      const result = <Observable<UpdateResponse>>Observable.fromPromise(
+        this.writeApi.untagPost(collection, body, pretty, options)
+      );
+      return result;
     }
 
     /**
