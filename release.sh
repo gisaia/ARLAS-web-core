@@ -165,7 +165,7 @@ releaseProd(){
     jq  '.name = "@gisaia-team/arlas-'$folder'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$newDevVersion"'-dev0"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     git add .
-    commit_message_develop="upadte package.json to"-"$newDevVersion"
+    commit_message_develop="update package.json to"-"$newDevVersion"
     git commit -m"$commit_message_develop" --allow-empty
     git push origin develop
 }
@@ -213,7 +213,7 @@ releaseDev(){
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     rm -rf dist
     git add .
-    commit_message_develop="dev automatic release upadte package.json to"-"$1"
+    commit_message_develop="dev automatic release update package.json to"-"$1"
     git commit -m"$commit_message_develop" --allow-empty
     git push origin develop
 }
