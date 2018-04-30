@@ -18,7 +18,7 @@
  */
 import { Aggregation, AggregationResponse, AggregationsRequest,
   CollectionReferenceDescription, Count, ExploreApi, Expression,
-  FeatureCollection, Filter, Hits, Search, WriteApi, TagRequest, UpdateResponse
+  FeatureCollection, Filter, Hits, Search, WriteApi, TagRequest, UpdateResponse, RangeRequest, RangeResponse
 } from 'arlas-api';
 import { Observable, Subject } from 'rxjs/Rx';
 import { Collaboration, CollaborationEvent, OperationEnum } from '../models/collaboration';
@@ -345,6 +345,20 @@ export class CollaborativesearchService {
         return this.resolve(projection, contributorId, filter);
     }
     /**
+    * Resolve an ARLAS Server Range request with all the collaborations enabled in the collaboration registry
+    expect for the contributor given in second optionnal parameter.
+    * @param projection  Type of projection of ARLAS Server request:Aggregation.
+    * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @returns ARLAS Server observable.
+    */
+    public resolveButNotFieldRange(projection:
+        [projType.range, RangeRequest],
+        contributorId?: string, filter?: Filter
+    ): Observable<RangeResponse> {
+        return this.resolveButNot(projection, contributorId, filter);
+    }
+    /**
     * Enable a contributor collaboration from its identifier.
     */
     public enable(contributorId: string) {
@@ -601,7 +615,8 @@ export class CollaborativesearchService {
         | [projType.geohashgeoaggregate, GeohashAggregation]
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
-        | [projType.count, Count],
+        | [projType.count, Count]
+        | [projType.range, RangeRequest],
         contributorId?: string, filter?: Filter
     ): Observable<any> {
         try {
@@ -636,7 +651,8 @@ export class CollaborativesearchService {
         | [projType.geohashgeoaggregate, GeohashAggregation]
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
-        | [projType.count, Count],
+        | [projType.count, Count]
+        | [projType.range, RangeRequest],
         contributorId?: string, filter?: Filter
     ): Observable<any> {
         try {
@@ -678,7 +694,8 @@ export class CollaborativesearchService {
         | [projType.geohashgeoaggregate, GeohashAggregation]
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
-        | [projType.count, Count], filters: Array<Filter>
+        | [projType.count, Count]
+        | [projType.range, RangeRequest], filters: Array<Filter>
     ): Observable<any> {
         const finalFilter = this.getFinalFilter(filters);
         let aggregationRequest: AggregationsRequest;
@@ -810,6 +827,18 @@ export class CollaborativesearchService {
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                     , notgwithinForGet, notgintersectForGet, false, includes, excludes,
                     search.size.size, search.size.from, null, this.max_age, this.options)
+                );
+                break;
+            case projType.range.valueOf():
+                const rangeRequest: RangeRequest = <RangeRequest>{
+                    filter: finalFilter,
+                    field: (<RangeRequest>projection[1]).field
+                };
+                result = <Observable<RangeResponse>>Observable.fromPromise(
+                    this.exploreApi.range(this.collection, rangeRequest.field
+                        , fForGet, qForGet
+                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                        , notgwithinForGet, notgintersectForGet, false, this.max_age, this.options)
                 );
                 break;
         }
