@@ -536,12 +536,10 @@ export class CollaborativesearchService {
      * Describe the structure and the content of the given collection.
      * @param collection collection name
      * @param pretty Whether pretty print or not
-     * @param maxAgeCache max-age-cache
-     * @param options Override http request options
      */
-    public describe(collection: string, pretty?: boolean, maxAgeCache?: number, options?: any): Observable<CollectionReferenceDescription> {
+    public describe(collection: string, pretty?: boolean): Observable<CollectionReferenceDescription> {
       const result = <Observable<CollectionReferenceDescription>>Observable.fromPromise(
-        this.exploreApi.describe(collection, pretty, maxAgeCache, options)
+        this.exploreApi.describe(collection, pretty, this.max_age, this.options)
       );
       return result;
     }
@@ -551,11 +549,10 @@ export class CollaborativesearchService {
      * @param collection collection name
      * @param body Request body
      * @param pretty Whether pretty print or not
-     * @param options Override http request options
      */
-    public tag(collection: string, body?: TagRequest, pretty?: boolean, options?: any): Observable<UpdateResponse> {
+    public tag(collection: string, body?: TagRequest, pretty?: boolean): Observable<UpdateResponse> {
       const result = <Observable<UpdateResponse>>Observable.fromPromise(
-        this.writeApi.tagPost(collection, body, pretty, options)
+        this.writeApi.tagPost(collection, body, pretty, this.options)
       );
       return result;
     }
@@ -565,11 +562,10 @@ export class CollaborativesearchService {
      * @param collection collection name
      * @param body Request body
      * @param pretty Whether pretty print or not
-     * @param options Override http request options
      */
-    public untag(collection: string, body?: TagRequest, pretty?: boolean, options?: any): Observable<UpdateResponse> {
+    public untag(collection: string, body?: TagRequest, pretty?: boolean): Observable<UpdateResponse> {
       const result = <Observable<UpdateResponse>>Observable.fromPromise(
-        this.writeApi.untagPost(collection, body, pretty, options)
+        this.writeApi.untagPost(collection, body, pretty, this.options)
       );
       return result;
     }
