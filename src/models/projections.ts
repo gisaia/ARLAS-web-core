@@ -29,8 +29,8 @@ export enum projType {
   count,
   search,
   geosearch,
-  tiledgeosearch
-
+  tiledgeosearch,
+  range
 }
 
 export interface TiledSearch {
