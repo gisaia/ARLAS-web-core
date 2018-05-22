@@ -21,7 +21,7 @@ jobs:
         - job=build_release
       script:
       - npm install
-      - npm run build-release; mv dist/docs .
+      - npm run build-release
     - env:
         - job=generate_documentation
       script: ./mkDocs.sh
