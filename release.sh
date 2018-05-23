@@ -132,9 +132,9 @@ releaseProd(){
     jq -c 'del(.compilerOptions.paths)' tsconfig.json > tmp.$$.json && mv tmp.$$.json tsconfig.json
     jq -c 'del(.compilerOptions.paths)' tsconfig-build.json > tmp.$$.json && mv tmp.$$.json tsconfig-build.json
     git add .
+
     commit_message_master="prod automatic release"-"$1"
-    git commit -m"$commit_message_master" --allow-empty
-    git push origin master
+
     echo "=> Tag master"
     yarn install
     yarn tslint
@@ -147,6 +147,26 @@ releaseProd(){
     cp package-release.json  dist/package.json
     git tag -a v"$1" -m"$commit_message_master"
     git push origin v"$1"
+
+    echo "=> Generate CHANGELOG"
+    docker run -it --rm -v "$(pwd)":/usr/local/src/your-app gisaia/github-changelog-generator:latest github_changelog_generator \
+      -u gisaia -p ARLAS-"$folder" --token 479b4f9b9390acca5c931dd34e3b7efb21cbf6d0 --no-pr-wo-labels --no-issues-wo-labels --no-unreleased \
+      --issue-line-labels conf,documentation,CI,ALL,DONUT,RESULTLIST,POWERBARS,HISTOGRAM,MAP \
+      --exclude-labels type:duplicate,type:question,type:wontfix,type:invalid \
+      --bug-labels type:bug --enhancement-labels type:enhancement --breaking-labels type:breaking \
+      --enhancement-label "**New stuff:**" --issues-label "**Miscellaneous:**" \
+      --exclude-tags v3.1.2 --since-tag v4.0.0
+
+    echo "  -- Remove tag to add generated CHANGELOG"
+    git tag -d v"$1"
+    git push origin :v"$1"
+
+    echo "  -- Commit release version"
+    git commit -a -m "$commit_message_master" --allow-empty
+    git tag -d v"$1"
+    git push origin v"$1"
+    git push origin master
+
     cd dist
     jq  '.name = "arlas-'$folder'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
