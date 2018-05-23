@@ -163,7 +163,7 @@ releaseProd(){
 
     echo "  -- Commit release version"
     git commit -a -m "$commit_message_master" --allow-empty
-    git tag -d v"$1"
+    git tag v"$1"
     git push origin v"$1"
     git push origin master
 
