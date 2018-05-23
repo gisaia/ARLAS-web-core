@@ -1,5 +1,17 @@
 # Change Log
 
+## [v6.0.1](https://github.com/gisaia/ARLAS-web-core/tree/v6.0.1) (2018-05-23)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v6.0.0...v6.0.1)
+
+**New stuff:**
+
+- Implement Init function to set collaborationsEvents  Map [\#1](https://github.com/gisaia/ARLAS-web-core/issues/1)
+
+**Fixed bugs:**
+
+- Feature/remove compodoc [\#33](https://github.com/gisaia/ARLAS-web-core/pull/33) ([sebbousquet](https://github.com/sebbousquet))
+
 ## [v6.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v6.0.0) (2018-05-18)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v5.1.0...v6.0.0)
