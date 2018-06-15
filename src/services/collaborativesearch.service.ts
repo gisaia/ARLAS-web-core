@@ -80,7 +80,7 @@ export class CollaborativesearchService {
     * Configuration Service used by the collaborativesearchService.
     */
     private configService: ConfigService;
-    private options = {
+    private fetchOptions = {
         credentials: 'include'
     };
     constructor() {
@@ -103,6 +103,20 @@ export class CollaborativesearchService {
                 }
             }
         });
+    }
+    /**
+    * Return options used to fetch call.
+    * @returns Object.
+    */
+    public getFetchOptions() {
+        return this.fetchOptions;
+    }
+    /**
+    * Set the fetch options.
+    * @param api : Object.
+    */
+    public setFetOptions(fetchOptions: any) {
+        this.fetchOptions = fetchOptions;
     }
     /**
     * Return the ARLAS Explore API.
@@ -553,7 +567,7 @@ export class CollaborativesearchService {
      */
     public describe(collection: string, pretty?: boolean): Observable<CollectionReferenceDescription> {
       const result = <Observable<CollectionReferenceDescription>>Observable.fromPromise(
-        this.exploreApi.describe(collection, pretty, this.max_age, this.options)
+        this.exploreApi.describe(collection, pretty, this.max_age, this.fetchOptions)
       );
       return result;
     }
@@ -566,7 +580,7 @@ export class CollaborativesearchService {
      */
     public tag(collection: string, body?: TagRequest, pretty?: boolean): Observable<UpdateResponse> {
       const result = <Observable<UpdateResponse>>Observable.fromPromise(
-        this.writeApi.tagPost(collection, body, pretty, this.options)
+        this.writeApi.tagPost(collection, body, pretty, this.fetchOptions)
       );
       return result;
     }
@@ -579,7 +593,7 @@ export class CollaborativesearchService {
      */
     public untag(collection: string, body?: TagRequest, pretty?: boolean): Observable<UpdateResponse> {
       const result = <Observable<UpdateResponse>>Observable.fromPromise(
-        this.writeApi.untagPost(collection, body, pretty, this.options)
+        this.writeApi.untagPost(collection, body, pretty, this.fetchOptions)
       );
       return result;
     }
@@ -723,7 +737,7 @@ export class CollaborativesearchService {
                   this.exploreApi.aggregate(this.collection, aggregationsForGet,
                     fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.options)
+                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.geoaggregate.valueOf():
@@ -736,7 +750,7 @@ export class CollaborativesearchService {
                   this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
                     fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.options)
+                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.geohashgeoaggregate.valueOf():
@@ -751,14 +765,14 @@ export class CollaborativesearchService {
                   this.exploreApi.geohashgeoaggregate(this.collection, geohash, aggregationsForGet,
                     fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.options)
+                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>Observable.fromPromise(
                   this.exploreApi.count(this.collection, fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.options)
+                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.search.valueOf():
@@ -786,7 +800,7 @@ export class CollaborativesearchService {
                   this.exploreApi.search(this.collection, fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                     , notgwithinForGet, notgintersectForGet, false, includes, excludes, search.size.size,
-                    search.size.from, sort, this.max_age, this.options)
+                    search.size.from, sort, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.geosearch.valueOf():
@@ -804,7 +818,7 @@ export class CollaborativesearchService {
                   this.exploreApi.geosearch(this.collection, fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                     , notgwithinForGet, notgintersectForGet, false, includes, excludes, search.size.size,
-                    search.size.from, null, this.max_age, this.options)
+                    search.size.from, null, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.tiledgeosearch.valueOf():
@@ -826,7 +840,7 @@ export class CollaborativesearchService {
                     , fForGet, qForGet
                     , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                     , notgwithinForGet, notgintersectForGet, false, includes, excludes,
-                    search.size.size, search.size.from, null, this.max_age, this.options)
+                    search.size.size, search.size.from, null, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.range.valueOf():
@@ -838,7 +852,7 @@ export class CollaborativesearchService {
                     this.exploreApi.range(this.collection, rangeRequest.field
                         , fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, false, this.max_age, this.options)
+                        , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
                 );
                 break;
         }
