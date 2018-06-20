@@ -16,9 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Aggregation, AggregationResponse, AggregationsRequest,
-  CollectionReferenceDescription, Count, ExploreApi, Expression,
-  FeatureCollection, Filter, Hits, Search, WriteApi, TagRequest, UpdateResponse, RangeRequest, RangeResponse
+import {
+    Aggregation, AggregationResponse, AggregationsRequest,
+    CollectionReferenceDescription, Count, ExploreApi, Expression,
+    FeatureCollection, Filter, Hits, Search, WriteApi, TagRequest, UpdateResponse, RangeRequest, RangeResponse, Metric
 } from 'arlas-api';
 import { Observable, Subject } from 'rxjs/Rx';
 import { Collaboration, CollaborationEvent, OperationEnum } from '../models/collaboration';
@@ -80,6 +81,9 @@ export class CollaborativesearchService {
     * Configuration Service used by the collaborativesearchService.
     */
     private configService: ConfigService;
+    /**
+    * Configuration object of fetch call. By default all credentials are included.
+    */
     private fetchOptions = {
         credentials: 'include'
     };
@@ -113,9 +117,9 @@ export class CollaborativesearchService {
     }
     /**
     * Set the fetch options.
-    * @param api : Object.
+    * @param fetchOptions : Object.
     */
-    public setFetOptions(fetchOptions: any) {
+    public setFetchOptions(fetchOptions: any) {
         this.fetchOptions = fetchOptions;
     }
     /**
@@ -137,7 +141,7 @@ export class CollaborativesearchService {
     * @returns WriteApi.
     */
     public getWriteApi() {
-      return this.writeApi;
+        return this.writeApi;
     }
     /**
     * Set the ARLAS Write API.
@@ -302,6 +306,7 @@ export class CollaborativesearchService {
     * Resolve an ARLAS Server Geosearch or Geoaggregate request with all the collaborations enabled in the collaboration registry
     expect for the contributor given in second optionnal parameter.
     * @param projection  Type of projection of ARLAS Server request:Geosearch or Geoaggregate.
+    * @param isFlat  Boolean option to isFlat output geojson properties.
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
     * @returns ARLAS Server observable.
@@ -310,14 +315,15 @@ export class CollaborativesearchService {
         [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.geohashgeoaggregate, GeohashAggregation]
-        | [projType.geoaggregate, Array<Aggregation>],
+        | [projType.geoaggregate, Array<Aggregation>], isFlat = true,
         contributorId?: string, filter?: Filter
     ): Observable<FeatureCollection> {
-        return this.resolveButNot(projection, contributorId, filter);
+        return this.resolveButNot(projection, contributorId, filter, isFlat);
     }
     /**
     * Resolve an ARLAS Server Geosearch or Geoaggregate  request for an optional contributor and optional filters.
     * @param projection  Type of projection of ARLAS Server request :Geosearch or Geoaggregate.
+    * @param isFlat  Boolean option to flat output geojson properties.
     * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
     * @returns ARLAS Server observable.
@@ -326,10 +332,10 @@ export class CollaborativesearchService {
         [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.geohashgeoaggregate, GeohashAggregation]
-        | [projType.geoaggregate, Array<Aggregation>],
+        | [projType.geoaggregate, Array<Aggregation>], isFlat = true,
         contributorId?: string, filter?: Filter
     ): Observable<FeatureCollection> {
-        return this.resolve(projection, contributorId, filter);
+        return this.resolve(projection, contributorId, filter, isFlat);
     }
     /**
     * Resolve an ARLAS Server Aggregation request with all the collaborations enabled in the collaboration registry
@@ -426,138 +432,138 @@ export class CollaborativesearchService {
      */
     public getUrl(
         projection: [
-          projType.geoaggregate | projType.geosearch | projType.aggregate |
-          projType.count | projType.geohashgeoaggregate | projType.search | projType.tiledgeosearch,
-          Array<Aggregation>
+            projType.geoaggregate | projType.geosearch | projType.aggregate |
+            projType.count | projType.geohashgeoaggregate | projType.search | projType.tiledgeosearch,
+            Array<Aggregation>
         ],
         filters: Array<Filter>): string {
 
-      const finalFilter = this.getFinalFilter(filters);
-      let aggregationRequest: AggregationsRequest;
-      let aggregationsForGet: string[];
+        const finalFilter = this.getFinalFilter(filters);
+        let aggregationRequest: AggregationsRequest;
+        let aggregationsForGet: string[];
 
-      const fForGet = this.buildFilterFieldGetParam('f', finalFilter);
-      const qForGet = this.buildFilterFieldGetParam('q', finalFilter);
-      const pwithinForGet = this.buildFilterFieldGetParam('pwithin', finalFilter);
-      const gwithinForGet = this.buildFilterFieldGetParam('gwithin', finalFilter);
-      const gintersectForGet = this.buildFilterFieldGetParam('gintersect', finalFilter);
-      const notpwithinForGet = this.buildFilterFieldGetParam('notpwithin', finalFilter);
-      const notgwithinForGet = this.buildFilterFieldGetParam('notgwithin', finalFilter);
-      const notgintersectForGet = this.buildFilterFieldGetParam('notgintersect', finalFilter);
+        const fForGet = this.buildFilterFieldGetParam('f', finalFilter);
+        const qForGet = this.buildFilterFieldGetParam('q', finalFilter);
+        const pwithinForGet = this.buildFilterFieldGetParam('pwithin', finalFilter);
+        const gwithinForGet = this.buildFilterFieldGetParam('gwithin', finalFilter);
+        const gintersectForGet = this.buildFilterFieldGetParam('gintersect', finalFilter);
+        const notpwithinForGet = this.buildFilterFieldGetParam('notpwithin', finalFilter);
+        const notgwithinForGet = this.buildFilterFieldGetParam('notgwithin', finalFilter);
+        const notgintersectForGet = this.buildFilterFieldGetParam('notgintersect', finalFilter);
 
-      const queryParameters = new URLSearchParams();
-      aggregationRequest = <AggregationsRequest>{
-          filter: finalFilter,
-          aggregations: projection[1]
-      };
-      aggregationsForGet = this.buildAggGetParam(aggregationRequest);
+        const queryParameters = new URLSearchParams();
+        aggregationRequest = <AggregationsRequest>{
+            filter: finalFilter,
+            aggregations: projection[1]
+        };
+        aggregationsForGet = this.buildAggGetParam(aggregationRequest);
 
-      if (aggregationsForGet
-        && (projection[0] === projType.geoaggregate
-        || projection[0] === projType.aggregate
-        || projection[0] === projType.geohashgeoaggregate)
-      ) {
-        aggregationsForGet.filter(element => element !== undefined).forEach(function (element) {
-              queryParameters.append('agg', element);
-          });
-      }
-      if (fForGet) {
-          fForGet.filter(element => element !== undefined).forEach(function (element) {
-              queryParameters.append('f', element);
-          });
-      }
-      if (qForGet !== undefined) {
-          queryParameters.set('q', qForGet);
-      }
-      if (pwithinForGet) {
-        pwithinForGet.filter(element => element !== undefined).forEach(function (element) {
-              queryParameters.append('pwithin', element);
-          });
-      }
-      if (gwithinForGet) {
-        gwithinForGet.filter(element => element !== undefined).forEach(function (element) {
-              queryParameters.append('gwithin', element);
-          });
-      }
-      if (gintersectForGet) {
-        gintersectForGet.filter(element => element !== undefined).forEach(function (element) {
-              queryParameters.append('gintersect', element);
-          });
-      }
-      if (notpwithinForGet) {
-        notpwithinForGet.filter(element => element !== undefined).forEach(function (element) {
-              queryParameters.append('notpwithin', element);
-          });
-      }
-      if (notgwithinForGet) {
-        notgwithinForGet.filter(element => element !== undefined).forEach(function (element) {
-              queryParameters.append('notgwithin', element);
-          });
-      }
-      if (notgintersectForGet) {
-        notgintersectForGet.filter(element => element !== undefined).forEach(function (element) {
-              queryParameters.append('notgintersect', element);
-          });
-      }
-      queryParameters.set('pretty', 'false');
+        if (aggregationsForGet
+            && (projection[0] === projType.geoaggregate
+                || projection[0] === projType.aggregate
+                || projection[0] === projType.geohashgeoaggregate)
+        ) {
+            aggregationsForGet.filter(element => element !== undefined).forEach(function (element) {
+                queryParameters.append('agg', element);
+            });
+        }
+        if (fForGet) {
+            fForGet.filter(element => element !== undefined).forEach(function (element) {
+                queryParameters.append('f', element);
+            });
+        }
+        if (qForGet !== undefined) {
+            queryParameters.set('q', qForGet);
+        }
+        if (pwithinForGet) {
+            pwithinForGet.filter(element => element !== undefined).forEach(function (element) {
+                queryParameters.append('pwithin', element);
+            });
+        }
+        if (gwithinForGet) {
+            gwithinForGet.filter(element => element !== undefined).forEach(function (element) {
+                queryParameters.append('gwithin', element);
+            });
+        }
+        if (gintersectForGet) {
+            gintersectForGet.filter(element => element !== undefined).forEach(function (element) {
+                queryParameters.append('gintersect', element);
+            });
+        }
+        if (notpwithinForGet) {
+            notpwithinForGet.filter(element => element !== undefined).forEach(function (element) {
+                queryParameters.append('notpwithin', element);
+            });
+        }
+        if (notgwithinForGet) {
+            notgwithinForGet.filter(element => element !== undefined).forEach(function (element) {
+                queryParameters.append('notgwithin', element);
+            });
+        }
+        if (notgintersectForGet) {
+            notgintersectForGet.filter(element => element !== undefined).forEach(function (element) {
+                queryParameters.append('notgintersect', element);
+            });
+        }
+        queryParameters.set('pretty', 'false');
 
-      if (this.max_age !== undefined) {
-          queryParameters.set('max-age-cache', this.max_age.toString());
-      }
-      return queryParameters.toString();
+        if (this.max_age !== undefined) {
+            queryParameters.set('max-age-cache', this.max_age.toString());
+        }
+        return queryParameters.toString();
     }
 
     public getFinalFilter(filters: Array<Filter>): Filter {
-      const finalFilter: Filter = {};
-      const f: Array<Array<Expression>> = new Array<Array<Expression>>();
-      const q: Array<Array<string>> = new Array<Array<string>>();
-      const p: Array<Array<string>> = new Array<Array<string>>();
-      const gi: Array<Array<string>> = new Array<Array<string>>();
-      filters.forEach(filter => {
-          if (filter) {
-              if (filter.f) {
-                  filter.f.forEach(filt => {
-                      if (f.indexOf(filt) < 0) {
-                          f.push(filt);
-                      }
-                  });
-              }
-              if (filter.q) {
-                  filter.q.forEach(qFilter => {
-                      if (q.indexOf(qFilter) < 0) {
-                          q.push(qFilter);
-                      }
-                  });
-              }
-              if (filter.pwithin) {
-                  filter.pwithin.forEach(pwiFilter => {
-                      if (p.indexOf(pwiFilter) < 0) {
-                          p.push(pwiFilter);
-                      }
-                  });
-              }
-              if (filter.gintersect) {
-                  filter.gintersect.forEach(giFilter => {
-                      if (gi.indexOf(giFilter) < 0) {
-                          gi.push(giFilter);
-                      }
-                  });
-              }
-          }
-      });
-      if (f.length > 0) {
-          finalFilter.f = f;
-      }
-      if (q.length > 0) {
-          finalFilter.q = q;
-      }
-      if (p.length > 0) {
-          finalFilter.pwithin = p;
-      }
-      if (gi.length > 0) {
-          finalFilter.gintersect = gi;
-      }
-      return finalFilter;
+        const finalFilter: Filter = {};
+        const f: Array<Array<Expression>> = new Array<Array<Expression>>();
+        const q: Array<Array<string>> = new Array<Array<string>>();
+        const p: Array<Array<string>> = new Array<Array<string>>();
+        const gi: Array<Array<string>> = new Array<Array<string>>();
+        filters.forEach(filter => {
+            if (filter) {
+                if (filter.f) {
+                    filter.f.forEach(filt => {
+                        if (f.indexOf(filt) < 0) {
+                            f.push(filt);
+                        }
+                    });
+                }
+                if (filter.q) {
+                    filter.q.forEach(qFilter => {
+                        if (q.indexOf(qFilter) < 0) {
+                            q.push(qFilter);
+                        }
+                    });
+                }
+                if (filter.pwithin) {
+                    filter.pwithin.forEach(pwiFilter => {
+                        if (p.indexOf(pwiFilter) < 0) {
+                            p.push(pwiFilter);
+                        }
+                    });
+                }
+                if (filter.gintersect) {
+                    filter.gintersect.forEach(giFilter => {
+                        if (gi.indexOf(giFilter) < 0) {
+                            gi.push(giFilter);
+                        }
+                    });
+                }
+            }
+        });
+        if (f.length > 0) {
+            finalFilter.f = f;
+        }
+        if (q.length > 0) {
+            finalFilter.q = q;
+        }
+        if (p.length > 0) {
+            finalFilter.pwithin = p;
+        }
+        if (gi.length > 0) {
+            finalFilter.gintersect = gi;
+        }
+        return finalFilter;
     }
 
     /**
@@ -566,10 +572,10 @@ export class CollaborativesearchService {
      * @param pretty Whether pretty print or not
      */
     public describe(collection: string, pretty?: boolean): Observable<CollectionReferenceDescription> {
-      const result = <Observable<CollectionReferenceDescription>>Observable.fromPromise(
-        this.exploreApi.describe(collection, pretty, this.max_age, this.fetchOptions)
-      );
-      return result;
+        const result = <Observable<CollectionReferenceDescription>>Observable.fromPromise(
+            this.exploreApi.describe(collection, pretty, this.max_age, this.fetchOptions)
+        );
+        return result;
     }
 
     /**
@@ -579,10 +585,10 @@ export class CollaborativesearchService {
      * @param pretty Whether pretty print or not
      */
     public tag(collection: string, body?: TagRequest, pretty?: boolean): Observable<UpdateResponse> {
-      const result = <Observable<UpdateResponse>>Observable.fromPromise(
-        this.writeApi.tagPost(collection, body, pretty, this.fetchOptions)
-      );
-      return result;
+        const result = <Observable<UpdateResponse>>Observable.fromPromise(
+            this.writeApi.tagPost(collection, body, pretty, this.fetchOptions)
+        );
+        return result;
     }
 
     /**
@@ -592,10 +598,10 @@ export class CollaborativesearchService {
      * @param pretty Whether pretty print or not
      */
     public untag(collection: string, body?: TagRequest, pretty?: boolean): Observable<UpdateResponse> {
-      const result = <Observable<UpdateResponse>>Observable.fromPromise(
-        this.writeApi.untagPost(collection, body, pretty, this.fetchOptions)
-      );
-      return result;
+        const result = <Observable<UpdateResponse>>Observable.fromPromise(
+            this.writeApi.untagPost(collection, body, pretty, this.fetchOptions)
+        );
+        return result;
     }
 
     /**
@@ -621,6 +627,7 @@ export class CollaborativesearchService {
     * @param projection  Type of projection of ARLAS Server request.
     * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @param isFlat  Boolean option to flat output geojson properties.
     * @returns ARLAS Server observable.
     */
     private resolve(projection: [projType.aggregate, Array<Aggregation>]
@@ -631,7 +638,7 @@ export class CollaborativesearchService {
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
         | [projType.range, RangeRequest],
-        contributorId?: string, filter?: Filter
+        contributorId?: string, filter?: Filter, isFlat?: boolean,
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
@@ -646,7 +653,7 @@ export class CollaborativesearchService {
             if (filter) {
                 filters.push(filter);
             }
-            return this.computeResolve(projection, filters);
+            return this.computeResolve(projection, filters, isFlat);
         } catch (ex) {
             this.collaborationErrorBus.next((<Error>ex));
         }
@@ -657,6 +664,7 @@ export class CollaborativesearchService {
     * @param projection  Type of projection of ARLAS Server request.
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @param isFlat  Boolean option to flat output geojson properties.
     * @returns ARLAS Server observable.
     */
     private resolveButNot(projection: [projType.aggregate, Array<Aggregation>]
@@ -667,7 +675,7 @@ export class CollaborativesearchService {
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
         | [projType.range, RangeRequest],
-        contributorId?: string, filter?: Filter
+        contributorId?: string, filter?: Filter, isFlat?: boolean,
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
@@ -690,7 +698,7 @@ export class CollaborativesearchService {
             if (filter) {
                 filters.push(filter);
             }
-            return this.computeResolve(projection, filters);
+            return this.computeResolve(projection, filters, isFlat);
         } catch (ex) {
             this.collaborationErrorBus.next((<Error>ex));
         }
@@ -700,6 +708,7 @@ export class CollaborativesearchService {
     * Build an ARLAS Server request from an Array of Filter
     * @param projection  Type of projection of ARLAS Server request.
     * @param filters   ARLAS API filters list to resolve the request.
+    * @param isFlat  Boolean option to flat output geojson properties.
     * @returns ARLAS Server observable.
     */
     private computeResolve(projection: [projType.aggregate, Array<Aggregation>]
@@ -709,7 +718,7 @@ export class CollaborativesearchService {
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
-        | [projType.range, RangeRequest], filters: Array<Filter>
+        | [projType.range, RangeRequest], filters: Array<Filter>, isFlat?: boolean
     ): Observable<any> {
         const finalFilter = this.getFinalFilter(filters);
         let aggregationRequest: AggregationsRequest;
@@ -734,10 +743,10 @@ export class CollaborativesearchService {
                 };
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<AggregationResponse>>Observable.fromPromise(
-                  this.exploreApi.aggregate(this.collection, aggregationsForGet,
-                    fForGet, qForGet
-                    , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
+                    this.exploreApi.aggregate(this.collection, aggregationsForGet,
+                        fForGet, qForGet
+                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                        , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.geoaggregate.valueOf():
@@ -747,10 +756,10 @@ export class CollaborativesearchService {
                 };
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<FeatureCollection>>Observable.fromPromise(
-                  this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
-                    fForGet, qForGet
-                    , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
+                    this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
+                        fForGet, qForGet
+                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                        , notgwithinForGet, notgintersectForGet, false, isFlat, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.geohashgeoaggregate.valueOf():
@@ -762,17 +771,17 @@ export class CollaborativesearchService {
                 };
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<FeatureCollection>>Observable.fromPromise(
-                  this.exploreApi.geohashgeoaggregate(this.collection, geohash, aggregationsForGet,
-                    fForGet, qForGet
-                    , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
+                    this.exploreApi.geohashgeoaggregate(this.collection, geohash, aggregationsForGet,
+                        fForGet, qForGet
+                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                        , notgwithinForGet, notgintersectForGet, false, isFlat, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>Observable.fromPromise(
-                  this.exploreApi.count(this.collection, fForGet, qForGet
-                    , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
+                    this.exploreApi.count(this.collection, fForGet, qForGet
+                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                        , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.search.valueOf():
@@ -797,10 +806,10 @@ export class CollaborativesearchService {
                     }
                 }
                 result = <Observable<Hits>>Observable.fromPromise(
-                  this.exploreApi.search(this.collection, fForGet, qForGet
-                    , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, includes, excludes, search.size.size,
-                    search.size.from, sort, this.max_age, this.fetchOptions)
+                    this.exploreApi.search(this.collection, fForGet, qForGet
+                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                        , notgwithinForGet, notgintersectForGet, false, includes, excludes, search.size.size,
+                        search.size.from, sort, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.geosearch.valueOf():
@@ -815,10 +824,10 @@ export class CollaborativesearchService {
                     }
                 }
                 result = <Observable<FeatureCollection>>Observable.fromPromise(
-                  this.exploreApi.geosearch(this.collection, fForGet, qForGet
-                    , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, includes, excludes, search.size.size,
-                    search.size.from, null, this.max_age, this.fetchOptions)
+                    this.exploreApi.geosearch(this.collection, fForGet, qForGet
+                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                        , notgwithinForGet, notgintersectForGet, false, isFlat, includes, excludes, search.size.size,
+                        search.size.from, null, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.tiledgeosearch.valueOf():
@@ -836,11 +845,11 @@ export class CollaborativesearchService {
                     }
                 }
                 result = <Observable<FeatureCollection>>Observable.fromPromise(
-                  this.exploreApi.tiledgeosearch(this.collection, x, y, z
-                    , fForGet, qForGet
-                    , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                    , notgwithinForGet, notgintersectForGet, false, includes, excludes,
-                    search.size.size, search.size.from, null, this.max_age, this.fetchOptions)
+                    this.exploreApi.tiledgeosearch(this.collection, x, y, z
+                        , fForGet, qForGet
+                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
+                        , notgwithinForGet, notgintersectForGet, false, isFlat, includes, excludes,
+                        search.size.size, search.size.from, null, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.range.valueOf():
@@ -879,11 +888,10 @@ export class CollaborativesearchService {
             if (agg.format !== undefined) {
                 aggregation = aggregation + ':format-' + agg.format;
             }
-            if (agg.collectField !== undefined) {
-                aggregation = aggregation + ':collect_field-' + agg.collectField;
-            }
-            if (agg.collectFct !== undefined) {
-                aggregation = aggregation + ':collect_fct-' + agg.collectFct;
+            if (agg.metrics) {
+                agg.metrics.filter((m: Metric) => (m.collectField && m.collectFct)).forEach(m => {
+                    aggregation = aggregation + ':collect_field-' + m.collectField + ':collect_fct-' + m.collectFct;
+                });
             }
             if (agg.order !== undefined) {
                 aggregation = aggregation + ':order-' + agg.order;
