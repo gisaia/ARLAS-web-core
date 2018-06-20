@@ -1,12 +1,21 @@
 # Change Log
 
-## [v6.0.1](https://github.com/gisaia/ARLAS-web-core/tree/v6.0.1) (2018-05-23)
+## [v7.0.1](https://github.com/gisaia/ARLAS-web-core/tree/v7.0.1) (2018-06-20)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v6.0.0...v6.0.1)
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v6.0.1...v7.0.1)
+
+**Breaking changes:**
+
+- Integrate multiple collectField/collectFct [\#39](https://github.com/gisaia/ARLAS-web-core/issues/39)
 
 **New stuff:**
 
-- Implement Init function to set collaborationsEvents  Map [\#1](https://github.com/gisaia/ARLAS-web-core/issues/1)
+- Add function to set fetch option. [\#37](https://github.com/gisaia/ARLAS-web-core/issues/37)
+- Update the CSS to v7.0.1 of arlas-api: [\#40](https://github.com/gisaia/ARLAS-web-core/pull/40) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
+## [v6.0.1](https://github.com/gisaia/ARLAS-web-core/tree/v6.0.1) (2018-05-23)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v6.0.0...v6.0.1)
 
 **Fixed bugs:**
 
