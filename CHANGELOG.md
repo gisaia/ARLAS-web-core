@@ -1,8 +1,16 @@
 # Change Log
 
+## [v7.1.2](https://github.com/gisaia/ARLAS-web-core/tree/v7.1.2) (2018-07-13)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v7.1.1...v7.1.2)
+
 ## [v7.1.1](https://github.com/gisaia/ARLAS-web-core/tree/v7.1.1) (2018-07-13)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v7.1.0...v7.1.1)
+
+**New stuff:**
+
+- Update arlas-api version to 7.0.3 [\#43](https://github.com/gisaia/ARLAS-web-core/pull/43) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 ## [v7.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v7.1.0) (2018-07-11)
 
