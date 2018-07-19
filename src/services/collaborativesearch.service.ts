@@ -98,7 +98,7 @@ export class CollaborativesearchService {
         * Subscribe collaborationBus bus to set countAll and remove collaboration.
         */
         this.collaborationBus.subscribe(collaborationEvent => {
-            this.setCountAll();
+            this.setCountAll(this.collaborations);
             if (collaborationEvent.operation === OperationEnum.remove) {
                 if (collaborationEvent.all) {
                     this.collaborations.clear();
@@ -268,10 +268,10 @@ export class CollaborativesearchService {
     */
     public resolveButNotHits(projection:
         [projType.search, Search]
-        | [projType.count, Count],
+        | [projType.count, Count], collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter
     ): Observable<Hits> {
-        return this.resolveButNot(projection, contributorId, filter);
+        return this.resolveButNot(projection, collaborations, contributorId, filter);
     }
     /**
     * Resolve an ARLAS Server Search or Count  request for an optional contributor and optional filters.
@@ -282,10 +282,10 @@ export class CollaborativesearchService {
     */
     public resolveHits(projection:
         [projType.search, Search]
-        | [projType.count, Count],
+        | [projType.count, Count], collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter
     ): Observable<Hits> {
-        return this.resolve(projection, contributorId, filter);
+        return this.resolve(projection, collaborations, contributorId, filter);
     }
 
     /**
@@ -315,10 +315,10 @@ export class CollaborativesearchService {
         [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.geohashgeoaggregate, GeohashAggregation]
-        | [projType.geoaggregate, Array<Aggregation>], isFlat = true,
+        | [projType.geoaggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>, isFlat = true,
         contributorId?: string, filter?: Filter
     ): Observable<FeatureCollection> {
-        return this.resolveButNot(projection, contributorId, filter, isFlat);
+        return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat);
     }
     /**
     * Resolve an ARLAS Server Geosearch or Geoaggregate  request for an optional contributor and optional filters.
@@ -332,10 +332,10 @@ export class CollaborativesearchService {
         [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.geohashgeoaggregate, GeohashAggregation]
-        | [projType.geoaggregate, Array<Aggregation>], isFlat = true,
+        | [projType.geoaggregate, Array<Aggregation>], isFlat = true, collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter
     ): Observable<FeatureCollection> {
-        return this.resolve(projection, contributorId, filter, isFlat);
+        return this.resolve(projection, collaborations, contributorId, filter, isFlat);
     }
     /**
     * Resolve an ARLAS Server Aggregation request with all the collaborations enabled in the collaboration registry
@@ -346,10 +346,10 @@ export class CollaborativesearchService {
     * @returns ARLAS Server observable.
     */
     public resolveButNotAggregation(projection:
-        [projType.aggregate, Array<Aggregation>],
+        [projType.aggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter
     ): Observable<AggregationResponse> {
-        return this.resolveButNot(projection, contributorId, filter);
+        return this.resolveButNot(projection, collaborations, contributorId, filter);
     }
     /**
     * Resolve an ARLAS Server Aggregation request for an optional contributor and optional filters.
@@ -359,10 +359,10 @@ export class CollaborativesearchService {
     * @returns ARLAS Server observable.
     */
     public resolveAggregation(projection:
-        [projType.aggregate, Array<Aggregation>],
+        [projType.aggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter
     ): Observable<AggregationResponse> {
-        return this.resolve(projection, contributorId, filter);
+        return this.resolve(projection, collaborations, contributorId, filter);
     }
     /**
     * Resolve an ARLAS Server Range request with all the collaborations enabled in the collaboration registry
@@ -373,10 +373,10 @@ export class CollaborativesearchService {
     * @returns ARLAS Server observable.
     */
     public resolveButNotFieldRange(projection:
-        [projType.range, RangeRequest],
+        [projType.range, RangeRequest], collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter
     ): Observable<RangeResponse> {
-        return this.resolveButNot(projection, contributorId, filter);
+        return this.resolveButNot(projection, collaborations, contributorId, filter);
     }
     /**
     * Enable a contributor collaboration from its identifier.
@@ -421,8 +421,8 @@ export class CollaborativesearchService {
     /**
     * Update countAll property.
     */
-    public setCountAll() {
-        const result: Observable<Hits> = this.resolveButNot([projType.count, {}]);
+    public setCountAll(collaborations: Map<string, Collaboration>, ) {
+        const result: Observable<Hits> = this.resolveButNot([projType.count, {}], collaborations);
         this.countAll = result.map(c => c.totalnb);
     }
 
@@ -637,13 +637,13 @@ export class CollaborativesearchService {
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
-        | [projType.range, RangeRequest],
+        | [projType.range, RangeRequest], collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter, isFlat?: boolean,
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
             if (contributorId) {
-                const collaboration = this.collaborations.get(contributorId);
+                const collaboration = collaborations.get(contributorId);
                 if (collaboration !== undefined) {
                     if (collaboration.enabled) {
                         if (collaboration.filter) { filters.push(collaboration.filter); }
@@ -674,13 +674,13 @@ export class CollaborativesearchService {
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
-        | [projType.range, RangeRequest],
+        | [projType.range, RangeRequest], collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter, isFlat?: boolean,
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
             if (contributorId) {
-                this.collaborations.forEach((k, v) => {
+                collaborations.forEach((k, v) => {
                     if (v !== contributorId && k.enabled) {
                         if (k.filter) { filters.push(k.filter); }
                     } else {
@@ -688,13 +688,12 @@ export class CollaborativesearchService {
                     }
                 });
             } else {
-                this.collaborations.forEach((k, v) => {
+                collaborations.forEach((k, v) => {
                     if (k.enabled) {
                         if (k.filter) { filters.push(k.filter); }
                     }
                 });
             }
-
             if (filter) {
                 filters.push(filter);
             }
