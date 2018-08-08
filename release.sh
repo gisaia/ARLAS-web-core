@@ -20,6 +20,9 @@ if [[ ! -d ../ARLAS-d3/ ]] ; then
     exit
 fi
 
+npmlogin=`npm whoami`
+if  [ -z "$npmlogin"  ] ; then echo "your are not logged on npm"; exit -1; else  echo "logged as "$npmlogin ; fi
+
 level_version=("major" "minor" "patch")
 
 usage(){
