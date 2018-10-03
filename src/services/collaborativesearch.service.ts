@@ -898,8 +898,14 @@ export class CollaborativesearchService {
             if (agg.size !== undefined) {
                 aggregation = aggregation + ':size-' + agg.size;
             }
-            if (agg.withGeoCentroid !== undefined) {
-                aggregation = aggregation + ':withGeoCentroid-' + agg.withGeoCentroid;
+            if (agg.fetchGeometry !== undefined) {
+                aggregation = aggregation + ':fetchGeometry';
+                if (agg.fetchGeometry.field !== undefined) {
+                    aggregation = aggregation + '-' + agg.fetchGeometry.field;
+                }
+                if (agg.fetchGeometry.strategy !== undefined) {
+                    aggregation = aggregation + '-' + agg.fetchGeometry.strategy.toString().toLowerCase();
+                }
             }
             if (agg.include !== undefined) {
                 aggregation = aggregation + ':include-' + agg.include;
