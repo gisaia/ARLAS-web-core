@@ -1,5 +1,13 @@
 # Change Log
 
+## [v8.0.1](https://github.com/gisaia/ARLAS-web-core/tree/v8.0.1) (2018-10-17)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v8.0.0...v8.0.1)
+
+**Fixed bugs:**
+
+- Fix Typo [\#51](https://github.com/gisaia/ARLAS-web-core/pull/51) ([mbarbet](https://github.com/mbarbet))
+
 ## [v8.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v8.0.0) (2018-10-17)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v7.4.0...v8.0.0)
