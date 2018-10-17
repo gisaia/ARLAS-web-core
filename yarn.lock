@@ -134,9 +134,9 @@ argparse@^1.0.7:
   dependencies:
     sprintf-js "~1.0.2"
 
-arlas-api@7.0.4:
-  version "7.0.4"
-  resolved "https://registry.yarnpkg.com/arlas-api/-/arlas-api-7.0.4.tgz#2056fb9d90910f7165d783db12af83b388436ce7"
+arlas-api@8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/arlas-api/-/arlas-api-8.0.0.tgz#f678f61a06cd10c5c5975fd9482b077b5c51207f"
   dependencies:
     es6-promise "4.2.4"
     portable-fetch "3.0.0"
