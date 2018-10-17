@@ -1,8 +1,20 @@
 # Change Log
 
+## [v8.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v8.0.0) (2018-10-17)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v7.4.0...v8.0.0)
+
+**Breaking changes:**
+
+- Update arlas api [\#50](https://github.com/gisaia/ARLAS-web-core/pull/50) ([mbarbet](https://github.com/mbarbet))
+
 ## [v7.4.0](https://github.com/gisaia/ARLAS-web-core/tree/v7.4.0) (2018-09-14)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v7.3.0...v7.4.0)
+
+**Miscellaneous:**
+
+- Add a check for npm login : `npm who i am` [\#44](https://github.com/gisaia/ARLAS-web-core/issues/44)
 
 ## [v7.3.0](https://github.com/gisaia/ARLAS-web-core/tree/v7.3.0) (2018-07-25)
 
