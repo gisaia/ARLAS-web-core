@@ -904,7 +904,7 @@ export class CollaborativesearchService {
                     aggregation = aggregation + '-' + agg.fetchGeometry.field;
                 }
                 if (agg.fetchGeometry.strategy !== undefined) {
-                    aggregation = aggregation + '-' + agg.fetchGeometry.strategy.toString().toLowerCase();
+                    aggregation = aggregation + '-' + agg.fetchGeometry.strategy.toString();
                 }
             }
             if (agg.include !== undefined) {
