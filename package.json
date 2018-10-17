@@ -15,7 +15,7 @@
   "author": "gisaia",
   "license": "Apache-2.0",
   "dependencies": {
-    "arlas-api": "7.0.4",
+    "arlas-api": "8.0.0",
     "rxjs": "^5.5.6"
   },
   "devDependencies": {
