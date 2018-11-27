@@ -14,12 +14,8 @@
   },
   "devDependencies": {
     "@types/node" : "^8.0.0",
-    "gulp": "^3.9.1",
-    "gulp-clean": "^0.3.2",
-    "gulp-sourcemaps": "^2.6.0",
     "rimraf": "^2.6.2",
-    "run-sequence": "^2.0.0",
-    "tslint": "~5.9.1",
+    "tslint": "^5.11.0",
     "typescript": "~2.5.3"
   },
   "bugs": {
