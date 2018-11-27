@@ -1,5 +1,13 @@
 # Change Log
 
+## [v8.0.2](https://github.com/gisaia/ARLAS-web-core/tree/v8.0.2) (2018-11-27)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v8.0.1...v8.0.2)
+
+**New stuff:**
+
+- Update Arlas-api to 8.0.0 [\#48](https://github.com/gisaia/ARLAS-web-core/issues/48)
+
 ## [v8.0.1](https://github.com/gisaia/ARLAS-web-core/tree/v8.0.1) (2018-10-17)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v8.0.0...v8.0.1)
