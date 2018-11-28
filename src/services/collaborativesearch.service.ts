@@ -21,7 +21,8 @@ import {
     CollectionReferenceDescription, Count, ExploreApi, Expression,
     FeatureCollection, Filter, Hits, Search, WriteApi, TagRequest, UpdateResponse, RangeRequest, RangeResponse, Metric
 } from 'arlas-api';
-import { Observable, Subject } from 'rxjs/Rx';
+import { Observable, Subject, from } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Collaboration, CollaborationEvent, OperationEnum } from '../models/collaboration';
 import { Contributor } from '../models/contributor';
 import { GeohashAggregation, TiledSearch, projType } from '../models/projections';
@@ -423,7 +424,7 @@ export class CollaborativesearchService {
     */
     public setCountAll(collaborations: Map<string, Collaboration>, ) {
         const result: Observable<Hits> = this.resolveButNot([projType.count, {}], collaborations);
-        this.countAll = result.map(c => c.totalnb);
+        this.countAll = result.pipe(map(c => c.totalnb));
     }
 
     /**
@@ -572,7 +573,7 @@ export class CollaborativesearchService {
      * @param pretty Whether pretty print or not
      */
     public describe(collection: string, pretty?: boolean): Observable<CollectionReferenceDescription> {
-        const result = <Observable<CollectionReferenceDescription>>Observable.fromPromise(
+        const result = <Observable<CollectionReferenceDescription>>from(
             this.exploreApi.describe(collection, pretty, this.max_age, this.fetchOptions)
         );
         return result;
@@ -585,7 +586,7 @@ export class CollaborativesearchService {
      * @param pretty Whether pretty print or not
      */
     public tag(collection: string, body?: TagRequest, pretty?: boolean): Observable<UpdateResponse> {
-        const result = <Observable<UpdateResponse>>Observable.fromPromise(
+        const result = <Observable<UpdateResponse>>from(
             this.writeApi.tagPost(collection, body, pretty, this.fetchOptions)
         );
         return result;
@@ -598,7 +599,7 @@ export class CollaborativesearchService {
      * @param pretty Whether pretty print or not
      */
     public untag(collection: string, body?: TagRequest, pretty?: boolean): Observable<UpdateResponse> {
-        const result = <Observable<UpdateResponse>>Observable.fromPromise(
+        const result = <Observable<UpdateResponse>>from(
             this.writeApi.untagPost(collection, body, pretty, this.fetchOptions)
         );
         return result;
@@ -741,7 +742,7 @@ export class CollaborativesearchService {
                     aggregations: projection[1]
                 };
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
-                result = <Observable<AggregationResponse>>Observable.fromPromise(
+                result = <Observable<AggregationResponse>>from(
                     this.exploreApi.aggregate(this.collection, aggregationsForGet,
                         fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
@@ -754,7 +755,7 @@ export class CollaborativesearchService {
                     aggregations: projection[1]
                 };
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
-                result = <Observable<FeatureCollection>>Observable.fromPromise(
+                result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
                         fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
@@ -769,7 +770,7 @@ export class CollaborativesearchService {
                     aggregations: aggregations
                 };
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
-                result = <Observable<FeatureCollection>>Observable.fromPromise(
+                result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geohashgeoaggregate(this.collection, geohash, aggregationsForGet,
                         fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
@@ -777,7 +778,7 @@ export class CollaborativesearchService {
                 );
                 break;
             case projType.count.valueOf():
-                result = <Observable<Hits>>Observable.fromPromise(
+                result = <Observable<Hits>>from(
                     this.exploreApi.count(this.collection, fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                         , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
@@ -804,7 +805,7 @@ export class CollaborativesearchService {
                         sort = search.sort.sort;
                     }
                 }
-                result = <Observable<Hits>>Observable.fromPromise(
+                result = <Observable<Hits>>from(
                     this.exploreApi.search(this.collection, fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                         , notgwithinForGet, notgintersectForGet, false, includes, excludes, search.size.size,
@@ -822,7 +823,7 @@ export class CollaborativesearchService {
                         includes.push(search.projection.includes);
                     }
                 }
-                result = <Observable<FeatureCollection>>Observable.fromPromise(
+                result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geosearch(this.collection, fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                         , notgwithinForGet, notgintersectForGet, false, isFlat, includes, excludes, search.size.size,
@@ -843,7 +844,7 @@ export class CollaborativesearchService {
                         includes.push(search.projection.includes);
                     }
                 }
-                result = <Observable<FeatureCollection>>Observable.fromPromise(
+                result = <Observable<FeatureCollection>>from(
                     this.exploreApi.tiledgeosearch(this.collection, x, y, z
                         , fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
@@ -856,7 +857,7 @@ export class CollaborativesearchService {
                     filter: finalFilter,
                     field: (<RangeRequest>projection[1]).field
                 };
-                result = <Observable<RangeResponse>>Observable.fromPromise(
+                result = <Observable<RangeResponse>>from(
                     this.exploreApi.range(this.collection, rangeRequest.field
                         , fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet

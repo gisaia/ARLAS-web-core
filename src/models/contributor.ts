@@ -19,8 +19,9 @@
 
 import { ConfigService } from '../services/config.service';
 import { CollaborativesearchService } from '../services/collaborativesearch.service';
-import { OperationEnum, CollaborationEvent, Collaboration } from './collaboration';
-import { Observable } from 'rxjs/Rx';
+import { CollaborationEvent, Collaboration } from './collaboration';
+import { Observable } from 'rxjs';
+import { map, finalize } from 'rxjs/operators';
 
 export abstract class Contributor {
 
@@ -83,17 +84,20 @@ export abstract class Contributor {
     private updateFromCollaboration(collaborationEvent: CollaborationEvent) {
         this.collaborativeSearcheService.ongoingSubscribe.next(1);
         this.fetchData(collaborationEvent)
-            .map(f => this.computeData(f))
-            .map(f => { this.fetchedData = f; this.setData(f); })
-            .finally(() => {
+            .pipe(
+              map(f => this.computeData(f)),
+              map(f => { this.fetchedData = f; this.setData(f); }),
+              finalize(() => {
                 this.setSelection(this.fetchedData, this.collaborativeSearcheService.getCollaboration(this.identifier));
                 this.collaborativeSearcheService.contribFilterBus
                     .next(this.collaborativeSearcheService.registry.get(this.identifier));
                 this.collaborativeSearcheService.ongoingSubscribe.
                     next(-1);
-            })
-            .subscribe(data => data,
-            error => this.collaborativeSearcheService.collaborationErrorBus.next(error)
+              })
+            )
+            .subscribe(
+              data => data,
+              error => this.collaborativeSearcheService.collaborationErrorBus.next(error)
             );
     }
 

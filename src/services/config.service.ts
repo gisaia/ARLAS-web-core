@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { Subject } from 'rxjs/Rx';
+import { Subject } from 'rxjs';
 import { getObject } from '../utils/utils';
 
 export class ConfigService {
