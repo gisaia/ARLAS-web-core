@@ -1,5 +1,13 @@
 # Change Log
 
+## [v9.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v9.0.0) (2018-11-28)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v8.0.2...v9.0.0)
+
+**Miscellaneous:**
+
+- Update README.md and CONTRIBUTING.md [\#56](https://github.com/gisaia/ARLAS-web-core/issues/56) [[documentation](https://github.com/gisaia/ARLAS-web-core/labels/documentation)]
+
 ## [v8.0.2](https://github.com/gisaia/ARLAS-web-core/tree/v8.0.2) (2018-11-27)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v8.0.1...v8.0.2)
