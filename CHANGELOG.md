@@ -1,8 +1,16 @@
 # Change Log
 
+## [v9.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v9.1.0) (2019-01-03)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v9.0.0...v9.1.0)
+
 ## [v9.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v9.0.0) (2018-11-28)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v8.0.2...v9.0.0)
+
+**Breaking changes:**
+
+- Update Rxjs version to 6 [\#49](https://github.com/gisaia/ARLAS-web-core/issues/49)
 
 **Miscellaneous:**
 
