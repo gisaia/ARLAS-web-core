@@ -37,12 +37,14 @@ export abstract class Contributor {
     constructor(public identifier: string,
         public configService: ConfigService,
         public collaborativeSearcheService: CollaborativesearchService) {
+        const configDebounceTime = this.configService.getValue('arlas.server.debounceCollaborationTime');
+        const debounceDuration =  configDebounceTime !== undefined ? configDebounceTime : 750;
         // Register the contributor in collaborativeSearcheService registry
         this.collaborativeSearcheService.register(this.identifier, this);
         // Subscribe a bus to update data and selection
-        this.collaborativeSearcheService.collaborationBus.pipe(debounceTime(750))
+        this.collaborativeSearcheService.collaborationBus.pipe(debounceTime(debounceDuration))
             .subscribe(collaborationEvent => {
-                this.updateFromCollaboration(collaborationEvent);
+                this.updateFromCollaboration(<CollaborationEvent>collaborationEvent);
             },
             error => this.collaborativeSearcheService.collaborationErrorBus.next(error)
             );
