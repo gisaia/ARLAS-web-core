@@ -21,7 +21,7 @@ import { ConfigService } from '../services/config.service';
 import { CollaborativesearchService } from '../services/collaborativesearch.service';
 import { CollaborationEvent, Collaboration } from './collaboration';
 import { Observable } from 'rxjs';
-import { map, finalize } from 'rxjs/operators';
+import { map, finalize, filter, debounceTime } from 'rxjs/operators';
 
 export abstract class Contributor {
 
@@ -40,7 +40,7 @@ export abstract class Contributor {
         // Register the contributor in collaborativeSearcheService registry
         this.collaborativeSearcheService.register(this.identifier, this);
         // Subscribe a bus to update data and selection
-        this.collaborativeSearcheService.collaborationBus
+        this.collaborativeSearcheService.collaborationBus.pipe(debounceTime(750))
             .subscribe(collaborationEvent => {
                 this.updateFromCollaboration(collaborationEvent);
             },
