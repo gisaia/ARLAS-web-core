@@ -896,6 +896,9 @@ export class CollaborativesearchService {
             if (agg.order !== undefined) {
                 aggregation = aggregation + ':order-' + agg.order;
             }
+            if (agg.on !== undefined) {
+              aggregation = aggregation + ':on-' + agg.on;
+            }
             if (agg.size !== undefined) {
                 aggregation = aggregation + ':size-' + agg.size;
             }
