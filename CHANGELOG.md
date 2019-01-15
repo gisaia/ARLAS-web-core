@@ -1,8 +1,22 @@
 # Change Log
 
-## [v9.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v9.1.0) (2019-01-03)
+## [v9.1.1](https://github.com/gisaia/ARLAS-web-core/tree/v9.1.1) (2019-01-14)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v9.1.0...v9.1.1)
+
+**New stuff:**
+
+- Add debounceTime in contribution observable [\#61](https://github.com/gisaia/ARLAS-web-core/issues/61)
+- Add debounce time collab in con [\#63](https://github.com/gisaia/ARLAS-web-core/pull/63) ([mbarbet](https://github.com/mbarbet))
+- Fix \#61 [\#62](https://github.com/gisaia/ARLAS-web-core/pull/62) ([mbarbet](https://github.com/mbarbet))
+
+## [v9.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v9.1.0) (2019-01-09)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v9.0.0...v9.1.0)
+
+**Fixed bugs:**
+
+- Fix mkDoc image [\#58](https://github.com/gisaia/ARLAS-web-core/pull/58) ([mbarbet](https://github.com/mbarbet))
 
 ## [v9.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v9.0.0) (2018-11-28)
 
