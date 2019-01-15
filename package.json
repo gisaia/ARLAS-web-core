@@ -1,6 +1,6 @@
 {
-  "name": "arlas-web-core",
-  "version": "9.1.1",
+  "name": "@gisaia-team/arlas-web-core",
+  "version": "9.2.0-dev0",
   "description": "Core Service Library for ARLAS Web App",
   "scripts": {
     "build-release": "tsc -p tsconfig-build.json",
