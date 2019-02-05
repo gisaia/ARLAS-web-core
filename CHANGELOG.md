@@ -1,6 +1,10 @@
 # Change Log
 
-## [v9.1.1](https://github.com/gisaia/ARLAS-web-core/tree/v9.1.1) (2019-01-14)
+## [v9.2.0](https://github.com/gisaia/ARLAS-web-core/tree/v9.2.0) (2019-02-05)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v9.1.1...v9.2.0)
+
+## [v9.1.1](https://github.com/gisaia/ARLAS-web-core/tree/v9.1.1) (2019-01-15)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v9.1.0...v9.1.1)
 
@@ -9,6 +13,10 @@
 - Add debounceTime in contribution observable [\#61](https://github.com/gisaia/ARLAS-web-core/issues/61)
 - Add debounce time collab in con [\#63](https://github.com/gisaia/ARLAS-web-core/pull/63) ([mbarbet](https://github.com/mbarbet))
 - Fix \#61 [\#62](https://github.com/gisaia/ARLAS-web-core/pull/62) ([mbarbet](https://github.com/mbarbet))
+
+**Fixed bugs:**
+
+- buildAggGetParam : add missing 'on' parameter [\#59](https://github.com/gisaia/ARLAS-web-core/issues/59)
 
 ## [v9.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v9.1.0) (2019-01-09)
 
