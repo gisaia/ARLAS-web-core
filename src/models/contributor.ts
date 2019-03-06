@@ -59,10 +59,10 @@ export abstract class Contributor {
     * @returns value of fieldName in configuration.
     */
     public getConfigValue(fieldName: string): any {
-        const packageName: string = this.getPackageName();
-        const identifier: string = this.identifier;
-        const key: string = packageName + '$' + identifier + '.' + fieldName;
-        return this.configService.getValue(key);
+        const contributor = this.configService.getValue('arlas.web.contributors').find(
+          contrib => contrib.identifier === this.identifier
+        );
+        return contributor[fieldName];
     }
     /**
     * @returns  name of contributor set in configuration.
