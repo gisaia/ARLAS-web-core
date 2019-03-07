@@ -19,7 +19,7 @@
 import {
     Aggregation, AggregationResponse, AggregationsRequest,
     CollectionReferenceDescription, Count, ExploreApi, Expression,
-    FeatureCollection, Filter, Hits, Search, WriteApi, TagRequest, UpdateResponse, RangeRequest, RangeResponse, Metric
+    FeatureCollection, Filter, Hits, Search, WriteApi, TagRequest, UpdateResponse, RangeRequest, RangeResponse, Metric, Page, Form
 } from 'arlas-api';
 import { Observable, Subject, from } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -451,7 +451,6 @@ export class CollaborativesearchService {
         const notpwithinForGet = this.buildFilterFieldGetParam('notpwithin', finalFilter);
         const notgwithinForGet = this.buildFilterFieldGetParam('notgwithin', finalFilter);
         const notgintersectForGet = this.buildFilterFieldGetParam('notgintersect', finalFilter);
-
         const queryParameters = new URLSearchParams();
         aggregationRequest = <AggregationsRequest>{
             filter: finalFilter,
@@ -507,9 +506,12 @@ export class CollaborativesearchService {
             });
         }
         queryParameters.set('pretty', 'false');
-
         if (this.max_age !== undefined) {
             queryParameters.set('max-age-cache', this.max_age.toString());
+        }
+        if (finalFilter.dateformat !== undefined) {
+            queryParameters.set('dateformat', finalFilter.dateformat.toString());
+
         }
         return queryParameters.toString();
     }
@@ -520,6 +522,13 @@ export class CollaborativesearchService {
         const q: Array<Array<string>> = new Array<Array<string>>();
         const p: Array<Array<string>> = new Array<Array<string>>();
         const gi: Array<Array<string>> = new Array<Array<string>>();
+
+        const dateformats = new Set(filters.map(filter => filter.dateformat));
+        if (dateformats.size > 1) {
+            this.collaborationErrorBus.next((<Error>new Error('Dateformats must be equals for each filters')));
+        } else if (dateformats.size === 1) {
+            finalFilter.dateformat = dateformats[0];
+        }
         filters.forEach(filter => {
             if (filter) {
                 if (filter.f) {
@@ -676,7 +685,7 @@ export class CollaborativesearchService {
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
         | [projType.range, RangeRequest], collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter, isFlat?: boolean,
+        contributorId?: string, filter?: Filter, isFlat?: boolean, dateformat?: string
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
@@ -709,6 +718,7 @@ export class CollaborativesearchService {
     * @param projection  Type of projection of ARLAS Server request.
     * @param filters   ARLAS API filters list to resolve the request.
     * @param isFlat  Boolean option to flat output geojson properties.
+    * @param dateformat  String date format for date comparaison in filter.
     * @returns ARLAS Server observable.
     */
     private computeResolve(projection: [projType.aggregate, Array<Aggregation>]
@@ -721,9 +731,9 @@ export class CollaborativesearchService {
         | [projType.range, RangeRequest], filters: Array<Filter>, isFlat?: boolean
     ): Observable<any> {
         const finalFilter = this.getFinalFilter(filters);
+        const dateformat = finalFilter.dateformat;
         let aggregationRequest: AggregationsRequest;
         let aggregationsForGet: string[];
-        let search: Search;
         let includes: string[] = [];
         let excludes: string[] = [];
         let result;
@@ -735,6 +745,50 @@ export class CollaborativesearchService {
         const notpwithinForGet = this.buildFilterFieldGetParam('notpwithin', finalFilter);
         const notgwithinForGet = this.buildFilterFieldGetParam('notgwithin', finalFilter);
         const notgintersectForGet = this.buildFilterFieldGetParam('notgintersect', finalFilter);
+        let search: Search;
+        let pretty = false;
+        let flat = false;
+        let pageAfter;
+        let pageFrom;
+        let pageSize;
+        let pageSort;
+        if (projection[0] === projType.search.valueOf()) {
+            search = <Search>projection[1];
+            includes = [];
+            excludes = [];
+            if (search.projection !== undefined) {
+                if (search.projection.excludes !== undefined) {
+                    excludes.push(search.projection.excludes);
+                } if (search.projection.includes !== undefined) {
+                    includes.push(search.projection.includes);
+                }
+            }
+            const form: Form = search.form;
+            const page: Page = search.page;
+            if (form !== undefined) {
+                if (form.flat !== undefined) {
+                    flat = form.flat;
+                }
+                if (form.pretty !== undefined) {
+                    pretty = form.pretty;
+                }
+            }
+            if (page !== undefined) {
+                if (page.after !== undefined) {
+                    pageAfter = page.after;
+                }
+                if (page.from !== undefined) {
+                    pageFrom = page.from;
+                }
+                if (page.size !== undefined) {
+                    pageSize = page.size;
+                }
+                if (page.sort !== undefined) {
+                    pageSort = page.sort;
+                }
+            }
+
+        }
         switch (projection[0]) {
             case projType.aggregate.valueOf():
                 aggregationRequest = <AggregationsRequest>{
@@ -746,7 +800,7 @@ export class CollaborativesearchService {
                     this.exploreApi.aggregate(this.collection, aggregationsForGet,
                         fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
+                        , notgwithinForGet, notgintersectForGet, dateformat, false, isFlat, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.geoaggregate.valueOf():
@@ -759,7 +813,7 @@ export class CollaborativesearchService {
                     this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
                         fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, false, isFlat, this.max_age, this.fetchOptions)
+                        , notgwithinForGet, notgintersectForGet, dateformat, false, isFlat, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.geohashgeoaggregate.valueOf():
@@ -774,82 +828,42 @@ export class CollaborativesearchService {
                     this.exploreApi.geohashgeoaggregate(this.collection, geohash, aggregationsForGet,
                         fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, false, isFlat, this.max_age, this.fetchOptions)
+                        , notgwithinForGet, notgintersectForGet, dateformat, false, isFlat, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>from(
                     this.exploreApi.count(this.collection, fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
+                        , notgwithinForGet, notgintersectForGet, dateformat, false, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.search.valueOf():
-                search = <Search>projection[1];
-                includes = [];
-                excludes = [];
-                if (search.projection !== undefined) {
-                    if (search.projection.excludes !== undefined) {
-                        excludes.push(search.projection.excludes);
-                    } if (search.projection.includes !== undefined) {
-                        includes.push(search.projection.includes);
-                    }
-                }
-                let sort: string;
-                if (search.sort === undefined) {
-                    sort = null;
-                } else {
-                    if (search.sort.sort === undefined) {
-                        sort = null;
-                    } else {
-                        sort = search.sort.sort;
-                    }
-                }
                 result = <Observable<Hits>>from(
                     this.exploreApi.search(this.collection, fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, false, includes, excludes, search.size.size,
-                        search.size.from, sort, this.max_age, this.fetchOptions)
+                        , notgwithinForGet, notgintersectForGet, dateformat, false, flat, includes, excludes, pageSize,
+                        pageFrom, pageSort, pageAfter, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.geosearch.valueOf():
-                search = <Search>projection[1];
-                includes = [];
-                excludes = [];
-                if (search.projection !== undefined) {
-                    if (search.projection.excludes !== undefined) {
-                        excludes.push(search.projection.excludes);
-                    } if (search.projection.includes !== undefined) {
-                        includes.push(search.projection.includes);
-                    }
-                }
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geosearch(this.collection, fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, false, isFlat, includes, excludes, search.size.size,
-                        search.size.from, null, this.max_age, this.fetchOptions)
+                        , notgwithinForGet, notgintersectForGet, dateformat, false, flat, includes, excludes, pageSize,
+                        pageFrom, pageSort, pageFrom, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.tiledgeosearch.valueOf():
-                search = (<TiledSearch>projection[1]).search;
                 const x = (<TiledSearch>projection[1]).x;
                 const y = (<TiledSearch>projection[1]).y;
                 const z = (<TiledSearch>projection[1]).z;
-                includes = [];
-                excludes = [];
-                if (search.projection !== undefined) {
-                    if (search.projection.excludes !== undefined) {
-                        excludes.push(search.projection.excludes);
-                    } if (search.projection.includes !== undefined) {
-                        includes.push(search.projection.includes);
-                    }
-                }
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.tiledgeosearch(this.collection, x, y, z
                         , fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, false, isFlat, includes, excludes,
-                        search.size.size, search.size.from, null, this.max_age, this.fetchOptions)
+                        , notgwithinForGet, notgintersectForGet, dateformat, false, flat, includes, excludes,
+                        pageSize, pageFrom, pageSort, pageAfter, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.range.valueOf():
@@ -861,7 +875,7 @@ export class CollaborativesearchService {
                     this.exploreApi.range(this.collection, rangeRequest.field
                         , fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, false, this.max_age, this.fetchOptions)
+                        , notgwithinForGet, notgintersectForGet, dateformat, false, this.max_age, this.fetchOptions)
                 );
                 break;
         }
@@ -897,7 +911,7 @@ export class CollaborativesearchService {
                 aggregation = aggregation + ':order-' + agg.order;
             }
             if (agg.on !== undefined) {
-              aggregation = aggregation + ':on-' + agg.on;
+                aggregation = aggregation + ':on-' + agg.on;
             }
             if (agg.size !== undefined) {
                 aggregation = aggregation + ':size-' + agg.size;
