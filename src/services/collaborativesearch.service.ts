@@ -718,7 +718,6 @@ export class CollaborativesearchService {
     * @param projection  Type of projection of ARLAS Server request.
     * @param filters   ARLAS API filters list to resolve the request.
     * @param isFlat  Boolean option to flat output geojson properties.
-    * @param dateformat  String date format for date comparaison in filter.
     * @returns ARLAS Server observable.
     */
     private computeResolve(projection: [projType.aggregate, Array<Aggregation>]
@@ -851,7 +850,7 @@ export class CollaborativesearchService {
                     this.exploreApi.geosearch(this.collection, fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                         , notgwithinForGet, notgintersectForGet, dateformat, false, flat, includes, excludes, pageSize,
-                        pageFrom, pageSort, pageFrom, this.max_age, this.fetchOptions)
+                        pageFrom, pageSort, pageAfter, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.tiledgeosearch.valueOf():
@@ -903,8 +902,8 @@ export class CollaborativesearchService {
                 aggregation = aggregation + ':format-' + agg.format;
             }
             if (agg.metrics) {
-                agg.metrics.filter((m: Metric) => (m.collectField && m.collectFct)).forEach(m => {
-                    aggregation = aggregation + ':collect_field-' + m.collectField + ':collect_fct-' + m.collectFct;
+                agg.metrics.filter((m: Metric) => (m.collect_field && m.collect_fct)).forEach(m => {
+                    aggregation = aggregation + ':collect_field-' + m.collect_field + ':collect_fct-' + m.collect_fct;
                 });
             }
             if (agg.order !== undefined) {
@@ -916,13 +915,13 @@ export class CollaborativesearchService {
             if (agg.size !== undefined) {
                 aggregation = aggregation + ':size-' + agg.size;
             }
-            if (agg.fetchGeometry !== undefined) {
+            if (agg.fetch_geometry !== undefined) {
                 aggregation = aggregation + ':fetchGeometry';
-                if (agg.fetchGeometry.field !== undefined) {
-                    aggregation = aggregation + '-' + agg.fetchGeometry.field;
+                if (agg.fetch_geometry.field !== undefined) {
+                    aggregation = aggregation + '-' + agg.fetch_geometry.field;
                 }
-                if (agg.fetchGeometry.strategy !== undefined) {
-                    aggregation = aggregation + '-' + agg.fetchGeometry.strategy.toString();
+                if (agg.fetch_geometry.strategy !== undefined) {
+                    aggregation = aggregation + '-' + agg.fetch_geometry.strategy.toString();
                 }
             }
             if (agg.include !== undefined) {
