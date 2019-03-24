@@ -751,8 +751,9 @@ export class CollaborativesearchService {
         let pageFrom;
         let pageSize;
         let pageSort;
-        if (projection[0] === projType.search.valueOf()) {
-            search = <Search>projection[1];
+        if (projection[0] === projType.search.valueOf() || projection[0] === projType.geosearch.valueOf() ||
+         projection[0] === projType.tiledgeosearch.valueOf()) {
+            search = projection[0] === projType.tiledgeosearch.valueOf() ? (<TiledSearch>projection[1]).search : (<Search>projection[1]);
             includes = [];
             excludes = [];
             if (search.projection !== undefined) {
@@ -786,7 +787,6 @@ export class CollaborativesearchService {
                     pageSort = page.sort;
                 }
             }
-
         }
         switch (projection[0]) {
             case projType.aggregate.valueOf():
@@ -916,7 +916,7 @@ export class CollaborativesearchService {
                 aggregation = aggregation + ':size-' + agg.size;
             }
             if (agg.fetch_geometry !== undefined) {
-                aggregation = aggregation + ':fetchGeometry';
+                aggregation = aggregation + ':fetch_geometry';
                 if (agg.fetch_geometry.field !== undefined) {
                     aggregation = aggregation + '-' + agg.fetch_geometry.field;
                 }
