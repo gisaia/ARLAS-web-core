@@ -25,10 +25,7 @@ import { map, finalize, filter, debounceTime } from 'rxjs/operators';
 
 export abstract class Contributor {
 
-    /**
-    * Name of the contributor retrieve from configService.
-    */
-    private name: string = this.getConfigValue('name');
+    private name: string;
     private fetchedData: any;
     /**
     * @param identifier  string identifier of the contributor.
@@ -39,6 +36,8 @@ export abstract class Contributor {
         public collaborativeSearcheService: CollaborativesearchService) {
         const configDebounceTime = this.configService.getValue('arlas.server.debounceCollaborationTime');
         const debounceDuration =  configDebounceTime !== undefined ? configDebounceTime : 750;
+        const configName = this.getConfigValue('name');
+        this.name = configName ? configName : this.identifier;
         // Register the contributor in collaborativeSearcheService registry
         this.collaborativeSearcheService.register(this.identifier, this);
         // Subscribe a bus to update data and selection
@@ -55,15 +54,20 @@ export abstract class Contributor {
     public abstract getPackageName(): string;
 
     /**
-    * @param fieldName  string fieldName find in configuration.
-    * @returns value of fieldName in configuration.
+    * @param key  a `key` defined in configuration.
+    * @returns value of the `key` in configuration.
     */
-    public getConfigValue(fieldName: string): any {
+    public getConfigValue(key: string): any {
+        let configValue = null;
         const contributor = this.configService.getValue('arlas.web.contributors').find(
-          contrib => contrib.identifier === this.identifier
+            contrib => contrib.identifier === this.identifier
         );
-        return contributor[fieldName];
+        if (contributor) {
+            configValue = contributor[key];
+        }
+        return configValue;
     }
+
     /**
     * @returns  name of contributor set in configuration.
     */
@@ -102,6 +106,4 @@ export abstract class Contributor {
               error => this.collaborativeSearcheService.collaborationErrorBus.next(error)
             );
     }
-
-
 }
