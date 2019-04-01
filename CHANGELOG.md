@@ -1,5 +1,18 @@
 # Change Log
 
+## [v10.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v10.0.0) (2019-04-01)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/10.0.0-beta.0...v10.0.0)
+
+**Breaking changes:**
+
+- Apply new format for contributors configuration [\#70](https://github.com/gisaia/ARLAS-web-core/issues/70) [[conf](https://github.com/gisaia/ARLAS-web-core/labels/conf)]
+- Update arlas api to 10 [\#68](https://github.com/gisaia/ARLAS-web-core/pull/68) ([mbarbet](https://github.com/mbarbet))
+
+## [10.0.0-beta.0](https://github.com/gisaia/ARLAS-web-core/tree/10.0.0-beta.0) (2019-03-06)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v9.2.0...10.0.0-beta.0)
+
 ## [v9.2.0](https://github.com/gisaia/ARLAS-web-core/tree/v9.2.0) (2019-02-05)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v9.1.1...v9.2.0)
