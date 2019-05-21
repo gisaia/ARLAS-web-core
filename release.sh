@@ -148,6 +148,7 @@ releaseProd(){
     checkfilesize $file
     done
     cp package-release.json  dist/package.json
+    cp README-NPM.md dist/README.md
     git tag -a v"$1" -m"$commit_message_master"
     git push origin v"$1"
 
@@ -228,6 +229,7 @@ releaseDev(){
     checkfilesize $file
     done
     cp package-release.json  dist/package.json
+    cp README-NPM.md dist/README.md
     cd dist
     jq  '.name = "@gisaia-team/arlas-'$folder'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json

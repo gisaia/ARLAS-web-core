@@ -5,7 +5,7 @@
 
 `arlas-web-core ` is a typescript library that provides :
 - A collaborative search service (`CSS`) that coordinates the [ARLAS-web-contributors](https://www.npmjs.com/package/arlas-web-contributors) collaborations.
-- A configuration service that allows to read and parse a configuration file (that is used by the `CSS` & other services in [ARLAS-wui-toolkit](https://www.npmjs.com/package/arlas-wui-toolkit).
+- A configuration service that allows to read and parse a configuration file (that is used by the `CSS` & other services in [ARLAS-wui-toolkit](https://www.npmjs.com/package/arlas-wui-toolkit)).
 
 ## Install
 
