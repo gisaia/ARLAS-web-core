@@ -752,7 +752,7 @@ export class CollaborativesearchService {
         let pageSize;
         let pageSort;
         if (projection[0] === projType.search.valueOf() || projection[0] === projType.geosearch.valueOf() ||
-         projection[0] === projType.tiledgeosearch.valueOf()) {
+            projection[0] === projType.tiledgeosearch.valueOf()) {
             search = projection[0] === projType.tiledgeosearch.valueOf() ? (<TiledSearch>projection[1]).search : (<Search>projection[1]);
             includes = [];
             excludes = [];
@@ -922,6 +922,15 @@ export class CollaborativesearchService {
                 }
                 if (agg.fetch_geometry.strategy !== undefined) {
                     aggregation = aggregation + '-' + agg.fetch_geometry.strategy.toString();
+                }
+            }
+            if (agg.fetch_hits !== undefined) {
+                aggregation = aggregation + ':fetch_hits';
+                if (agg.fetch_hits.size !== undefined) {
+                    aggregation = aggregation + '-' + agg.fetch_hits.size;
+                }
+                if (agg.fetch_hits.include !== undefined) {
+                    aggregation = aggregation + '(' + agg.fetch_hits.include.join(',') + ')';
                 }
             }
             if (agg.include !== undefined) {
