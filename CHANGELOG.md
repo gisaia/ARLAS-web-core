@@ -1,5 +1,13 @@
 # Change Log
 
+## [v10.1.1](https://github.com/gisaia/ARLAS-web-core/tree/v10.1.1) (2019-05-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v10.1.0...v10.1.1)
+
+**Fixed bugs:**
+
+- update arlas-api to 10.0.1 in package-release.json [\#79](https://github.com/gisaia/ARLAS-web-core/pull/79) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
 ## [v10.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v10.1.0) (2019-05-22)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v10.0.0...v10.1.0)
