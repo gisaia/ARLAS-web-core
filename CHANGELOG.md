@@ -1,5 +1,18 @@
 # Change Log
 
+## [v10.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v10.1.0) (2019-05-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v10.0.0...v10.1.0)
+
+**Fixed bugs:**
+
+- Fetch\_hits agg part is missing in get param build function [\#74](https://github.com/gisaia/ARLAS-web-core/issues/74)
+- Add fetch\_hits for agg [\#75](https://github.com/gisaia/ARLAS-web-core/pull/75) ([mbarbet](https://github.com/mbarbet))
+
+**Miscellaneous:**
+
+- Copy README-NPM.md files in dist before publishing in npm [\#76](https://github.com/gisaia/ARLAS-web-core/issues/76) [[documentation](https://github.com/gisaia/ARLAS-web-core/labels/documentation)]
+
 ## [v10.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v10.0.0) (2019-04-01)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/10.0.0-beta.0...v10.0.0)
@@ -8,6 +21,10 @@
 
 - Apply new format for contributors configuration [\#70](https://github.com/gisaia/ARLAS-web-core/issues/70) [[conf](https://github.com/gisaia/ARLAS-web-core/labels/conf)]
 - Update arlas api to 10 [\#68](https://github.com/gisaia/ARLAS-web-core/pull/68) ([mbarbet](https://github.com/mbarbet))
+
+**New stuff:**
+
+- Update arlas api to 10.0.0 [\#72](https://github.com/gisaia/ARLAS-web-core/pull/72) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 ## [10.0.0-beta.0](https://github.com/gisaia/ARLAS-web-core/tree/10.0.0-beta.0) (2019-03-06)
 
