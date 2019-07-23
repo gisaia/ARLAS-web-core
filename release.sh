@@ -149,6 +149,7 @@ releaseProd(){
     done
     cp package-release.json  dist/package.json
     cp README-NPM.md dist/README.md
+    cp LICENSE.txt dist/LICENSE
     git tag -a v"$1" -m"$commit_message_master"
     git push origin v"$1"
 
