@@ -748,6 +748,7 @@ export class CollaborativesearchService {
         let pretty = false;
         let flat = false;
         let pageAfter;
+        let pageBefore;
         let pageFrom;
         let pageSize;
         let pageSort;
@@ -776,6 +777,9 @@ export class CollaborativesearchService {
             if (page !== undefined) {
                 if (page.after !== undefined) {
                     pageAfter = page.after;
+                }
+                if (page.before !== undefined) {
+                    pageBefore = page.before;
                 }
                 if (page.from !== undefined) {
                     pageFrom = page.from;
@@ -842,7 +846,7 @@ export class CollaborativesearchService {
                     this.exploreApi.search(this.collection, fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                         , notgwithinForGet, notgintersectForGet, dateformat, false, flat, includes, excludes, pageSize,
-                        pageFrom, pageSort, pageAfter, this.max_age, this.fetchOptions)
+                        pageFrom, pageSort, pageAfter, pageBefore, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.geosearch.valueOf():
@@ -850,7 +854,7 @@ export class CollaborativesearchService {
                     this.exploreApi.geosearch(this.collection, fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                         , notgwithinForGet, notgintersectForGet, dateformat, false, flat, includes, excludes, pageSize,
-                        pageFrom, pageSort, pageAfter, this.max_age, this.fetchOptions)
+                        pageFrom, pageSort, pageAfter, pageBefore, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.tiledgeosearch.valueOf():
@@ -862,7 +866,7 @@ export class CollaborativesearchService {
                         , fForGet, qForGet
                         , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
                         , notgwithinForGet, notgintersectForGet, dateformat, false, flat, includes, excludes,
-                        pageSize, pageFrom, pageSort, pageAfter, this.max_age, this.fetchOptions)
+                        pageSize, pageFrom, pageSort, pageAfter, pageBefore, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.range.valueOf():
