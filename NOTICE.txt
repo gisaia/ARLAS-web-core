@@ -1,0 +1,10 @@
+ARLAS-web-core
+Copyright 2019 and onwards Gisaïa
+
+ARLAS-web-core embeds the following dependencies :
+
++ ARLAS
+    - ARLAS-api             (The Apache License Version 2.0 - https://arlas.io/)
+
++ Reactive programming
+    - RxJS                  (The Apache License Version 2.0 - https://rxjs-dev.firebaseapp.com/)
