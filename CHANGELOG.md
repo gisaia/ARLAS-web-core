@@ -1,6 +1,18 @@
 # Change Log
 
-## [v10.2.0](https://github.com/gisaia/ARLAS-web-core/tree/v10.2.0) (2019-05-22)
+## [v11.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v11.0.0) (2019-07-25)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v10.2.0...v11.0.0)
+
+**New stuff:**
+
+- Update arlas-api V11 [\#80](https://github.com/gisaia/ARLAS-web-core/issues/80)
+
+**Miscellaneous:**
+
+- Add LICENSE file in package at build [\#82](https://github.com/gisaia/ARLAS-web-core/issues/82)
+
+## [v10.2.0](https://github.com/gisaia/ARLAS-web-core/tree/v10.2.0) (2019-07-03)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v10.1.1...v10.2.0)
 
