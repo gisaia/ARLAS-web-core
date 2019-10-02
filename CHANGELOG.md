@@ -1,6 +1,14 @@
 # Change Log
 
-## [v11.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v11.1.0) (2019-07-25)
+## [v11.2.0](https://github.com/gisaia/ARLAS-web-core/tree/v11.2.0) (2019-10-02)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v11.1.0...v11.2.0)
+
+**New stuff:**
+
+- Update Arlas api [\#85](https://github.com/gisaia/ARLAS-web-core/pull/85) ([mbarbet](https://github.com/mbarbet))
+
+## [v11.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v11.1.0) (2019-09-16)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v11.0.0...v11.1.0)
 
