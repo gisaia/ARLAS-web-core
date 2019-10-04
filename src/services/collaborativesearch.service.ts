@@ -19,7 +19,7 @@
 import {
     Aggregation, AggregationResponse, AggregationsRequest,
     CollectionReferenceDescription, Count, ExploreApi, Expression,
-    FeatureCollection, Filter, Hits, Search, WriteApi, TagRequest, UpdateResponse, RangeRequest, RangeResponse, Metric, Page, Form
+    FeatureCollection, Filter, Hits, Search, RangeRequest, RangeResponse, Metric, Page, Form
 } from 'arlas-api';
 import { Observable, Subject, from } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -74,10 +74,6 @@ export class CollaborativesearchService {
     * ARLAS SERVER Explore Api used by the collaborativesearchService.
     */
     private exploreApi: ExploreApi;
-    /**
-    * ARLAS SERVER Write Api used by the collaborativesearchService.
-    */
-    private writeApi: WriteApi;
     /**
     * Configuration Service used by the collaborativesearchService.
     */
@@ -136,20 +132,6 @@ export class CollaborativesearchService {
     */
     public setExploreApi(exploreApi: ExploreApi) {
         this.exploreApi = exploreApi;
-    }
-    /**
-    * Return the ARLAS Write API.
-    * @returns WriteApi.
-    */
-    public getWriteApi() {
-        return this.writeApi;
-    }
-    /**
-    * Set the ARLAS Write API.
-    * @param api : WriteApi.
-    */
-    public setWriteApi(writeApi: WriteApi) {
-        this.writeApi = writeApi;
     }
     /**
     * Return the Configuraion Service.
@@ -445,12 +427,7 @@ export class CollaborativesearchService {
 
         const fForGet = this.buildFilterFieldGetParam('f', finalFilter);
         const qForGet = this.buildFilterFieldGetParam('q', finalFilter);
-        const pwithinForGet = this.buildFilterFieldGetParam('pwithin', finalFilter);
-        const gwithinForGet = this.buildFilterFieldGetParam('gwithin', finalFilter);
-        const gintersectForGet = this.buildFilterFieldGetParam('gintersect', finalFilter);
-        const notpwithinForGet = this.buildFilterFieldGetParam('notpwithin', finalFilter);
-        const notgwithinForGet = this.buildFilterFieldGetParam('notgwithin', finalFilter);
-        const notgintersectForGet = this.buildFilterFieldGetParam('notgintersect', finalFilter);
+
         const queryParameters = new URLSearchParams();
         aggregationRequest = <AggregationsRequest>{
             filter: finalFilter,
@@ -474,36 +451,6 @@ export class CollaborativesearchService {
         }
         if (qForGet !== undefined) {
             queryParameters.set('q', qForGet);
-        }
-        if (pwithinForGet) {
-            pwithinForGet.filter(element => element !== undefined).forEach(function (element) {
-                queryParameters.append('pwithin', element);
-            });
-        }
-        if (gwithinForGet) {
-            gwithinForGet.filter(element => element !== undefined).forEach(function (element) {
-                queryParameters.append('gwithin', element);
-            });
-        }
-        if (gintersectForGet) {
-            gintersectForGet.filter(element => element !== undefined).forEach(function (element) {
-                queryParameters.append('gintersect', element);
-            });
-        }
-        if (notpwithinForGet) {
-            notpwithinForGet.filter(element => element !== undefined).forEach(function (element) {
-                queryParameters.append('notpwithin', element);
-            });
-        }
-        if (notgwithinForGet) {
-            notgwithinForGet.filter(element => element !== undefined).forEach(function (element) {
-                queryParameters.append('notgwithin', element);
-            });
-        }
-        if (notgintersectForGet) {
-            notgintersectForGet.filter(element => element !== undefined).forEach(function (element) {
-                queryParameters.append('notgintersect', element);
-            });
         }
         queryParameters.set('pretty', 'false');
         if (this.max_age !== undefined) {
@@ -545,20 +492,7 @@ export class CollaborativesearchService {
                         }
                     });
                 }
-                if (filter.pwithin) {
-                    filter.pwithin.forEach(pwiFilter => {
-                        if (p.indexOf(pwiFilter) < 0) {
-                            p.push(pwiFilter);
-                        }
-                    });
-                }
-                if (filter.gintersect) {
-                    filter.gintersect.forEach(giFilter => {
-                        if (gi.indexOf(giFilter) < 0) {
-                            gi.push(giFilter);
-                        }
-                    });
-                }
+
             }
         });
         if (f.length > 0) {
@@ -566,12 +500,6 @@ export class CollaborativesearchService {
         }
         if (q.length > 0) {
             finalFilter.q = q;
-        }
-        if (p.length > 0) {
-            finalFilter.pwithin = p;
-        }
-        if (gi.length > 0) {
-            finalFilter.gintersect = gi;
         }
         return finalFilter;
     }
@@ -584,32 +512,6 @@ export class CollaborativesearchService {
     public describe(collection: string, pretty?: boolean): Observable<CollectionReferenceDescription> {
         const result = <Observable<CollectionReferenceDescription>>from(
             this.exploreApi.describe(collection, pretty, this.max_age, this.fetchOptions)
-        );
-        return result;
-    }
-
-    /**
-     * Search and tag the elements found in the collection, given the filters
-     * @param collection collection name
-     * @param body Request body
-     * @param pretty Whether pretty print or not
-     */
-    public tag(collection: string, body?: TagRequest, pretty?: boolean): Observable<UpdateResponse> {
-        const result = <Observable<UpdateResponse>>from(
-            this.writeApi.tagPost(collection, body, pretty, this.fetchOptions)
-        );
-        return result;
-    }
-
-    /**
-     * Search and untag the elements found in the collection, given the filters
-     * @param collection collection name
-     * @param body Request body
-     * @param pretty Whether pretty print or not
-     */
-    public untag(collection: string, body?: TagRequest, pretty?: boolean): Observable<UpdateResponse> {
-        const result = <Observable<UpdateResponse>>from(
-            this.writeApi.untagPost(collection, body, pretty, this.fetchOptions)
         );
         return result;
     }
@@ -735,15 +637,10 @@ export class CollaborativesearchService {
         let aggregationsForGet: string[];
         let includes: string[] = [];
         let excludes: string[] = [];
+        let returned_geometries: string;
         let result;
         const fForGet = this.buildFilterFieldGetParam('f', finalFilter);
         const qForGet = this.buildFilterFieldGetParam('q', finalFilter);
-        const pwithinForGet = this.buildFilterFieldGetParam('pwithin', finalFilter);
-        const gwithinForGet = this.buildFilterFieldGetParam('gwithin', finalFilter);
-        const gintersectForGet = this.buildFilterFieldGetParam('gintersect', finalFilter);
-        const notpwithinForGet = this.buildFilterFieldGetParam('notpwithin', finalFilter);
-        const notgwithinForGet = this.buildFilterFieldGetParam('notgwithin', finalFilter);
-        const notgintersectForGet = this.buildFilterFieldGetParam('notgintersect', finalFilter);
         let search: Search;
         let pretty = false;
         let flat = false;
@@ -760,9 +657,13 @@ export class CollaborativesearchService {
             if (search.projection !== undefined) {
                 if (search.projection.excludes !== undefined) {
                     excludes.push(search.projection.excludes);
-                } if (search.projection.includes !== undefined) {
+                }
+                if (search.projection.includes !== undefined) {
                     includes.push(search.projection.includes);
                 }
+            }
+            if (search.returned_geometries !== undefined) {
+                returned_geometries = search.returned_geometries;
             }
             const form: Form = search.form;
             const page: Page = search.page;
@@ -801,9 +702,7 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<AggregationResponse>>from(
                     this.exploreApi.aggregate(this.collection, aggregationsForGet,
-                        fForGet, qForGet
-                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, dateformat, false, isFlat, this.max_age, this.fetchOptions)
+                        fForGet, qForGet, dateformat, false, isFlat, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.geoaggregate.valueOf():
@@ -814,9 +713,7 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
-                        fForGet, qForGet
-                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, dateformat, false, isFlat, this.max_age, this.fetchOptions)
+                        fForGet, qForGet, dateformat, false, isFlat, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.geohashgeoaggregate.valueOf():
@@ -829,31 +726,24 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geohashgeoaggregate(this.collection, geohash, aggregationsForGet,
-                        fForGet, qForGet
-                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, dateformat, false, isFlat, this.max_age, this.fetchOptions)
+                        fForGet, qForGet, dateformat, false, isFlat, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>from(
-                    this.exploreApi.count(this.collection, fForGet, qForGet
-                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, dateformat, false, this.max_age, this.fetchOptions)
-                );
+                    this.exploreApi.count(this.collection, fForGet, qForGet, dateformat, false, this.max_age, this.fetchOptions));
                 break;
             case projType.search.valueOf():
                 result = <Observable<Hits>>from(
                     this.exploreApi.search(this.collection, fForGet, qForGet
-                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, dateformat, false, flat, includes, excludes, pageSize,
+                        , dateformat, false, flat, includes, excludes, returned_geometries, pageSize,
                         pageFrom, pageSort, pageAfter, pageBefore, this.max_age, this.fetchOptions)
                 );
                 break;
             case projType.geosearch.valueOf():
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geosearch(this.collection, fForGet, qForGet
-                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, dateformat, false, flat, includes, excludes, pageSize,
+                        , dateformat, false, flat, includes, excludes, returned_geometries, pageSize,
                         pageFrom, pageSort, pageAfter, pageBefore, this.max_age, this.fetchOptions)
                 );
                 break;
@@ -864,8 +754,7 @@ export class CollaborativesearchService {
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.tiledgeosearch(this.collection, x, y, z
                         , fForGet, qForGet
-                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, dateformat, false, flat, includes, excludes,
+                        , dateformat, false, flat, includes, excludes, returned_geometries,
                         pageSize, pageFrom, pageSort, pageAfter, pageBefore, this.max_age, this.fetchOptions)
                 );
                 break;
@@ -877,8 +766,7 @@ export class CollaborativesearchService {
                 result = <Observable<RangeResponse>>from(
                     this.exploreApi.range(this.collection, rangeRequest.field
                         , fForGet, qForGet
-                        , pwithinForGet, gwithinForGet, gintersectForGet, notpwithinForGet
-                        , notgwithinForGet, notgintersectForGet, dateformat, false, this.max_age, this.fetchOptions)
+                        , dateformat, false, this.max_age, this.fetchOptions)
                 );
                 break;
         }
