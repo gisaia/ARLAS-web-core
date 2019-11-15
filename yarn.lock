@@ -3,9 +3,9 @@
 
 
 "@types/node@^8.0.0":
-  version "8.10.55"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-8.10.55.tgz#3951a64ebce1927b050fd1e420dc6f332be8a1e0"
-  integrity sha512-iZeh1EgupfmAAOASk580R1SL5lWF3CsBVgVH0395qyNF8fhO16xy1UwAav2PdGxIIsYRn7RzJgMGjdsvam6YYg==
+  version "8.10.59"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-8.10.59.tgz#9e34261f30183f9777017a13d185dfac6b899e04"
+  integrity sha512-8RkBivJrDCyPpBXhVZcjh7cQxVBSmRk9QM7hOketZzp6Tg79c0N8kkpAIito9bnJ3HCVCHVYz+KHTEbfQNfeVQ==
 
 ansi-regex@^2.0.0:
   version "2.1.1"
@@ -31,10 +31,10 @@ argparse@^1.0.7:
   dependencies:
     sprintf-js "~1.0.2"
 
-arlas-api@11.0.3:
-  version "11.0.3"
-  resolved "https://registry.yarnpkg.com/arlas-api/-/arlas-api-11.0.3.tgz#4054109f93b3b31604f12611db740420228a8474"
-  integrity sha512-2Ci5wIaurzhyOaop3kMKar5OVjXHj+Bj9WrQ6maHiTvBpCV0HnpEgl+UFWf5moDZIdEfUmMUtMAqC81jWmph8Q==
+arlas-api@12.0.0:
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/arlas-api/-/arlas-api-12.0.0.tgz#b6ce8d30ff8c271a6f35197a0d2dcc703ae848e7"
+  integrity sha512-06cA9VbfPkofdtYINpbyW5YLJRTl9L4opKZCeXN/ahyWpWrCIvXHw0kO6kpFUWQBBeiY05hDCFY7cBnwHqJeXg==
   dependencies:
     es6-promise "4.2.4"
     portable-fetch "3.0.0"
@@ -147,9 +147,9 @@ fs.realpath@^1.0.0:
   integrity sha1-FQStJSMVjKpA20onh8sBQRmU6k8=
 
 glob@^7.1.1, glob@^7.1.3:
-  version "7.1.4"
-  resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.4.tgz#aa608a2f6c577ad357e1ae5a5c26d9a8d1969255"
-  integrity sha512-hkLPepehmnKk41pUGm3sYxoFs/umurYfYJCerbXEyFIWcAzvpipAgVkBqqT9RBKMGjnq6kMuyYwha6csxbiM1A==
+  version "7.1.6"
+  resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.6.tgz#141f33b81a7c2492e125594307480c46679278a6"
+  integrity sha512-LwaxwyZ72Lk7vZINtNNrywX0ZuLyStrdDtabefZKAY5ZGJhVtgdznluResxNmPitE0SAO+O26sWTHeKSI2wMBA==
   dependencies:
     fs.realpath "^1.0.0"
     inflight "^1.0.4"
