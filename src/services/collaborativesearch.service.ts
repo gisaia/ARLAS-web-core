@@ -19,7 +19,7 @@
 import {
     Aggregation, AggregationResponse, AggregationsRequest,
     CollectionReferenceDescription, Count, ExploreApi, Expression,
-    FeatureCollection, Filter, Hits, Search, RangeRequest, RangeResponse, Metric, Page, Form
+    FeatureCollection, Filter, Hits, Search, RangeRequest, RangeResponse, Metric, Page, Form, ComputationRequest, ComputationResponse
 } from 'arlas-api';
 import { Observable, Subject, from } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -243,7 +243,7 @@ export class CollaborativesearchService {
     }
     /**
     * Resolve an ARLAS Server Search or Count request with all the collaborations enabled in the collaboration registry
-    expect for the contributor given in second optionnal parameter.
+    except for the contributor given in second optionnal parameter.
     * @param projection  Type of projection of ARLAS Server request:Search or Count.
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
@@ -287,7 +287,7 @@ export class CollaborativesearchService {
 
     /**
     * Resolve an ARLAS Server Geosearch or Geoaggregate request with all the collaborations enabled in the collaboration registry
-    expect for the contributor given in second optionnal parameter.
+    except for the contributor given in second optionnal parameter.
     * @param projection  Type of projection of ARLAS Server request:Geosearch or Geoaggregate.
     * @param isFlat  Boolean option to isFlat output geojson properties.
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
@@ -322,7 +322,7 @@ export class CollaborativesearchService {
     }
     /**
     * Resolve an ARLAS Server Aggregation request with all the collaborations enabled in the collaboration registry
-    expect for the contributor given in second optionnal parameter.
+    except for the contributor given in second optionnal parameter.
     * @param projection  Type of projection of ARLAS Server request:Aggregation.
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
@@ -348,8 +348,22 @@ export class CollaborativesearchService {
         return this.resolve(projection, collaborations, contributorId, filter);
     }
     /**
+    * Resolve an ARLAS Server Computation request with all the collaborations enabled in the collaboration registry
+    except for the contributor given in second optionnal parameter.
+    * @param projection  Type of projection of ARLAS Server request : ComputationRequest.
+    * @param collaborations  Map<contributorId, itsCollboration>
+    * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
+    * @returns ARLAS Server observable.
+    */
+    public resolveButNotComputation(projection:
+        [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
+        contributorId?: string
+    ): Observable<ComputationRequest> {
+        return this.resolveButNot(projection, collaborations, contributorId);
+    }
+    /**
     * Resolve an ARLAS Server Range request with all the collaborations enabled in the collaboration registry
-    expect for the contributor given in second optionnal parameter.
+    except for the contributor given in second optionnal parameter.
     * @param projection  Type of projection of ARLAS Server request:Aggregation.
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
@@ -549,7 +563,8 @@ export class CollaborativesearchService {
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
-        | [projType.range, RangeRequest], collaborations: Map<string, Collaboration>,
+        | [projType.range, RangeRequest]
+        | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter, isFlat?: boolean,
     ): Observable<any> {
         try {
@@ -572,7 +587,7 @@ export class CollaborativesearchService {
     }
     /**
     * Resolve an ARLAS Server request with all the collaborations enabled in the collaboration registry
-    expect for the contributor given in second optionnal parameter.
+    except for the contributor given in second optionnal parameter.
     * @param projection  Type of projection of ARLAS Server request.
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
@@ -586,7 +601,8 @@ export class CollaborativesearchService {
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
-        | [projType.range, RangeRequest], collaborations: Map<string, Collaboration>,
+        | [projType.range, RangeRequest]
+        | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter, isFlat?: boolean, dateformat?: string
     ): Observable<any> {
         try {
@@ -629,7 +645,8 @@ export class CollaborativesearchService {
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
-        | [projType.range, RangeRequest], filters: Array<Filter>, isFlat?: boolean
+        | [projType.range, RangeRequest]
+        | [projType.compute, ComputationRequest], filters: Array<Filter>, isFlat?: boolean
     ): Observable<any> {
         const finalFilter = this.getFinalFilter(filters);
         const dateformat = finalFilter.dateformat;
@@ -769,6 +786,14 @@ export class CollaborativesearchService {
                         , dateformat, false, this.max_age, this.fetchOptions)
                 );
                 break;
+            case projType.compute.valueOf():
+              const field = (<ComputationRequest>projection[1]).field;
+              const metric = (<ComputationRequest>projection[1]).metric;
+              result = <Observable<ComputationResponse>>from(
+                this.exploreApi.compute(this.collection, field, metric.toString().toLowerCase(), fForGet,
+                  qForGet, dateformat, false, this.max_age, this.fetchOptions)
+              );
+              break;
         }
         return result;
     }

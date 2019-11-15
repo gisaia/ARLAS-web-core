@@ -30,7 +30,9 @@ export enum projType {
   search,
   geosearch,
   tiledgeosearch,
-  range
+  /**range is deprecated and will be removed in v13.0.0 */
+  range,
+  compute
 }
 
 export interface TiledSearch {
