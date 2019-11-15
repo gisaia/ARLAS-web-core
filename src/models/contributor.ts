@@ -87,7 +87,7 @@ export abstract class Contributor {
 
     public abstract setSelection(data: any, c: Collaboration): any;
 
-    private updateFromCollaboration(collaborationEvent: CollaborationEvent) {
+    protected updateFromCollaboration(collaborationEvent: CollaborationEvent) {
         this.collaborativeSearcheService.ongoingSubscribe.next(1);
         this.fetchData(collaborationEvent)
             .pipe(
