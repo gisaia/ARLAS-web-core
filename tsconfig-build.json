@@ -1,1 +1,34 @@
-{"compileOnSave":false,"compilerOptions":{"outDir":"./dist/","baseUrl":"src","sourceMap":true,"declaration":true,"target":"es5","module":"es2015","moduleResolution":"node","emitDecoratorMetadata":true,"experimentalDecorators":true,"stripInternal":true,"skipLibCheck":true,"typeRoots":["node_modules/@types"],"lib":["es2015","es6","dom"]},"files":["src/index.ts"],"include":["src/**/*"],"exclude":["node_modules","dist"]}
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "baseUrl": "src",
+    "sourceMap": true,
+    "declaration": true,
+    "target": "es6",
+    "module": "es2015",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "stripInternal": true,
+    "skipLibCheck": true,
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "lib": [
+      "es2015",
+      "es6",
+      "dom"
+    ]
+  },
+  "files": [
+    "src/index.ts"
+  ],
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
