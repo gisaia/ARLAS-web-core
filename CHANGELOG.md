@@ -1,5 +1,23 @@
 # Change Log
 
+## [v12.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v12.0.0) (2019-11-15)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v11.4.0...v12.0.0)
+
+**Breaking changes:**
+
+- Remove write api [\#89](https://github.com/gisaia/ARLAS-web-core/issues/89)
+
+**New stuff:**
+
+- Use rxjs 6.5.3 and stop using rxjs-compat [\#95](https://github.com/gisaia/ARLAS-web-core/issues/95)
+- Add ResolveButNot method for \_compute endpoint  [\#93](https://github.com/gisaia/ARLAS-web-core/issues/93)
+- Support Multi-geometry of ARLAS-api [\#91](https://github.com/gisaia/ARLAS-web-core/issues/91)
+
+**Miscellaneous:**
+
+- Mark updateFromCollaboration as protected in Contributor class [\#90](https://github.com/gisaia/ARLAS-web-core/issues/90)
+
 ## [v11.4.0](https://github.com/gisaia/ARLAS-web-core/tree/v11.4.0) (2019-10-16)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v11.3.0...v11.4.0)
