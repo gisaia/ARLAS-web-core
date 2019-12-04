@@ -1,8 +1,16 @@
 # Change Log
 
-## [v12.0.1](https://github.com/gisaia/ARLAS-web-core/tree/v12.0.1) (2019-11-20)
+## [v12.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v12.1.0) (2019-11-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v12.0.1...v12.1.0)
+
+## [v12.0.1](https://github.com/gisaia/ARLAS-web-core/tree/v12.0.1) (2019-11-21)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v12.0.0...v12.0.1)
+
+**New stuff:**
+
+- Update build target to `es6` [\#98](https://github.com/gisaia/ARLAS-web-core/issues/98)
 
 ## [v12.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v12.0.0) (2019-11-20)
 
