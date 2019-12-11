@@ -27,6 +27,8 @@ export abstract class Contributor {
 
     private name: string;
     private fetchedData: any;
+    private _updateData = true;
+    public isDataUpdating = false;
     /**
     * @param identifier  string identifier of the contributor.
     * @param configService  configService of the contributor.
@@ -35,7 +37,7 @@ export abstract class Contributor {
         public configService: ConfigService,
         public collaborativeSearcheService: CollaborativesearchService) {
         const configDebounceTime = this.configService.getValue('arlas.server.debounceCollaborationTime');
-        const debounceDuration =  configDebounceTime !== undefined ? configDebounceTime : 750;
+        const debounceDuration = configDebounceTime !== undefined ? configDebounceTime : 750;
         const configName = this.getConfigValue('name');
         this.name = configName ? configName : this.identifier;
         // Register the contributor in collaborativeSearcheService registry
@@ -43,9 +45,11 @@ export abstract class Contributor {
         // Subscribe a bus to update data and selection
         this.collaborativeSearcheService.collaborationBus.pipe(debounceTime(debounceDuration))
             .subscribe(collaborationEvent => {
-                this.updateFromCollaboration(<CollaborationEvent>collaborationEvent);
+                if (this._updateData) {
+                    this.updateFromCollaboration(<CollaborationEvent>collaborationEvent);
+                }
             },
-            error => this.collaborativeSearcheService.collaborationErrorBus.next(error)
+                error => this.collaborativeSearcheService.collaborationErrorBus.next(error)
             );
     }
     /**
@@ -74,6 +78,22 @@ export abstract class Contributor {
     public getName(): string {
         return this.name;
     }
+
+    /**
+    * @returns  whether the data of contributor should be updated.
+    */
+    public get updateData(): boolean {
+        return this._updateData;
+    }
+
+    /**
+    * @param  value set if the data of contributor should be updated or not.
+    */
+    public set updateData(value) {
+        this._updateData = value;
+    }
+
+
     /**
     * @returns  name and live informations about filter contributor.
     */
@@ -87,23 +107,25 @@ export abstract class Contributor {
 
     public abstract setSelection(data: any, c: Collaboration): any;
 
-    protected updateFromCollaboration(collaborationEvent: CollaborationEvent) {
+    public updateFromCollaboration(collaborationEvent: CollaborationEvent) {
         this.collaborativeSearcheService.ongoingSubscribe.next(1);
+        this.isDataUpdating = true;
         this.fetchData(collaborationEvent)
             .pipe(
-              map(f => this.computeData(f)),
-              map(f => { this.fetchedData = f; this.setData(f); }),
-              finalize(() => {
-                this.setSelection(this.fetchedData, this.collaborativeSearcheService.getCollaboration(this.identifier));
-                this.collaborativeSearcheService.contribFilterBus
-                    .next(this.collaborativeSearcheService.registry.get(this.identifier));
-                this.collaborativeSearcheService.ongoingSubscribe.
-                    next(-1);
-              })
+                map(f => this.computeData(f)),
+                map(f => { this.fetchedData = f; this.setData(f); }),
+                finalize(() => {
+                    this.setSelection(this.fetchedData, this.collaborativeSearcheService.getCollaboration(this.identifier));
+                    this.collaborativeSearcheService.contribFilterBus
+                        .next(this.collaborativeSearcheService.registry.get(this.identifier));
+                    this.collaborativeSearcheService.ongoingSubscribe.
+                        next(-1);
+                    this.isDataUpdating = false;
+                })
             )
             .subscribe(
-              data => data,
-              error => this.collaborativeSearcheService.collaborationErrorBus.next(error)
+                data => data,
+                error => this.collaborativeSearcheService.collaborationErrorBus.next(error)
             );
     }
 }
