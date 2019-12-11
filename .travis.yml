@@ -13,7 +13,7 @@ cache:
 
 jobs:
   include:
-    - before_script: yarn global add tslint typescript
+    - before_script: npm install -g tslint typescript
       env:
         - job=lint
       script: npm run tslint
