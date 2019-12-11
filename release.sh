@@ -122,9 +122,9 @@ releaseProd(){
     git checkout  develop
     git pull origin develop
     echo "=> Test to lint and build the project on develop branch"
-    yarn install
-    yarn tslint
-    yarn build-release
+    npm install
+    npm run tslint
+    npm run build-release
     rm -rf dist
     echo "=> Merge develop into master"
     git checkout master
@@ -139,9 +139,9 @@ releaseProd(){
     commit_message_master="prod automatic release"-"$1"
 
     echo "=> Tag master"
-    yarn install
-    yarn tslint
-    yarn build-release
+    npm install
+    npm run tslint
+    npm run build-release
     #check dist files size
     for file in $(find dist -name '*.js' -or -name '*.ts');
     do
@@ -218,12 +218,12 @@ releaseDev(){
     git checkout  develop
     git pull origin develop
     echo "=> Test to lint and build the project on develop branch"
-    yarn install
+    npm install
     if [[ -d ./node_modules/@gisaia-team/arlas-web-core ]] ; then
     mv node_modules/@gisaia-team/arlas-web-core node_modules 2>/dev/null
     fi
-    yarn tslint
-    yarn build-release
+    npm run tslint
+    npm run build-release
     #check dist files size
     for file in $(find dist -name '*.js' -or -name '*.ts');
     do
