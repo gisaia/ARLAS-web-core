@@ -29,6 +29,7 @@ export abstract class Contributor {
     private fetchedData: any;
     private _updateData = true;
     public isDataUpdating = false;
+    protected cacheDuration: number;
     /**
     * @param identifier  string identifier of the contributor.
     * @param configService  configService of the contributor.
@@ -39,6 +40,8 @@ export abstract class Contributor {
         const configDebounceTime = this.configService.getValue('arlas.server.debounceCollaborationTime');
         const debounceDuration = configDebounceTime !== undefined ? configDebounceTime : 750;
         const configName = this.getConfigValue('name');
+        const configCacheDuration = this.getConfigValue('cache_duration');
+        this.cacheDuration = configCacheDuration ? configCacheDuration : this.collaborativeSearcheService.max_age;
         this.name = configName ? configName : this.identifier;
         // Register the contributor in collaborativeSearcheService registry
         this.collaborativeSearcheService.register(this.identifier, this);
