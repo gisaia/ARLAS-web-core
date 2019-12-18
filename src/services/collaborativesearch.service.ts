@@ -247,42 +247,48 @@ export class CollaborativesearchService {
     * @param projection  Type of projection of ARLAS Server request:Search or Count.
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @param isFlat  Whether flatten json.
+    * @param max_age  Duration of browser cache.
     * @returns ARLAS Server observable.
     */
     public resolveButNotHits(projection:
         [projType.search, Search]
         | [projType.count, Count], collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter
+        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
     ): Observable<Hits> {
-        return this.resolveButNot(projection, collaborations, contributorId, filter);
+        return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat, max_age);
     }
     /**
     * Resolve an ARLAS Server Search or Count  request for an optional contributor and optional filters.
     * @param projection  Type of projection of ARLAS Server request :Search or Count .
     * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @param isFlat  Whether flatten json.
+    * @param max_age  Duration of browser cache.
     * @returns ARLAS Server observable.
     */
     public resolveHits(projection:
         [projType.search, Search]
         | [projType.count, Count], collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter
+        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
     ): Observable<Hits> {
-        return this.resolve(projection, collaborations, contributorId, filter);
+        return this.resolve(projection, collaborations, contributorId, filter, isFlat, max_age);
     }
 
     /**
     * Resolve an ARLAS Server Search or Count  request for an array of filter.
     * @param projection  Type of projection of ARLAS Server request :Search or Count .
     * @param filters  ARLAS API filters to resolve the request with compute
+    * @param isFlat  Whether flatten json.
+    * @param max_age  Duration of browser cache.
     * @returns ARLAS Server observable.
     */
     public resolveComputeHits(projection:
         [projType.search, Search]
         | [projType.count, Count],
-        filters: Array<Filter>
+        filters: Array<Filter>, isFlat?: boolean, max_age = this.max_age
     ): Observable<Hits> {
-        return this.computeResolve(projection, filters);
+        return this.computeResolve(projection, filters, isFlat, max_age);
     }
 
     /**
@@ -292,6 +298,7 @@ export class CollaborativesearchService {
     * @param isFlat  Boolean option to isFlat output geojson properties.
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @param max_age  Duration of browser cache.
     * @returns ARLAS Server observable.
     */
     public resolveButNotFeatureCollection(projection:
@@ -299,16 +306,18 @@ export class CollaborativesearchService {
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.geohashgeoaggregate, GeohashAggregation]
         | [projType.geoaggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>, isFlat = true,
-        contributorId?: string, filter?: Filter
+        contributorId?: string, filter?: Filter, max_age = this.max_age
     ): Observable<FeatureCollection> {
-        return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat);
+        return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat, max_age);
     }
     /**
-    * Resolve an ARLAS Server Geosearch or Geoaggregate  request for an optional contributor and optional filters.
+    * Resolve an ARLAS Server Geosearch or Geoaggregate  request for an optional
+    contributor and optional filters.
     * @param projection  Type of projection of ARLAS Server request :Geosearch or Geoaggregate.
     * @param isFlat  Boolean option to flat output geojson properties.
     * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @param max_age  Duration of browser cache.
     * @returns ARLAS Server observable.
     */
     public resolveFeatureCollection(projection:
@@ -316,9 +325,9 @@ export class CollaborativesearchService {
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.geohashgeoaggregate, GeohashAggregation]
         | [projType.geoaggregate, Array<Aggregation>], isFlat = true, collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter
+        contributorId?: string, filter?: Filter, max_age = this.max_age
     ): Observable<FeatureCollection> {
-        return this.resolve(projection, collaborations, contributorId, filter, isFlat);
+        return this.resolve(projection, collaborations, contributorId, filter, isFlat, max_age);
     }
     /**
     * Resolve an ARLAS Server Aggregation request with all the collaborations enabled in the collaboration registry
@@ -326,26 +335,30 @@ export class CollaborativesearchService {
     * @param projection  Type of projection of ARLAS Server request:Aggregation.
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @param isFlat  Whether flatten json.
+    * @param max_age  Duration of browser cache.
     * @returns ARLAS Server observable.
     */
     public resolveButNotAggregation(projection:
         [projType.aggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter
+        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
     ): Observable<AggregationResponse> {
-        return this.resolveButNot(projection, collaborations, contributorId, filter);
+        return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat, max_age);
     }
     /**
     * Resolve an ARLAS Server Aggregation request for an optional contributor and optional filters.
     * @param projection  Type of projection of ARLAS Server request :Aggregation.
     * @param contributorId  Identifier contributor to resolve the request with the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @param isFlat  Whether flatten json.
+    * @param max_age  Duration of browser cache.
     * @returns ARLAS Server observable.
     */
     public resolveAggregation(projection:
         [projType.aggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter
+        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
     ): Observable<AggregationResponse> {
-        return this.resolve(projection, collaborations, contributorId, filter);
+        return this.resolve(projection, collaborations, contributorId, filter, isFlat, max_age);
     }
     /**
     * Resolve an ARLAS Server Computation request with all the collaborations enabled in the collaboration registry
@@ -353,13 +366,16 @@ export class CollaborativesearchService {
     * @param projection  Type of projection of ARLAS Server request : ComputationRequest.
     * @param collaborations  Map<contributorId, itsCollboration>
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
+    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @param isFlat  Whether flatten json.
+    * @param max_age  Duration of browser cache.
     * @returns ARLAS Server observable.
     */
     public resolveButNotComputation(projection:
         [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
-        contributorId?: string
+        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
     ): Observable<ComputationRequest> {
-        return this.resolveButNot(projection, collaborations, contributorId);
+        return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat, max_age);
     }
     /**
     * Resolve an ARLAS Server Range request with all the collaborations enabled in the collaboration registry
@@ -367,13 +383,15 @@ export class CollaborativesearchService {
     * @param projection  Type of projection of ARLAS Server request:Aggregation.
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
+    * @param isFlat  Whether flatten json.
+    * @param max_age  Duration of browser cache.
     * @returns ARLAS Server observable.
     */
     public resolveButNotFieldRange(projection:
         [projType.range, RangeRequest], collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter
+        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
     ): Observable<RangeResponse> {
-        return this.resolveButNot(projection, collaborations, contributorId, filter);
+        return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat, max_age);
     }
     /**
     * Enable a contributor collaboration from its identifier.
@@ -433,7 +451,7 @@ export class CollaborativesearchService {
             projType.count | projType.geohashgeoaggregate | projType.search | projType.tiledgeosearch,
             Array<Aggregation>
         ],
-        filters: Array<Filter>): string {
+        filters: Array<Filter>, max_age = this.max_age): string {
 
         const finalFilter = this.getFinalFilter(filters);
         let aggregationRequest: AggregationsRequest;
@@ -467,8 +485,8 @@ export class CollaborativesearchService {
             queryParameters.set('q', qForGet);
         }
         queryParameters.set('pretty', 'false');
-        if (this.max_age !== undefined) {
-            queryParameters.set('max-age-cache', this.max_age.toString());
+        if (max_age !== undefined) {
+            queryParameters.set('max-age-cache', max_age.toString());
         }
         if (finalFilter.dateformat !== undefined) {
             queryParameters.set('dateformat', finalFilter.dateformat.toString());
@@ -522,10 +540,11 @@ export class CollaborativesearchService {
      * Describe the structure and the content of the given collection.
      * @param collection collection name
      * @param pretty Whether pretty print or not
+     * @param max_age  Duration of browser cache.s
      */
-    public describe(collection: string, pretty?: boolean): Observable<CollectionReferenceDescription> {
+    public describe(collection: string, pretty?: boolean, max_age = this.max_age): Observable<CollectionReferenceDescription> {
         const result = <Observable<CollectionReferenceDescription>>from(
-            this.exploreApi.describe(collection, pretty, this.max_age, this.fetchOptions)
+            this.exploreApi.describe(collection, pretty, max_age, this.fetchOptions)
         );
         return result;
     }
@@ -565,7 +584,7 @@ export class CollaborativesearchService {
         | [projType.count, Count]
         | [projType.range, RangeRequest]
         | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter, isFlat?: boolean,
+        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
@@ -592,6 +611,7 @@ export class CollaborativesearchService {
     * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
     * @param filter  ARLAS API filter to resolve the request with this filter in addition.
     * @param isFlat  Boolean option to flat output geojson properties.
+    * @param max_age  Duration of browser cache.
     * @returns ARLAS Server observable.
     */
     private resolveButNot(projection: [projType.aggregate, Array<Aggregation>]
@@ -603,7 +623,7 @@ export class CollaborativesearchService {
         | [projType.count, Count]
         | [projType.range, RangeRequest]
         | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter, isFlat?: boolean, dateformat?: string
+        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
@@ -625,7 +645,7 @@ export class CollaborativesearchService {
             if (filter) {
                 filters.push(filter);
             }
-            return this.computeResolve(projection, filters, isFlat);
+            return this.computeResolve(projection, filters, isFlat, max_age);
         } catch (ex) {
             this.collaborationErrorBus.next((<Error>ex));
         }
@@ -646,7 +666,7 @@ export class CollaborativesearchService {
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
         | [projType.range, RangeRequest]
-        | [projType.compute, ComputationRequest], filters: Array<Filter>, isFlat?: boolean
+        | [projType.compute, ComputationRequest], filters: Array<Filter>, isFlat?: boolean, max_age = this.max_age
     ): Observable<any> {
         const finalFilter = this.getFinalFilter(filters);
         const dateformat = finalFilter.dateformat;
@@ -719,7 +739,7 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<AggregationResponse>>from(
                     this.exploreApi.aggregate(this.collection, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, this.max_age, this.fetchOptions)
+                        fForGet, qForGet, dateformat, false, isFlat, max_age, this.fetchOptions)
                 );
                 break;
             case projType.geoaggregate.valueOf():
@@ -730,7 +750,7 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, this.max_age, this.fetchOptions)
+                        fForGet, qForGet, dateformat, false, isFlat, max_age, this.fetchOptions)
                 );
                 break;
             case projType.geohashgeoaggregate.valueOf():
@@ -743,25 +763,25 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geohashgeoaggregate(this.collection, geohash, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, this.max_age, this.fetchOptions)
+                        fForGet, qForGet, dateformat, false, isFlat, max_age, this.fetchOptions)
                 );
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>from(
-                    this.exploreApi.count(this.collection, fForGet, qForGet, dateformat, false, this.max_age, this.fetchOptions));
+                    this.exploreApi.count(this.collection, fForGet, qForGet, dateformat, false, max_age, this.fetchOptions));
                 break;
             case projType.search.valueOf():
                 result = <Observable<Hits>>from(
                     this.exploreApi.search(this.collection, fForGet, qForGet
                         , dateformat, false, flat, includes, excludes, returned_geometries, pageSize,
-                        pageFrom, pageSort, pageAfter, pageBefore, this.max_age, this.fetchOptions)
+                        pageFrom, pageSort, pageAfter, pageBefore, max_age, this.fetchOptions)
                 );
                 break;
             case projType.geosearch.valueOf():
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geosearch(this.collection, fForGet, qForGet
                         , dateformat, false, flat, includes, excludes, returned_geometries, pageSize,
-                        pageFrom, pageSort, pageAfter, pageBefore, this.max_age, this.fetchOptions)
+                        pageFrom, pageSort, pageAfter, pageBefore, max_age, this.fetchOptions)
                 );
                 break;
             case projType.tiledgeosearch.valueOf():
@@ -772,7 +792,7 @@ export class CollaborativesearchService {
                     this.exploreApi.tiledgeosearch(this.collection, x, y, z
                         , fForGet, qForGet
                         , dateformat, false, flat, includes, excludes, returned_geometries,
-                        pageSize, pageFrom, pageSort, pageAfter, pageBefore, this.max_age, this.fetchOptions)
+                        pageSize, pageFrom, pageSort, pageAfter, pageBefore, max_age, this.fetchOptions)
                 );
                 break;
             case projType.range.valueOf():
@@ -783,17 +803,17 @@ export class CollaborativesearchService {
                 result = <Observable<RangeResponse>>from(
                     this.exploreApi.range(this.collection, rangeRequest.field
                         , fForGet, qForGet
-                        , dateformat, false, this.max_age, this.fetchOptions)
+                        , dateformat, false, max_age, this.fetchOptions)
                 );
                 break;
             case projType.compute.valueOf():
-              const field = (<ComputationRequest>projection[1]).field;
-              const metric = (<ComputationRequest>projection[1]).metric;
-              result = <Observable<ComputationResponse>>from(
-                this.exploreApi.compute(this.collection, field, metric.toString().toLowerCase(), fForGet,
-                  qForGet, dateformat, false, this.max_age, this.fetchOptions)
-              );
-              break;
+                const field = (<ComputationRequest>projection[1]).field;
+                const metric = (<ComputationRequest>projection[1]).metric;
+                result = <Observable<ComputationResponse>>from(
+                    this.exploreApi.compute(this.collection, field, metric.toString().toLowerCase(), fForGet,
+                        qForGet, dateformat, false, max_age, this.fetchOptions)
+                );
+                break;
         }
         return result;
     }
