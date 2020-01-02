@@ -374,7 +374,7 @@ export class CollaborativesearchService {
     public resolveButNotComputation(projection:
         [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
-    ): Observable<ComputationRequest> {
+    ): Observable<ComputationResponse> {
         return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat, max_age);
     }
     /**
