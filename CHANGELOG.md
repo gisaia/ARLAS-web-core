@@ -1,6 +1,23 @@
 # Change Log
 
-## [v12.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v12.1.0) (2019-11-21)
+## [v12.1.1](https://github.com/gisaia/ARLAS-web-core/tree/v12.1.1) (2020-01-02)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v12.1.0...v12.1.1)
+
+**New stuff:**
+
+- Add max\_age in optional parameter of resolve function [\#102](https://github.com/gisaia/ARLAS-web-core/issues/102)
+- Add a boolean to update \(or not\) contributor data during a new collaboration [\#100](https://github.com/gisaia/ARLAS-web-core/issues/100)
+
+**Fixed bugs:**
+
+- the return type of 'resolveButNotComputation' is not correct [\#104](https://github.com/gisaia/ARLAS-web-core/issues/104)
+
+**Miscellaneous:**
+
+- Change package manager in release script [\#88](https://github.com/gisaia/ARLAS-web-core/issues/88)
+
+## [v12.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v12.1.0) (2019-12-04)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v12.0.1...v12.1.0)
 
