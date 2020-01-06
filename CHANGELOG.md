@@ -1,11 +1,16 @@
 # Change Log
 
+## [v12.2.0](https://github.com/gisaia/ARLAS-web-core/tree/v12.2.0) (2020-01-06)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v12.1.1...v12.2.0)
+
 ## [v12.1.1](https://github.com/gisaia/ARLAS-web-core/tree/v12.1.1) (2020-01-02)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v12.1.0...v12.1.1)
 
 **New stuff:**
 
+- Include the computation of 'geobbox' and 'geocentroid' with ARLAS-api 12.0.3 [\#105](https://github.com/gisaia/ARLAS-web-core/issues/105)
 - Add max\_age in optional parameter of resolve function [\#102](https://github.com/gisaia/ARLAS-web-core/issues/102)
 - Add a boolean to update \(or not\) contributor data during a new collaboration [\#100](https://github.com/gisaia/ARLAS-web-core/issues/100)
 
