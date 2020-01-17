@@ -1,6 +1,6 @@
 {
   "name": "arlas-web-core",
-  "version": "11.4.0",
+  "version": "11.5.0",
   "description": "Core Service Library for ARLAS Web App",
   "scripts": {
     "build-release": "tsc -p tsconfig-build.json",
