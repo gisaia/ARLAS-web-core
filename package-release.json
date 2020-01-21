@@ -1,6 +1,6 @@
 {
-  "name": "***update during release***/arlas-web-core",
-  "version": "***update during release***",
+  "name": "arlas-web-core",
+  "version": "11.5.1",
   "description": "Core Service Library for ARLAS Web App",
   "repository": {
     "type": "git",
