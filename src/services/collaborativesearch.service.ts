@@ -589,6 +589,16 @@ export class CollaborativesearchService {
     }
 
     /**
+     * Lists the collections configured in ARLAS.
+     * @param pretty Whether pretty print or not
+     */
+    public list(pretty = false): Observable<Array<CollectionReferenceDescription>> {
+      const result = <Observable<Array<CollectionReferenceDescription>>>from(
+          this.exploreApi.list(pretty, this.max_age, this.fetchOptions)
+      );
+      return result;
+    }
+    /**
      * Search and tag the elements found in the collection, given the filters
      * @param collection collection name
      * @param body Request body
