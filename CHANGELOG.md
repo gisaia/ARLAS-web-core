@@ -1,5 +1,13 @@
 # Change Log
 
+## [v12.4.0](https://github.com/gisaia/ARLAS-web-core/tree/v12.4.0) (2020-02-06)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v12.3.0...v12.4.0)
+
+**New stuff:**
+
+- Upgrade arlas-api to 12.0.4 [\#111](https://github.com/gisaia/ARLAS-web-core/issues/111)
+
 ## [v12.3.0](https://github.com/gisaia/ARLAS-web-core/tree/v12.3.0) (2020-01-27)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v11.5.1...v12.3.0)
