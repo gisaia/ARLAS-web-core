@@ -550,6 +550,17 @@ export class CollaborativesearchService {
     }
 
     /**
+     * Lists the collections configured in ARLAS.
+     * @param pretty Whether pretty print or not
+     */
+    public list(pretty = false): Observable<Array<CollectionReferenceDescription>> {
+      const result = <Observable<Array<CollectionReferenceDescription>>>from(
+          this.exploreApi.list(pretty, this.max_age, this.fetchOptions)
+      );
+      return result;
+    }
+
+    /**
     * Set enabled value of a collaboration from a contributor identifier.
     * @param enabled  Enabled collaboration value.
     * @param contributorId  Contributor identifier.
