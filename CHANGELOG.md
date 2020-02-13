@@ -1,8 +1,16 @@
 # Change Log
 
+## [v12.5.0](https://github.com/gisaia/ARLAS-web-core/tree/v12.5.0) (2020-02-13)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v12.4.1...v12.5.0)
+
 ## [v12.4.1](https://github.com/gisaia/ARLAS-web-core/tree/v12.4.1) (2020-02-06)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v12.4.0...v12.4.1)
+
+**New stuff:**
+
+- Add list method to CSS [\#113](https://github.com/gisaia/ARLAS-web-core/issues/113)
 
 ## [v12.4.0](https://github.com/gisaia/ARLAS-web-core/tree/v12.4.0) (2020-02-06)
 
