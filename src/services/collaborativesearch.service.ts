@@ -726,9 +726,7 @@ export class CollaborativesearchService {
                     includes.push(search.projection.includes);
                 }
             }
-            if (search.returned_geometries !== undefined) {
-                returned_geometries = search.returned_geometries;
-            }
+            returned_geometries = search.returned_geometries;
             const form: Form = search.form;
             const page: Page = search.page;
             if (form !== undefined) {
@@ -856,28 +854,28 @@ export class CollaborativesearchService {
             let aggregation = agg.type + ':' + agg.field;
             if (agg.interval !== undefined) {
                 if (agg.interval.value !== undefined) {
-                    aggregation = aggregation + ':interval-' + agg.interval.value;
+                    aggregation += ':interval-' + agg.interval.value;
                 }
                 if (agg.interval.unit !== undefined) {
-                    aggregation = aggregation + agg.interval.unit;
+                    aggregation +=  agg.interval.unit;
                 }
             }
             if (agg.format !== undefined) {
-                aggregation = aggregation + ':format-' + agg.format;
+                aggregation += ':format-' + agg.format;
             }
             if (agg.metrics) {
                 agg.metrics.filter((m: Metric) => (m.collect_field && m.collect_fct)).forEach(m => {
-                    aggregation = aggregation + ':collect_field-' + m.collect_field + ':collect_fct-' + m.collect_fct;
+                    aggregation += ':collect_field-' + m.collect_field + ':collect_fct-' + m.collect_fct;
                 });
             }
             if (agg.order !== undefined) {
-                aggregation = aggregation + ':order-' + agg.order;
+                aggregation +=  ':order-' + agg.order;
             }
             if (agg.on !== undefined) {
-                aggregation = aggregation + ':on-' + agg.on;
+                aggregation += ':on-' + agg.on;
             }
             if (agg.size !== undefined) {
-                aggregation = aggregation + ':size-' + agg.size;
+                aggregation += ':size-' + agg.size;
             }
             if (agg.aggregated_geometries) {
                 aggregation += ':aggregated_geometries-' + agg.aggregated_geometries.map(ag => ag.toString().toLowerCase()).join(',');
@@ -890,16 +888,16 @@ export class CollaborativesearchService {
                 }} ).join(';');
             }
             if (agg.fetch_hits !== undefined) {
-                aggregation = aggregation + ':fetch_hits';
+                aggregation += ':fetch_hits';
                 if (agg.fetch_hits.size !== undefined) {
-                    aggregation = aggregation + '-' + agg.fetch_hits.size;
+                    aggregation += '-' + agg.fetch_hits.size;
                 }
                 if (agg.fetch_hits.include !== undefined) {
-                    aggregation = aggregation + '(' + agg.fetch_hits.include.join(',') + ')';
+                    aggregation += '(' + agg.fetch_hits.include.join(',') + ')';
                 }
             }
             if (agg.include !== undefined) {
-                aggregation = aggregation + ':include-' + agg.include;
+                aggregation += ':include-' + agg.include;
             }
             aggregations.push(aggregation);
         });
