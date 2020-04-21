@@ -321,7 +321,9 @@ export class CollaborativesearchService {
         | [projType.geoaggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>, isFlat = true, abortableSignal,
         contributorId?: string, filter?: Filter, max_age = this.max_age,
     ): Observable<FeatureCollection> {
-        return this.resolveButNotWithAbort(projection, collaborations, abortableSignal, contributorId, filter, isFlat, max_age);
+        const fetchOptions = Object.assign({}, this.fetchOptions);
+        fetchOptions.signal = abortableSignal;
+        return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat, max_age, fetchOptions);
     }
     /**
     * Resolve an ARLAS Server Geosearch or Geoaggregate  request for an optional
@@ -608,7 +610,7 @@ export class CollaborativesearchService {
         | [projType.count, Count]
         | [projType.range, RangeRequest]
         | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
+        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age, fetchOptions = this.fetchOptions
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
@@ -623,7 +625,7 @@ export class CollaborativesearchService {
             if (filter) {
                 filters.push(filter);
             }
-            return this.computeResolve(projection, filters, isFlat);
+            return this.computeResolve(projection, filters, isFlat, max_age, fetchOptions);
         } catch (ex) {
             this.collaborationErrorBus.next((<Error>ex));
         }
@@ -647,7 +649,7 @@ export class CollaborativesearchService {
         | [projType.count, Count]
         | [projType.range, RangeRequest]
         | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
+        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age, fetchOptions = this.fetchOptions
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
@@ -669,48 +671,12 @@ export class CollaborativesearchService {
             if (filter) {
                 filters.push(filter);
             }
-            return this.computeResolve(projection, filters, isFlat, max_age);
+            return this.computeResolve(projection, filters, isFlat, max_age, fetchOptions);
         } catch (ex) {
             this.collaborationErrorBus.next((<Error>ex));
         }
     }
 
-    private resolveButNotWithAbort(projection: [projType.aggregate, Array<Aggregation>]
-        | [projType.search, Search]
-        | [projType.geoaggregate, Array<Aggregation>]
-        | [projType.geohashgeoaggregate, GeohashAggregation]
-        | [projType.geosearch, Search]
-        | [projType.tiledgeosearch, TiledSearch]
-        | [projType.count, Count]
-        | [projType.range, RangeRequest]
-        | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>, abortableSignal,
-        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
-    ): Observable<any> {
-        try {
-            const filters: Array<Filter> = new Array<Filter>();
-            if (contributorId) {
-                collaborations.forEach((k, v) => {
-                    if (v !== contributorId && k.enabled) {
-                        if (k.filter) { filters.push(k.filter); }
-                    } else {
-                        return;
-                    }
-                });
-            } else {
-                collaborations.forEach((k, v) => {
-                    if (k.enabled) {
-                        if (k.filter) { filters.push(k.filter); }
-                    }
-                });
-            }
-            if (filter) {
-                filters.push(filter);
-            }
-            return this.computeResolveWithAbort(projection, abortableSignal, filters, isFlat, max_age);
-        } catch (ex) {
-            this.collaborationErrorBus.next((<Error>ex));
-        }
-    }
     /**
     * Build an ARLAS Server request from an Array of Filter
     * @param projection  Type of projection of ARLAS Server request.
@@ -726,7 +692,8 @@ export class CollaborativesearchService {
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
         | [projType.range, RangeRequest]
-        | [projType.compute, ComputationRequest], filters: Array<Filter>, isFlat?: boolean, max_age = this.max_age
+        | [projType.compute, ComputationRequest], filters: Array<Filter>, isFlat?: boolean, max_age = this.max_age,
+         fetchOptions = this.fetchOptions
     ): Observable<any> {
         const finalFilter = this.getFinalFilter(filters);
         const dateformat = finalFilter.dateformat;
@@ -799,7 +766,7 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<AggregationResponse>>from(
                     this.exploreApi.aggregate(this.collection, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, max_age, this.fetchOptions)
+                        fForGet, qForGet, dateformat, false, isFlat, max_age, fetchOptions)
                 );
                 break;
             case projType.geoaggregate.valueOf():
@@ -810,7 +777,7 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, max_age, this.fetchOptions)
+                        fForGet, qForGet, dateformat, false, isFlat, max_age, fetchOptions)
                 );
                 break;
             case projType.geohashgeoaggregate.valueOf():
@@ -821,169 +788,6 @@ export class CollaborativesearchService {
                     aggregations: aggregations
                 };
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
-                result = <Observable<FeatureCollection>>from(
-                    this.exploreApi.geohashgeoaggregate(this.collection, geohash, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, max_age, this.fetchOptions)
-                );
-                break;
-            case projType.count.valueOf():
-                result = <Observable<Hits>>from(
-                    this.exploreApi.count(this.collection, fForGet, qForGet, dateformat, false, max_age, this.fetchOptions));
-                break;
-            case projType.search.valueOf():
-                result = <Observable<Hits>>from(
-                    this.exploreApi.search(this.collection, fForGet, qForGet
-                        , dateformat, false, flat, includes, excludes, returned_geometries, pageSize,
-                        pageFrom, pageSort, pageAfter, pageBefore, max_age, this.fetchOptions)
-                );
-                break;
-            case projType.geosearch.valueOf():
-                result = <Observable<FeatureCollection>>from(
-                    this.exploreApi.geosearch(this.collection, fForGet, qForGet
-                        , dateformat, false, flat, includes, excludes, returned_geometries, pageSize,
-                        pageFrom, pageSort, pageAfter, pageBefore, max_age, this.fetchOptions)
-                );
-                break;
-            case projType.tiledgeosearch.valueOf():
-                const x = (<TiledSearch>projection[1]).x;
-                const y = (<TiledSearch>projection[1]).y;
-                const z = (<TiledSearch>projection[1]).z;
-                result = <Observable<FeatureCollection>>from(
-                    this.exploreApi.tiledgeosearch(this.collection, x, y, z
-                        , fForGet, qForGet
-                        , dateformat, false, flat, includes, excludes, returned_geometries,
-                        pageSize, pageFrom, pageSort, pageAfter, pageBefore, max_age, this.fetchOptions)
-                );
-                break;
-            case projType.range.valueOf():
-                const rangeRequest: RangeRequest = <RangeRequest>{
-                    filter: finalFilter,
-                    field: (<RangeRequest>projection[1]).field
-                };
-                result = <Observable<RangeResponse>>from(
-                    this.exploreApi.range(this.collection, rangeRequest.field
-                        , fForGet, qForGet
-                        , dateformat, false, max_age, this.fetchOptions)
-                );
-                break;
-            case projType.compute.valueOf():
-                const field = (<ComputationRequest>projection[1]).field;
-                const metric = (<ComputationRequest>projection[1]).metric;
-                result = <Observable<ComputationResponse>>from(
-                    this.exploreApi.compute(this.collection, field, metric.toString().toLowerCase(), fForGet,
-                        qForGet, dateformat, false, max_age, this.fetchOptions)
-                );
-                break;
-        }
-        return result;
-    }
-
-
-    private computeResolveWithAbort(projection: [projType.aggregate, Array<Aggregation>]
-        | [projType.search, Search]
-        | [projType.geoaggregate, Array<Aggregation>]
-        | [projType.geohashgeoaggregate, GeohashAggregation]
-        | [projType.geosearch, Search]
-        | [projType.tiledgeosearch, TiledSearch]
-        | [projType.count, Count]
-        | [projType.range, RangeRequest]
-        | [projType.compute, ComputationRequest], abortableSignal, filters: Array<Filter>, isFlat?: boolean, max_age = this.max_age
-    ): Observable<any> {
-        const finalFilter = this.getFinalFilter(filters);
-        const dateformat = finalFilter.dateformat;
-        let aggregationRequest: AggregationsRequest;
-        let aggregationsForGet: string[];
-        let includes: string[] = [];
-        let excludes: string[] = [];
-        let returned_geometries: string;
-        let result;
-        const fForGet = this.buildFilterFieldGetParam('f', finalFilter);
-        const qForGet = this.buildFilterFieldGetParam('q', finalFilter);
-        let search: Search;
-        let pretty = false;
-        let flat = false;
-        let pageAfter;
-        let pageBefore;
-        let pageFrom;
-        let pageSize;
-        let pageSort;
-        if (projection[0] === projType.search.valueOf() || projection[0] === projType.geosearch.valueOf() ||
-            projection[0] === projType.tiledgeosearch.valueOf()) {
-            search = projection[0] === projType.tiledgeosearch.valueOf() ? (<TiledSearch>projection[1]).search : (<Search>projection[1]);
-            includes = [];
-            excludes = [];
-            if (search.projection !== undefined) {
-                if (search.projection.excludes !== undefined) {
-                    excludes.push(search.projection.excludes);
-                }
-                if (search.projection.includes !== undefined) {
-                    includes.push(search.projection.includes);
-                }
-            }
-            if (search.returned_geometries !== undefined) {
-                returned_geometries = search.returned_geometries;
-            }
-            const form: Form = search.form;
-            const page: Page = search.page;
-            if (form !== undefined) {
-                if (form.flat !== undefined) {
-                    flat = form.flat;
-                }
-                if (form.pretty !== undefined) {
-                    pretty = form.pretty;
-                }
-            }
-            if (page !== undefined) {
-                if (page.after !== undefined) {
-                    pageAfter = page.after;
-                }
-                if (page.before !== undefined) {
-                    pageBefore = page.before;
-                }
-                if (page.from !== undefined) {
-                    pageFrom = page.from;
-                }
-                if (page.size !== undefined) {
-                    pageSize = page.size;
-                }
-                if (page.sort !== undefined) {
-                    pageSort = page.sort;
-                }
-            }
-        }
-        switch (projection[0]) {
-            case projType.aggregate.valueOf():
-                aggregationRequest = <AggregationsRequest>{
-                    filter: finalFilter,
-                    aggregations: projection[1]
-                };
-                aggregationsForGet = this.buildAggGetParam(aggregationRequest);
-                result = <Observable<AggregationResponse>>from(
-                    this.exploreApi.aggregate(this.collection, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, max_age, this.fetchOptions)
-                );
-                break;
-            case projType.geoaggregate.valueOf():
-                aggregationRequest = <AggregationsRequest>{
-                    filter: finalFilter,
-                    aggregations: projection[1]
-                };
-                aggregationsForGet = this.buildAggGetParam(aggregationRequest);
-                result = <Observable<FeatureCollection>>from(
-                    this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, max_age, this.fetchOptions)
-                );
-                break;
-            case projType.geohashgeoaggregate.valueOf():
-                const aggregations: Array<Aggregation> = (<GeohashAggregation>projection[1]).aggregations;
-                const geohash = (<GeohashAggregation>projection[1]).geohash;
-                aggregationRequest = <AggregationsRequest>{
-                    filter: finalFilter,
-                    aggregations: aggregations
-                };
-                aggregationsForGet = this.buildAggGetParam(aggregationRequest);
-                const fetchOptions = Object.assign({}, this.fetchOptions);
-                fetchOptions.signal = abortableSignal;
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geohashgeoaggregate(this.collection, geohash, aggregationsForGet,
                         fForGet, qForGet, dateformat, false, isFlat, max_age, fetchOptions)
@@ -991,20 +795,20 @@ export class CollaborativesearchService {
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>from(
-                    this.exploreApi.count(this.collection, fForGet, qForGet, dateformat, false, max_age, this.fetchOptions));
+                    this.exploreApi.count(this.collection, fForGet, qForGet, dateformat, false, max_age, fetchOptions));
                 break;
             case projType.search.valueOf():
                 result = <Observable<Hits>>from(
                     this.exploreApi.search(this.collection, fForGet, qForGet
                         , dateformat, false, flat, includes, excludes, returned_geometries, pageSize,
-                        pageFrom, pageSort, pageAfter, pageBefore, max_age, this.fetchOptions)
+                        pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
             case projType.geosearch.valueOf():
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geosearch(this.collection, fForGet, qForGet
                         , dateformat, false, flat, includes, excludes, returned_geometries, pageSize,
-                        pageFrom, pageSort, pageAfter, pageBefore, max_age, this.fetchOptions)
+                        pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
             case projType.tiledgeosearch.valueOf():
@@ -1015,7 +819,7 @@ export class CollaborativesearchService {
                     this.exploreApi.tiledgeosearch(this.collection, x, y, z
                         , fForGet, qForGet
                         , dateformat, false, flat, includes, excludes, returned_geometries,
-                        pageSize, pageFrom, pageSort, pageAfter, pageBefore, max_age, this.fetchOptions)
+                        pageSize, pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
             case projType.range.valueOf():
@@ -1026,7 +830,7 @@ export class CollaborativesearchService {
                 result = <Observable<RangeResponse>>from(
                     this.exploreApi.range(this.collection, rangeRequest.field
                         , fForGet, qForGet
-                        , dateformat, false, max_age, this.fetchOptions)
+                        , dateformat, false, max_age, fetchOptions)
                 );
                 break;
             case projType.compute.valueOf():
@@ -1034,12 +838,13 @@ export class CollaborativesearchService {
                 const metric = (<ComputationRequest>projection[1]).metric;
                 result = <Observable<ComputationResponse>>from(
                     this.exploreApi.compute(this.collection, field, metric.toString().toLowerCase(), fForGet,
-                        qForGet, dateformat, false, max_age, this.fetchOptions)
+                        qForGet, dateformat, false, max_age, fetchOptions)
                 );
                 break;
         }
         return result;
     }
+
     /**
     * Build an AggregationsRequest String[] for get mode request
     * @param aggregationRequest  AggregationsRequest arlas object use in post request.
@@ -1080,7 +885,7 @@ export class CollaborativesearchService {
             if (agg.raw_geometries !== undefined) {
                 aggregation += ':raw_geometries-' + agg.raw_geometries.map(rg => {if (rg.sort) {
                     return rg.geometry + '(' + rg.sort + ')';
-                }else {
+                } else {
                     return rg.geometry;
                 }} ).join(';');
             }
