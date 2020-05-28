@@ -81,8 +81,11 @@ export class CollaborativesearchService {
     /**
     * Configuration object of fetch call. By default all credentials are included.
     */
-    private fetchOptions = {
-        credentials: 'include'
+    private fetchOptions: {
+        credentials: string,
+        signal?: any
+    } = {
+        credentials: 'include',
     };
     constructor() {
         /**
@@ -309,6 +312,18 @@ export class CollaborativesearchService {
         contributorId?: string, filter?: Filter, max_age = this.max_age
     ): Observable<FeatureCollection> {
         return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat, max_age);
+    }
+
+    public resolveButNotFeatureCollectionWithAbort(projection:
+        [projType.geosearch, Search]
+        | [projType.tiledgeosearch, TiledSearch]
+        | [projType.geohashgeoaggregate, GeohashAggregation]
+        | [projType.geoaggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>, isFlat = true, abortableSignal,
+        contributorId?: string, filter?: Filter, max_age = this.max_age,
+    ): Observable<FeatureCollection> {
+        const fetchOptions = Object.assign({}, this.fetchOptions);
+        fetchOptions.signal = abortableSignal;
+        return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat, max_age, fetchOptions);
     }
     /**
     * Resolve an ARLAS Server Geosearch or Geoaggregate  request for an optional
@@ -595,7 +610,7 @@ export class CollaborativesearchService {
         | [projType.count, Count]
         | [projType.range, RangeRequest]
         | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
+        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age, fetchOptions = this.fetchOptions
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
@@ -610,7 +625,7 @@ export class CollaborativesearchService {
             if (filter) {
                 filters.push(filter);
             }
-            return this.computeResolve(projection, filters, isFlat);
+            return this.computeResolve(projection, filters, isFlat, max_age, fetchOptions);
         } catch (ex) {
             this.collaborationErrorBus.next((<Error>ex));
         }
@@ -634,7 +649,7 @@ export class CollaborativesearchService {
         | [projType.count, Count]
         | [projType.range, RangeRequest]
         | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
+        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age, fetchOptions = this.fetchOptions
     ): Observable<any> {
         try {
             const filters: Array<Filter> = new Array<Filter>();
@@ -656,7 +671,7 @@ export class CollaborativesearchService {
             if (filter) {
                 filters.push(filter);
             }
-            return this.computeResolve(projection, filters, isFlat, max_age);
+            return this.computeResolve(projection, filters, isFlat, max_age, fetchOptions);
         } catch (ex) {
             this.collaborationErrorBus.next((<Error>ex));
         }
@@ -677,7 +692,8 @@ export class CollaborativesearchService {
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
         | [projType.range, RangeRequest]
-        | [projType.compute, ComputationRequest], filters: Array<Filter>, isFlat?: boolean, max_age = this.max_age
+        | [projType.compute, ComputationRequest], filters: Array<Filter>, isFlat?: boolean, max_age = this.max_age,
+         fetchOptions = this.fetchOptions
     ): Observable<any> {
         const finalFilter = this.getFinalFilter(filters);
         const dateformat = finalFilter.dateformat;
@@ -710,9 +726,7 @@ export class CollaborativesearchService {
                     includes.push(search.projection.includes);
                 }
             }
-            if (search.returned_geometries !== undefined) {
-                returned_geometries = search.returned_geometries;
-            }
+            returned_geometries = search.returned_geometries;
             const form: Form = search.form;
             const page: Page = search.page;
             if (form !== undefined) {
@@ -750,7 +764,7 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<AggregationResponse>>from(
                     this.exploreApi.aggregate(this.collection, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, max_age, this.fetchOptions)
+                        fForGet, qForGet, dateformat, false, isFlat, max_age, fetchOptions)
                 );
                 break;
             case projType.geoaggregate.valueOf():
@@ -761,7 +775,7 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, max_age, this.fetchOptions)
+                        fForGet, qForGet, dateformat, false, isFlat, max_age, fetchOptions)
                 );
                 break;
             case projType.geohashgeoaggregate.valueOf():
@@ -774,25 +788,25 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geohashgeoaggregate(this.collection, geohash, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, max_age, this.fetchOptions)
+                        fForGet, qForGet, dateformat, false, isFlat, max_age, fetchOptions)
                 );
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>from(
-                    this.exploreApi.count(this.collection, fForGet, qForGet, dateformat, false, max_age, this.fetchOptions));
+                    this.exploreApi.count(this.collection, fForGet, qForGet, dateformat, false, max_age, fetchOptions));
                 break;
             case projType.search.valueOf():
                 result = <Observable<Hits>>from(
                     this.exploreApi.search(this.collection, fForGet, qForGet
                         , dateformat, false, flat, includes, excludes, returned_geometries, pageSize,
-                        pageFrom, pageSort, pageAfter, pageBefore, max_age, this.fetchOptions)
+                        pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
             case projType.geosearch.valueOf():
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geosearch(this.collection, fForGet, qForGet
                         , dateformat, false, flat, includes, excludes, returned_geometries, pageSize,
-                        pageFrom, pageSort, pageAfter, pageBefore, max_age, this.fetchOptions)
+                        pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
             case projType.tiledgeosearch.valueOf():
@@ -803,7 +817,7 @@ export class CollaborativesearchService {
                     this.exploreApi.tiledgeosearch(this.collection, x, y, z
                         , fForGet, qForGet
                         , dateformat, false, flat, includes, excludes, returned_geometries,
-                        pageSize, pageFrom, pageSort, pageAfter, pageBefore, max_age, this.fetchOptions)
+                        pageSize, pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
             case projType.range.valueOf():
@@ -814,7 +828,7 @@ export class CollaborativesearchService {
                 result = <Observable<RangeResponse>>from(
                     this.exploreApi.range(this.collection, rangeRequest.field
                         , fForGet, qForGet
-                        , dateformat, false, max_age, this.fetchOptions)
+                        , dateformat, false, max_age, fetchOptions)
                 );
                 break;
             case projType.compute.valueOf():
@@ -822,7 +836,7 @@ export class CollaborativesearchService {
                 const metric = (<ComputationRequest>projection[1]).metric;
                 result = <Observable<ComputationResponse>>from(
                     this.exploreApi.compute(this.collection, field, metric.toString().toLowerCase(), fForGet,
-                        qForGet, dateformat, false, max_age, this.fetchOptions)
+                        qForGet, dateformat, false, max_age, fetchOptions)
                 );
                 break;
         }
@@ -840,49 +854,50 @@ export class CollaborativesearchService {
             let aggregation = agg.type + ':' + agg.field;
             if (agg.interval !== undefined) {
                 if (agg.interval.value !== undefined) {
-                    aggregation = aggregation + ':interval-' + agg.interval.value;
+                    aggregation += ':interval-' + agg.interval.value;
                 }
                 if (agg.interval.unit !== undefined) {
-                    aggregation = aggregation + agg.interval.unit;
+                    aggregation +=  agg.interval.unit;
                 }
             }
             if (agg.format !== undefined) {
-                aggregation = aggregation + ':format-' + agg.format;
+                aggregation += ':format-' + agg.format;
             }
             if (agg.metrics) {
                 agg.metrics.filter((m: Metric) => (m.collect_field && m.collect_fct)).forEach(m => {
-                    aggregation = aggregation + ':collect_field-' + m.collect_field + ':collect_fct-' + m.collect_fct;
+                    aggregation += ':collect_field-' + m.collect_field + ':collect_fct-' + m.collect_fct;
                 });
             }
             if (agg.order !== undefined) {
-                aggregation = aggregation + ':order-' + agg.order;
+                aggregation +=  ':order-' + agg.order;
             }
             if (agg.on !== undefined) {
-                aggregation = aggregation + ':on-' + agg.on;
+                aggregation += ':on-' + agg.on;
             }
             if (agg.size !== undefined) {
-                aggregation = aggregation + ':size-' + agg.size;
+                aggregation += ':size-' + agg.size;
             }
-            if (agg.fetch_geometry !== undefined) {
-                aggregation = aggregation + ':fetch_geometry';
-                if (agg.fetch_geometry.field !== undefined) {
-                    aggregation = aggregation + '-' + agg.fetch_geometry.field;
-                }
-                if (agg.fetch_geometry.strategy !== undefined) {
-                    aggregation = aggregation + '-' + agg.fetch_geometry.strategy.toString();
-                }
+            if (agg.aggregated_geometries) {
+                aggregation += ':aggregated_geometries-' + agg.aggregated_geometries.map(ag => ag.toString().toLowerCase()).join(',');
+            }
+            if (agg.raw_geometries !== undefined) {
+                aggregation += ':raw_geometries-' + agg.raw_geometries.map(rg => {if (rg.sort) {
+                    return rg.geometry + '(' + rg.sort + ')';
+                } else {
+                    return rg.geometry;
+                }} ).join(';');
             }
             if (agg.fetch_hits !== undefined) {
-                aggregation = aggregation + ':fetch_hits';
+                aggregation += ':fetch_hits';
                 if (agg.fetch_hits.size !== undefined) {
-                    aggregation = aggregation + '-' + agg.fetch_hits.size;
+                    aggregation += '-' + agg.fetch_hits.size;
                 }
                 if (agg.fetch_hits.include !== undefined) {
-                    aggregation = aggregation + '(' + agg.fetch_hits.include.join(',') + ')';
+                    aggregation += '(' + agg.fetch_hits.include.join(',') + ')';
                 }
             }
             if (agg.include !== undefined) {
-                aggregation = aggregation + ':include-' + agg.include;
+                aggregation += ':include-' + agg.include;
             }
             aggregations.push(aggregation);
         });
