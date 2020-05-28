@@ -1,8 +1,20 @@
 # Change Log
 
+## [v13.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v13.0.0) (2020-05-28)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v12.7.0...v13.0.0)
+
+**Breaking changes:**
+
+- Remove range endpoint [\#120](https://github.com/gisaia/ARLAS-web-core/issues/120)
+
 ## [v12.7.0](https://github.com/gisaia/ARLAS-web-core/tree/v12.7.0) (2020-04-10)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v12.6.0...v12.7.0)
+
+**New stuff:**
+
+- Update lock file [\#117](https://github.com/gisaia/ARLAS-web-core/pull/117) ([mbarbet](https://github.com/mbarbet))
 
 ## [v12.6.0](https://github.com/gisaia/ARLAS-web-core/tree/v12.6.0) (2020-03-12)
 
