@@ -19,7 +19,7 @@
 import {
     Aggregation, AggregationResponse, AggregationsRequest,
     CollectionReferenceDescription, Count, ExploreApi, Expression,
-    FeatureCollection, Filter, Hits, Search, RangeRequest, RangeResponse, Metric, Page, Form, ComputationRequest, ComputationResponse
+    FeatureCollection, Filter, Hits, Search, Metric, Page, Form, ComputationRequest, ComputationResponse
 } from 'arlas-api';
 import { Observable, Subject, from } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -393,22 +393,6 @@ export class CollaborativesearchService {
         return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat, max_age);
     }
     /**
-    * Resolve an ARLAS Server Range request with all the collaborations enabled in the collaboration registry
-    except for the contributor given in second optionnal parameter.
-    * @param projection  Type of projection of ARLAS Server request:Aggregation.
-    * @param contributorId  Identifier contributor to resolve the request without the collaboration of this contributor.
-    * @param filter  ARLAS API filter to resolve the request with this filter in addition.
-    * @param isFlat  Whether flatten json.
-    * @param max_age  Duration of browser cache.
-    * @returns ARLAS Server observable.
-    */
-    public resolveButNotFieldRange(projection:
-        [projType.range, RangeRequest], collaborations: Map<string, Collaboration>,
-        contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
-    ): Observable<RangeResponse> {
-        return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat, max_age);
-    }
-    /**
     * Enable a contributor collaboration from its identifier.
     */
     public enable(contributorId: string) {
@@ -608,7 +592,6 @@ export class CollaborativesearchService {
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
-        | [projType.range, RangeRequest]
         | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age, fetchOptions = this.fetchOptions
     ): Observable<any> {
@@ -647,7 +630,6 @@ export class CollaborativesearchService {
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
-        | [projType.range, RangeRequest]
         | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age, fetchOptions = this.fetchOptions
     ): Observable<any> {
@@ -691,7 +673,6 @@ export class CollaborativesearchService {
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
-        | [projType.range, RangeRequest]
         | [projType.compute, ComputationRequest], filters: Array<Filter>, isFlat?: boolean, max_age = this.max_age,
          fetchOptions = this.fetchOptions
     ): Observable<any> {
@@ -818,17 +799,6 @@ export class CollaborativesearchService {
                         , fForGet, qForGet
                         , dateformat, false, flat, includes, excludes, returned_geometries,
                         pageSize, pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
-                );
-                break;
-            case projType.range.valueOf():
-                const rangeRequest: RangeRequest = <RangeRequest>{
-                    filter: finalFilter,
-                    field: (<RangeRequest>projection[1]).field
-                };
-                result = <Observable<RangeResponse>>from(
-                    this.exploreApi.range(this.collection, rangeRequest.field
-                        , fForGet, qForGet
-                        , dateformat, false, max_age, fetchOptions)
                 );
                 break;
             case projType.compute.valueOf():
