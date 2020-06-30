@@ -127,8 +127,6 @@ releaseProd(){
     git pull origin "$4"
     echo "=> Test to lint and build the project on "$4" branch"
     npm install
-    echo "=> Checkout lockfile to avoid merging problems"
-    git checkout package-lock.json
     npm run tslint
     npm run build-release
     rm -rf dist
@@ -136,11 +134,10 @@ releaseProd(){
     jq  '.name = "arlas-'$folder'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     git add .
-    commit_message_release="Relase prod version $1"
+    commit_message_release="Release prod version $1"
 
     echo "=> Tag version $1"
     npm install
-    git checkout package-lock.json
     npm run tslint
     npm run build-release
     #check dist files size
@@ -402,25 +399,25 @@ fi
 if [ ! -z ${ARLAS_CORE_VERS+x} ] && [ ! -z ${ARLAS_CORE_LEVEL+x} ];
     then
         echo "Release ARLAS-web-core  ${ARLAS_CORE_LEVEL} version                    : ${ARLAS_CORE_VERS}";
-        release ${ARLAS_CORE_VERS} ${ARLAS_CORE_LEVEL} "core" ${ARLAS_PROD}
+        release ${ARLAS_CORE_VERS} ${ARLAS_CORE_LEVEL} "core" ${ARLAS_PROD} ${REF_BRANCH}
 fi
 
 if [ ! -z ${ARLAS_CONT_VERS+x} ] && [ ! -z ${ARLAS_CONT_LEVEL+x} ];
     then
         echo "Release ARLAS-web-contributors  ${ARLAS_CONT_VERS} version                    : ${ARLAS_CONT_LEVEL}";
-        release ${ARLAS_CONT_VERS} ${ARLAS_CONT_LEVEL} "contributors" ${ARLAS_PROD}
+        release ${ARLAS_CONT_VERS} ${ARLAS_CONT_LEVEL} "contributors" ${ARLAS_PROD} ${REF_BRANCH}
 fi
 
 if [ ! -z ${ARLAS_COMP_VERS+x} ] && [ ! -z ${ARLAS_COMP_LEVEL+x} ];
     then
         echo "Release ARLAS-web-components  ${ARLAS_COMP_VERS} version                    : ${ARLAS_COMP_LEVEL}";
-        release ${ARLAS_COMP_VERS} ${ARLAS_COMP_LEVEL} "components" ${ARLAS_PROD}
+        release ${ARLAS_COMP_VERS} ${ARLAS_COMP_LEVEL} "components" ${ARLAS_PROD} ${REF_BRANCH}
 fi
 
 if [ ! -z ${ARLAS_D3_VERS+x} ] && [ ! -z ${ARLAS_D3_LEVEL+x} ];
     then
         echo "Release ARLAS-d3  ${ARLAS_D3_VERS} version                    : ${ARLAS_D3_LEVEL}";
-        release ${ARLAS_D3_VERS} ${ARLAS_D3_LEVEL} "d3" ${ARLAS_PROD}
+        release ${ARLAS_D3_VERS} ${ARLAS_D3_LEVEL} "d3" ${ARLAS_PROD} ${REF_BRANCH}
 fi
 
 if [ ! -z ${ARLAS_TOOL_VERS+x} ] && [ ! -z ${ARLAS_TOOL_LEVEL+x} ];
