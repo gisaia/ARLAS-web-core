@@ -136,7 +136,7 @@ releaseProd(){
     jq  '.name = "arlas-'$folder'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     git add .
-    commit_message_release="prod automatic release"-"$1"
+    commit_message_release="Relase prod version $1"
 
     echo "=> Tag version $1"
     npm install
@@ -151,7 +151,7 @@ releaseProd(){
     cp package-release.json  dist/package.json
     cp README-NPM.md dist/README.md
     cp LICENSE.txt dist/LICENSE
-    git tag -a v"$1" -m"$commit_message_release"
+    git tag -a v"$1" -m "$commit_message_release"
     git push origin v"$1"
 
     echo "=> Generate CHANGELOG"
