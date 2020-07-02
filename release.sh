@@ -26,17 +26,20 @@ if  [ -z "$npmlogin"  ] ; then echo "your are not logged on npm"; exit -1; else 
 level_version=("major" "minor" "patch")
 
 usage(){
-	echo "Usage: ./release.sh -core='1.0.0;major' -cont='1.1.0;minor' -comp='1.1.1;patch' -prod"
+	echo "Usage: ./release.sh -core='1.0.0;major' -cont='1.1.0;minor' -comp='1.1.1;patch' -prod -ref_branch=develop"
 	echo "Usage: ./release.sh -all='1.0.0-dev0;minor'"
 	echo "Usage: ./release.sh -all='1.0.0;major' -cont='1.1.0;minor'"
 	echo " -core|--arlas-web-core     arlas-web-core version release,level of evolution"
 	echo " -cont|--arlas-web-contributors      arlas-web-contributors version release, level of evolution"
 	echo " -comp|--arlas-web-components    arlas-web-components version release, level of evolution"
 	echo " -d3|--arlas-d3    arlas-d3 version release, level of evolution"
-  echo " -tool|--arlas-wui-toolkit    arlas-wui-toolkit version release, level of evolution"
+    echo " -tool|--arlas-wui-toolkit    arlas-wui-toolkit version release, level of evolution"
 	echo " -all|--global    all project have same version release, level of evolution"
-  echo " -prod|--production    if present publish on public npm and tag from master git branch, if not publish on gisaia private npm and tag from develop, not present by defaut"
+    echo " -prod|--production    if present publish on public npm and tag from master git branch, if not publish on gisaia private npm and tag from develop, not present by defaut"
 	echo " if -all and -core or -cont or -comp or -d3 parametes are mixed, the specified version is released"
+	echo " -ref_branch | --reference_branch  from which branch to start the release."
+    echo "    Add -ref_branch=develop for a new official release"
+    echo "    Add -ref_branch=x.x.x for a maintenance release"
 	exit 1
 }
 
@@ -118,27 +121,22 @@ releaseProd(){
         cd ../ARLAS-wui-toolkit/
         local folder="wui-toolkit"
     fi
-    echo "=> Get develop branch of ARLAS-$folder project"
-    git checkout  develop
-    git pull origin develop
-    echo "=> Test to lint and build the project on develop branch"
+
+    echo "=> Get "$4" branch of ARLAS-$folder project"
+    git checkout "$4"
+    git pull origin "$4"
+    echo "=> Test to lint and build the project on "$4" branch"
     npm install
     npm run tslint
     npm run build-release
     rm -rf dist
-    echo "=> Merge develop into master"
-    git checkout master
-    git pull origin master
-    git merge develop -m'merge develop to master'
+
     jq  '.name = "arlas-'$folder'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$1"'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
-    jq -c 'del(.compilerOptions.paths)' tsconfig.json > tmp.$$.json && mv tmp.$$.json tsconfig.json
-    jq -c 'del(.compilerOptions.paths)' tsconfig-build.json > tmp.$$.json && mv tmp.$$.json tsconfig-build.json
     git add .
+    commit_message_release="Release prod version $1"
 
-    commit_message_master="prod automatic release"-"$1"
-
-    echo "=> Tag master"
+    echo "=> Tag version $1"
     npm install
     npm run tslint
     npm run build-release
@@ -150,7 +148,7 @@ releaseProd(){
     cp package-release.json  dist/package.json
     cp README-NPM.md dist/README.md
     cp LICENSE.txt dist/LICENSE
-    git tag -a v"$1" -m"$commit_message_master"
+    git tag -a v"$1" -m "$commit_message_release"
     git push origin v"$1"
 
     echo "=> Generate CHANGELOG"
@@ -167,10 +165,10 @@ releaseProd(){
     git push origin :v"$1"
 
     echo "  -- Commit release version"
-    git commit -a -m "$commit_message_master" --allow-empty
+    git commit -a -m "$commit_message_release" --allow-empty
     git tag v"$1"
     git push origin v"$1"
-    git push origin master
+    git push origin "$4"
 
     cd dist
     jq  '.name = "arlas-'$folder'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
@@ -179,20 +177,30 @@ releaseProd(){
     npm publish
     cd ..
     rm -rf dist
-    echo "=> Merge master to develop"
-    git checkout develop
-    git merge master
+    if [ "$4" == "develop" ];
+        then
+        echo "=> Merge develop into master"
+        git checkout master
+        git pull origin master
+        git merge origin/develop
+        git push origin master
+
+        git checkout develop
+        git pull origin develop
+        git rebase origin/master
+    fi
     IFS='.' read -ra TAB <<< "$1"
     major=${TAB[0]}
     minor=${TAB[1]}
     newminor=$(( $minor + 1 ))
     newDevVersion=${major}.${newminor}.0
-    jq  '.name = "@gisaia-team/arlas-'$folder'"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     jq  '.version = "'"$newDevVersion"'-dev0"' package.json > tmp.$$.json && mv tmp.$$.json package.json
     git add .
-    commit_message_develop="update package.json to"-"$newDevVersion"
-    git commit -m"$commit_message_develop" --allow-empty
-    git push origin develop
+    commit_message="update package.json to"-"$newDevVersion"
+    git commit -m"$commit_message" --allow-empty
+    git push origin "$4"
+    echo "Well done :)"
+
 }
 
 releaseDev(){
@@ -247,7 +255,7 @@ releaseDev(){
 release(){
     if [ "$4" == "true" ];
         then
-        releaseProd $1 $2 $3
+        releaseProd $1 $2 $3 $5
     else
         releaseDev $1 $2 $3
     fi
@@ -291,11 +299,27 @@ case $i in
     ARLAS_PROD="true"
     shift # past argument=value
     ;;
+    -ref_branch=*|--reference_branch=*)
+    REF_BRANCH="${i#*=}"
+    shift # past argument=value
+    ;;
     *)
             # unknown option
     ;;
 esac
 done
+
+if [ -z ${REF_BRANCH+x} ];
+    then
+        echo ""
+        echo "###########"
+        echo "-ref_branch is missing."
+        echo "  Add -ref_branch=develop for a new official release"
+        echo "  Add -ref_branch=x.x.x for a maintenance release"
+        echo "###########"
+        echo ""
+        usage;
+fi
 
 if [ ! -z ${ARLAS_HELP+x} ];
     then
@@ -375,29 +399,29 @@ fi
 if [ ! -z ${ARLAS_CORE_VERS+x} ] && [ ! -z ${ARLAS_CORE_LEVEL+x} ];
     then
         echo "Release ARLAS-web-core  ${ARLAS_CORE_LEVEL} version                    : ${ARLAS_CORE_VERS}";
-        release ${ARLAS_CORE_VERS} ${ARLAS_CORE_LEVEL} "core" ${ARLAS_PROD}
+        release ${ARLAS_CORE_VERS} ${ARLAS_CORE_LEVEL} "core" ${ARLAS_PROD} ${REF_BRANCH}
 fi
 
 if [ ! -z ${ARLAS_CONT_VERS+x} ] && [ ! -z ${ARLAS_CONT_LEVEL+x} ];
     then
         echo "Release ARLAS-web-contributors  ${ARLAS_CONT_VERS} version                    : ${ARLAS_CONT_LEVEL}";
-        release ${ARLAS_CONT_VERS} ${ARLAS_CONT_LEVEL} "contributors" ${ARLAS_PROD}
+        release ${ARLAS_CONT_VERS} ${ARLAS_CONT_LEVEL} "contributors" ${ARLAS_PROD} ${REF_BRANCH}
 fi
 
 if [ ! -z ${ARLAS_COMP_VERS+x} ] && [ ! -z ${ARLAS_COMP_LEVEL+x} ];
     then
         echo "Release ARLAS-web-components  ${ARLAS_COMP_VERS} version                    : ${ARLAS_COMP_LEVEL}";
-        release ${ARLAS_COMP_VERS} ${ARLAS_COMP_LEVEL} "components" ${ARLAS_PROD}
+        release ${ARLAS_COMP_VERS} ${ARLAS_COMP_LEVEL} "components" ${ARLAS_PROD} ${REF_BRANCH}
 fi
 
 if [ ! -z ${ARLAS_D3_VERS+x} ] && [ ! -z ${ARLAS_D3_LEVEL+x} ];
     then
         echo "Release ARLAS-d3  ${ARLAS_D3_VERS} version                    : ${ARLAS_D3_LEVEL}";
-        release ${ARLAS_D3_VERS} ${ARLAS_D3_LEVEL} "d3" ${ARLAS_PROD}
+        release ${ARLAS_D3_VERS} ${ARLAS_D3_LEVEL} "d3" ${ARLAS_PROD} ${REF_BRANCH}
 fi
 
 if [ ! -z ${ARLAS_TOOL_VERS+x} ] && [ ! -z ${ARLAS_TOOL_LEVEL+x} ];
     then
         echo "Release ARLAS-wui-toolkit  ${ARLAS_TOOL_VERS} version                    : ${ARLAS_TOOL_LEVEL}";
-        release ${ARLAS_TOOL_VERS} ${ARLAS_TOOL_LEVEL} "toolkit" ${ARLAS_PROD}
+        release ${ARLAS_TOOL_VERS} ${ARLAS_TOOL_LEVEL} "toolkit" ${ARLAS_PROD} ${REF_BRANCH}
 fi
