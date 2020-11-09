@@ -1,5 +1,9 @@
 # Change Log
 
+## [v14.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v14.0.0) (2020-11-09)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v13.0.0...v14.0.0)
+
 ## [v13.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v13.0.0) (2020-05-28)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v12.7.0...v13.0.0)
@@ -7,6 +11,10 @@
 **Breaking changes:**
 
 - Remove range endpoint [\#120](https://github.com/gisaia/ARLAS-web-core/issues/120)
+
+**New stuff:**
+
+- Add an abort controller to 'resolve' methods of the CSS [\#122](https://github.com/gisaia/ARLAS-web-core/issues/122)
 
 ## [v12.7.0](https://github.com/gisaia/ARLAS-web-core/tree/v12.7.0) (2020-04-10)
 
