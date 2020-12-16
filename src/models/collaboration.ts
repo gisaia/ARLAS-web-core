@@ -24,6 +24,7 @@ import { Filter } from 'arlas-api';
 * - A boolean to know if the filter of the collaboration is enabled.
 */
 export interface Collaboration {
+  collection: string;
   filter: Filter;
   enabled: boolean;
 }

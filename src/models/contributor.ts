@@ -34,7 +34,7 @@ export abstract class Contributor {
     * @param identifier  string identifier of the contributor.
     * @param configService  configService of the contributor.
     */
-    constructor(public identifier: string,
+    constructor(public collection: string, public identifier: string,
         public configService: ConfigService,
         public collaborativeSearcheService: CollaborativesearchService) {
         const configDebounceTime = this.configService.getValue('arlas.server.debounceCollaborationTime');
@@ -47,6 +47,9 @@ export abstract class Contributor {
         this.collaborativeSearcheService.register(this.identifier, this);
         // Subscribe a bus to update data and selection
         this.collaborativeSearcheService.collaborationBus.pipe(debounceTime(debounceDuration))
+            .pipe(filter(collaborationEvent => this.collaborativeSearcheService.registry
+                .get(collaborationEvent.id).collection === collection
+            ))
             .subscribe(collaborationEvent => {
                 if (this._updateData) {
                     this.updateFromCollaboration(<CollaborationEvent>collaborationEvent);
