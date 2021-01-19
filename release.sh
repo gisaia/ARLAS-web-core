@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
+if  [ -z "$GITHUB_CHANGELOG_TOKEN"  ] ; then echo "Please set GITHUB_CHANGELOG_TOKEN environment variable"; exit -1; fi
+
 if [[ ! -d ../ARLAS-web-contributors/ ]] ; then
     echo 'Directory "../ARLAS-web-contributors/" is not there, aborting.'
     exit
@@ -153,7 +155,7 @@ releaseProd(){
 
     echo "=> Generate CHANGELOG"
     docker run -it --rm -v "$(pwd)":/usr/local/src/your-app gisaia/github-changelog-generator:latest github_changelog_generator \
-      -u gisaia -p ARLAS-"$folder" --token 56d4a85c1704484aa01dd5adbd798d5cf379625a --no-pr-wo-labels --no-issues-wo-labels --no-unreleased \
+      -u gisaia -p ARLAS-"$folder" --token ${GITHUB_CHANGELOG_TOKEN} --no-pr-wo-labels --no-issues-wo-labels --no-unreleased \
       --issue-line-labels conf,documentation,CI,ALL,DONUT,RESULTLIST,POWERBARS,HISTOGRAM,MAP \
       --exclude-labels type:duplicate,type:question,type:wontfix,type:invalid \
       --bug-labels type:bug --enhancement-labels type:enhancement --breaking-labels type:breaking \
