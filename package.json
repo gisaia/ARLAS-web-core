@@ -1,6 +1,6 @@
 {
   "name": "arlas-web-core",
-  "version": "14.4.0-dev0",
+  "version": "15.0.0-dev0",
   "description": "Core Service Library for ARLAS Web App",
   "scripts": {
     "build-release": "tsc -p tsconfig-build.json",
@@ -15,7 +15,7 @@
   "author": "gisaia",
   "license": "Apache-2.0",
   "dependencies": {
-    "arlas-api": "15.0.0-beta.2",
+    "arlas-api": "15.0.0",
     "rxjs": "~6.5.3"
   },
   "devDependencies": {
