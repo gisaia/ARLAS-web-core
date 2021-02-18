@@ -32,7 +32,9 @@ export enum projType {
   tiledgeosearch,
   /**range is deprecated and will be removed in v13.0.0 */
   range,
-  compute
+  compute,
+  shapesearch,
+  shapeaggregate
 }
 
 export interface TiledSearch {

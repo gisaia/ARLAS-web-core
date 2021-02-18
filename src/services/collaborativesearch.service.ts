@@ -83,7 +83,8 @@ export class CollaborativesearchService {
     */
     private fetchOptions: {
         credentials: string,
-        signal?: any
+        signal?: any,
+        responseType?: string
     } = {
         credentials: 'include',
     };
@@ -314,6 +315,14 @@ export class CollaborativesearchService {
         return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat, max_age);
     }
 
+    public resolveButNotShapefile(projection:
+      [projType.shapeaggregate, Array<Aggregation>]
+      | [projType.shapesearch, Search], collaborations: Map<string, Collaboration>, isFlat = true,
+      contributorId?: string, filter?: Filter, max_age = this.max_age
+  ): Observable<ArrayBuffer> {
+      return this.resolveButNot(projection, collaborations, contributorId, filter, isFlat, max_age);
+  }
+
     public resolveButNotFeatureCollectionWithAbort(projection:
         [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
@@ -446,7 +455,7 @@ export class CollaborativesearchService {
      */
     public getUrl(
         projection: [
-            projType.geoaggregate | projType.geosearch | projType.aggregate |
+            projType.geoaggregate | projType.geosearch | projType.aggregate | projType.shapeaggregate | projType.shapesearch |
             projType.count | projType.geohashgeoaggregate | projType.search | projType.tiledgeosearch,
             Array<Aggregation>
         ],
@@ -630,7 +639,9 @@ export class CollaborativesearchService {
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
-        | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>,
+        | [projType.compute, ComputationRequest]
+        | [projType.shapeaggregate, Array<Aggregation>]
+        | [projType.shapesearch, Search], collaborations: Map<string, Collaboration>,
         contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age, fetchOptions = this.fetchOptions
     ): Observable<any> {
         try {
@@ -673,7 +684,9 @@ export class CollaborativesearchService {
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
-        | [projType.compute, ComputationRequest], filters: Array<Filter>, isFlat?: boolean, max_age = this.max_age,
+        | [projType.compute, ComputationRequest]
+        | [projType.shapeaggregate, Array<Aggregation>]
+        | [projType.shapesearch, Search], filters: Array<Filter>, isFlat?: boolean, max_age = this.max_age,
          fetchOptions = this.fetchOptions
     ): Observable<any> {
         const finalFilter = this.getFinalFilter(filters);
@@ -695,7 +708,7 @@ export class CollaborativesearchService {
         let pageSize;
         let pageSort;
         if (projection[0] === projType.search.valueOf() || projection[0] === projType.geosearch.valueOf() ||
-            projection[0] === projType.tiledgeosearch.valueOf()) {
+            projection[0] === projType.tiledgeosearch.valueOf() || projection[0] === projType.shapesearch.valueOf()) {
             search = projection[0] === projType.tiledgeosearch.valueOf() ? (<TiledSearch>projection[1]).search : (<Search>projection[1]);
             includes = [];
             excludes = [];
@@ -757,6 +770,26 @@ export class CollaborativesearchService {
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geoaggregate(this.collection, aggregationsForGet,
                         fForGet, qForGet, dateformat, false, isFlat, max_age, fetchOptions)
+                );
+                break;
+            case projType.shapeaggregate.valueOf():
+                aggregationRequest = <AggregationsRequest>{
+                    filter: finalFilter,
+                    aggregations: projection[1]
+                };
+                aggregationsForGet = this.buildAggGetParam(aggregationRequest);
+                fetchOptions.responseType = 'arraybuffer';
+                result = <Observable<ArrayBuffer>>from(
+                    this.exploreApi.shapeaggregate(this.collection, aggregationsForGet,
+                        fForGet, qForGet, dateformat, false, max_age, fetchOptions).then(re => Promise.resolve(re.arrayBuffer()))
+                );
+                break;
+            case projType.shapesearch.valueOf():
+                fetchOptions.responseType = 'arraybuffer';
+                result = <Observable<ArrayBuffer>>from(
+                  this.exploreApi.shapesearch(this.collection, fForGet, qForGet
+                      , dateformat, false, includes, excludes, returned_geometries, pageSize,
+                      pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions).then(re => Promise.resolve(re.arrayBuffer()))
                 );
                 break;
             case projType.geohashgeoaggregate.valueOf():
