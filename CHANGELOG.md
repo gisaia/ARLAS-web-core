@@ -1,5 +1,13 @@
 # Change Log
 
+## [v15.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v15.0.0) (2021-02-18)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v15.0.0-beta.0...v15.0.0)
+
+## [v15.0.0-beta.0](https://github.com/gisaia/ARLAS-web-core/tree/v15.0.0-beta.0) (2021-02-03)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v14.3.0...v15.0.0-beta.0)
+
 ## [v14.3.0](https://github.com/gisaia/ARLAS-web-core/tree/v14.3.0) (2021-01-29)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v14.2.0...v14.3.0)
