@@ -83,6 +83,13 @@ export abstract class Contributor {
     }
 
     /**
+    * @returns  set the name of the contributor
+    */
+    public setName(name: string): void {
+        this.name = name;
+    }
+
+    /**
     * @returns  whether the data of contributor should be updated.
     */
     public get updateData(): boolean {
@@ -119,7 +126,7 @@ export abstract class Contributor {
                 map(f => { this.fetchedData = f; this.setData(f); }),
                 finalize(() => {
                     this.setSelection(this.fetchedData, this.collaborativeSearcheService.getCollaboration(this.identifier));
-                    this.collaborativeSearcheService.contribFilterBus
+                      this.collaborativeSearcheService.contribFilterBus
                         .next(this.collaborativeSearcheService.registry.get(this.identifier));
                     this.collaborativeSearcheService.ongoingSubscribe.
                         next(-1);
