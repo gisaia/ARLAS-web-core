@@ -26,6 +26,7 @@ export enum projType {
   aggregate,
   geoaggregate,
   geohashgeoaggregate,
+  geotilegeoaggregate,
   count,
   search,
   geosearch,
@@ -46,5 +47,12 @@ export interface TiledSearch {
 
 export interface GeohashAggregation {
   geohash: string;
+  aggregations: Array<Aggregation>;
+}
+
+export interface GeoTileAggregation {
+  x: number;
+  y: number;
+  z: number;
   aggregations: Array<Aggregation>;
 }
