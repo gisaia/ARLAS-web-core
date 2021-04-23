@@ -55,7 +55,11 @@ export abstract class Contributor {
         this.collaborativeSearcheService.collaborationBus.pipe(debounceTime(debounceDuration))
             .subscribe(collaborationEvent => {
                 // Update only contributor of same collection that the current collaboration or on the init whit the url
+<<<<<<< HEAD
                 const update = collaborationEvent.id === 'url' ||
+=======
+                const update = collaborationEvent.id === 'url' || collaborationEvent.id === 'all' ||
+>>>>>>> Support multicollection
                     this.collaborativeSearcheService.registry.get(collaborationEvent.id).collection === this.collection;
                 if (this._updateData && update) {
                     this.updateFromCollaboration(<CollaborationEvent>collaborationEvent);
