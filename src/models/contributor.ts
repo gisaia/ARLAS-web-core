@@ -29,6 +29,7 @@ export abstract class Contributor {
     private fetchedData: any;
     private _updateData = true;
     public isDataUpdating = false;
+    public collection: string;
     protected cacheDuration: number;
     /**
     * @param identifier  string identifier of the contributor.
@@ -36,7 +37,12 @@ export abstract class Contributor {
     */
     constructor(public identifier: string,
         public configService: ConfigService,
-        public collaborativeSearcheService: CollaborativesearchService) {
+        public collaborativeSearcheService: CollaborativesearchService, collection?: string) {
+        if (!!collection) {
+            this.collection = collection;
+        } else {
+            this.collection = this.collaborativeSearcheService.defaultCollection;
+        }
         const configDebounceTime = this.configService.getValue('arlas.server.debounceCollaborationTime');
         const debounceDuration = configDebounceTime !== undefined ? configDebounceTime : 750;
         const configName = this.getConfigValue('name');
@@ -48,7 +54,10 @@ export abstract class Contributor {
         // Subscribe a bus to update data and selection
         this.collaborativeSearcheService.collaborationBus.pipe(debounceTime(debounceDuration))
             .subscribe(collaborationEvent => {
-                if (this._updateData) {
+                // Update only contributor of same collection that the current collaboration or on the init whit the url
+                const update = collaborationEvent.id === 'url' ||
+                    this.collaborativeSearcheService.registry.get(collaborationEvent.id).collection === this.collection;
+                if (this._updateData && update) {
                     this.updateFromCollaboration(<CollaborationEvent>collaborationEvent);
                 }
             },
@@ -126,7 +135,7 @@ export abstract class Contributor {
                 map(f => { this.fetchedData = f; this.setData(f); }),
                 finalize(() => {
                     this.setSelection(this.fetchedData, this.collaborativeSearcheService.getCollaboration(this.identifier));
-                      this.collaborativeSearcheService.contribFilterBus
+                    this.collaborativeSearcheService.contribFilterBus
                         .next(this.collaborativeSearcheService.registry.get(this.identifier));
                     this.collaborativeSearcheService.ongoingSubscribe.
                         next(-1);
