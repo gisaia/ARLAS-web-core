@@ -583,7 +583,7 @@ export class CollaborativesearchService {
         }
         this.collaborations.set(contributorId, collaboration);
         const collaborationEvent: CollaborationEvent = {
-            id: 'all',
+            id: contributorId,
             operation: OperationEnum.add,
             all: true
         };
