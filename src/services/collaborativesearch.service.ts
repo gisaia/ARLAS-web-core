@@ -351,6 +351,7 @@ export class CollaborativesearchService {
         [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.geohashgeoaggregate, GeohashAggregation]
+        | [projType.geotilegeoaggregate, GeoTileAggregation]
         | [projType.geoaggregate, Array<Aggregation>], isFlat = true, collaborations: Map<string, Collaboration>, collection,
         contributorId?: string, filter?: Filter, max_age = this.max_age
     ): Observable<FeatureCollection> {
@@ -459,7 +460,7 @@ export class CollaborativesearchService {
     public getUrl(
         projection: [
             projType.geoaggregate | projType.geosearch | projType.aggregate | projType.shapeaggregate | projType.shapesearch |
-            projType.count | projType.geohashgeoaggregate | projType.search | projType.tiledgeosearch,
+            projType.count | projType.geohashgeoaggregate | projType.geotilegeoaggregate | projType.search | projType.tiledgeosearch,
             Array<Aggregation>
         ],
         filters: Array<Filter>, max_age = this.max_age): string {
@@ -481,7 +482,9 @@ export class CollaborativesearchService {
         if (aggregationsForGet
             && (projection[0] === projType.geoaggregate
                 || projection[0] === projType.aggregate
-                || projection[0] === projType.geohashgeoaggregate)
+                || projection[0] === projType.geohashgeoaggregate
+                || projection[0] === projType.geotilegeoaggregate
+                || projection[0] === projType.shapeaggregate)
         ) {
             aggregationsForGet.filter(element => element !== undefined).forEach(function (element) {
                 queryParameters.append('agg', element);
@@ -601,6 +604,7 @@ export class CollaborativesearchService {
         | [projType.search, Search]
         | [projType.geoaggregate, Array<Aggregation>]
         | [projType.geohashgeoaggregate, GeohashAggregation]
+        | [projType.geotilegeoaggregate, GeoTileAggregation]
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
