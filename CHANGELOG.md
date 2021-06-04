@@ -1,8 +1,16 @@
 # Change Log
 
+## [v17.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v17.1.0) (2021-06-04)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v17.0.0...v17.1.0)
+
 ## [v17.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v17.0.0) (2021-05-19)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v17.0.0-beta.0...v17.0.0)
+
+**New stuff:**
+
+- \_\(geo\)aggregate : Add geotile aggregation [\#73](https://github.com/gisaia/ARLAS-web-core/issues/73)
 
 ## [v17.0.0-beta.0](https://github.com/gisaia/ARLAS-web-core/tree/v17.0.0-beta.0) (2021-05-10)
 
