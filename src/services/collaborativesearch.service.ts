@@ -84,9 +84,11 @@ export class CollaborativesearchService {
     private fetchOptions: {
         credentials: string,
         signal?: any,
-        responseType?: string
+        responseType?: string,
+        referrerPolicy?: string
     } = {
             credentials: 'include',
+            referrerPolicy: 'origin'
         };
     constructor() {
         /**
