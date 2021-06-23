@@ -619,7 +619,9 @@ export class CollaborativesearchService {
                 const collaboration = collaborations.get(contributorId);
                 if (collaboration !== undefined) {
                     if (collaboration.enabled) {
-                        if (collaboration.filter) { filters.push(collaboration.filter); }
+                        if (collaboration.filters && collaboration.filters.get(collection)) {
+                          filters.push(collaboration.filters.get(collection));
+                        }
                     }
                 }
             }
@@ -657,17 +659,17 @@ export class CollaborativesearchService {
         try {
             const filters: Array<Filter> = new Array<Filter>();
             if (contributorId) {
-                collaborations.forEach((k, v) => {
-                    if (v !== contributorId && k.enabled && this.registry.get(v).collection === collection) {
-                        if (k.filter) { filters.push(k.filter); }
+                collaborations.forEach((collab, c) => {
+                    if (c !== contributorId && collab.enabled && (this.registry.get(c).collection === collection || c === 'timeline')) {
+                        if (collab.filters && collab.filters.get(collection)) { filters.push(collab.filters.get(collection)); }
                     } else {
                         return;
                     }
                 });
             } else {
-                collaborations.forEach((k, v) => {
-                    if (k.enabled && this.registry.get(v).collection === collection) {
-                        if (k.filter) { filters.push(k.filter); }
+                collaborations.forEach((collab, c) => {
+                    if (collab.enabled && this.registry.get(c).collection === collection) {
+                        if (collab.filters && collab.filters.get(collection)) { filters.push(collab.filters.get(collection)); }
                     }
                 });
             }

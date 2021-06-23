@@ -24,8 +24,12 @@ import { Filter } from 'arlas-api';
 * - A boolean to know if the filter of the collaboration is enabled.
 */
 export interface Collaboration {
-  filter: Filter;
+  filters: Map<string, Filter>;
   enabled: boolean;
+}
+
+export interface FilterOnCollection extends Filter {
+  collection: string;
 }
 
 /**

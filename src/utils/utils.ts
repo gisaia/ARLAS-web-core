@@ -47,3 +47,18 @@ export function getObject(datalayer: object, objectKey?: string): any {
   return current;
 }
 
+/** This interface will be used to get on which field to aggregate for a collection */
+export interface CollectionAggField {
+  field?: string;
+  collectionName: string;
+}
+
+/** checks if there is a common string in the given arrays */
+export function hasAtLeaseOneCommon(collections1: string[], collections2: string[]): boolean {
+  const cSet1 = new Set(collections1);
+  if (!!cSet1 && collections2) {
+    return collections2.filter(c => cSet1.has(c)).length > 0;
+  }
+  return false;
+}
+
