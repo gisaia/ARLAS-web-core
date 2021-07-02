@@ -22,7 +22,7 @@ import { CollaborativesearchService } from '../services/collaborativesearch.serv
 import { CollaborationEvent, Collaboration } from './collaboration';
 import { Observable, Subject } from 'rxjs';
 import { map, finalize, filter, debounceTime } from 'rxjs/operators';
-import { CollectionAggField, hasAtLeaseOneCommon } from '../utils/utils';
+import { CollectionAggField, hasAtLeastOneCommon as hasAtLeastOneCommon } from '../utils/utils';
 
 export abstract class Contributor {
 
@@ -66,7 +66,7 @@ export abstract class Contributor {
                 }
                 const cs1 = !!this.collections ? this.collections.map(c => c.collectionName) : [];
                 const cs2 = !!collaborationCollections ? collaborationCollections.map(c => c.collectionName) : [];
-                const update = collaborationEvent.id === 'url' || collaborationEvent.id === 'all' || hasAtLeaseOneCommon(cs1, cs2) ;
+                const update = collaborationEvent.id === 'url' || collaborationEvent.id === 'all' || hasAtLeastOneCommon(cs1, cs2) ;
                 if (this._updateData && update) {
                     this.updateFromCollaboration(<CollaborationEvent>collaborationEvent);
                 }

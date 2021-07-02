@@ -54,7 +54,7 @@ export interface CollectionAggField {
 }
 
 /** checks if there is a common string in the given arrays */
-export function hasAtLeaseOneCommon(collections1: string[], collections2: string[]): boolean {
+export function hasAtLeastOneCommon(collections1: string[], collections2: string[]): boolean {
   const cSet1 = new Set(collections1);
   if (!!cSet1 && collections2) {
     return collections2.filter(c => cSet1.has(c)).length > 0;
