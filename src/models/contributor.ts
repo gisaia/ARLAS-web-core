@@ -20,7 +20,7 @@
 import { ConfigService } from '../services/config.service';
 import { CollaborativesearchService } from '../services/collaborativesearch.service';
 import { CollaborationEvent, Collaboration } from './collaboration';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { map, finalize, filter, debounceTime } from 'rxjs/operators';
 import { CollectionAggField, hasAtLeaseOneCommon } from '../utils/utils';
 
@@ -32,7 +32,10 @@ export abstract class Contributor {
     public isDataUpdating = false;
     public collection: string;
     public collections: CollectionAggField[];
+    public endCollaborationEvent = new Subject();
     protected cacheDuration: number;
+
+
     /**
     * @param identifier  string identifier of the contributor.
     * @param configService  configService of the contributor.
@@ -57,7 +60,10 @@ export abstract class Contributor {
         this.collaborativeSearcheService.collaborationBus.pipe(debounceTime(debounceDuration))
             .subscribe(collaborationEvent => {
                 // Update only contributor of same collection that the current collaboration or on the init whit the url
-                const collaborationCollections = this.collaborativeSearcheService.registry.get(collaborationEvent.id).collections;
+                let collaborationCollections;
+                if (!!this.collaborativeSearcheService.registry.get(collaborationEvent.id)) {
+                  collaborationCollections = this.collaborativeSearcheService.registry.get(collaborationEvent.id).collections;
+                }
                 const cs1 = !!this.collections ? this.collections.map(c => c.collectionName) : [];
                 const cs2 = !!collaborationCollections ? collaborationCollections.map(c => c.collectionName) : [];
                 const update = collaborationEvent.id === 'url' || collaborationEvent.id === 'all' || hasAtLeaseOneCommon(cs1, cs2) ;
@@ -144,6 +150,7 @@ export abstract class Contributor {
                     this.collaborativeSearcheService.ongoingSubscribe.
                         next(-1);
                     this.isDataUpdating = false;
+                    this.endCollaborationEvent.next();
                 })
             )
             .subscribe(

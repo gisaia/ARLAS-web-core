@@ -203,13 +203,33 @@ export class CollaborativesearchService {
 
     public dataModelBuilder(filter: string): Object {
         const dataModel = JSON.parse(filter);
+        /** transform "filters" object to Map */
+        Object.keys(dataModel).forEach(key => {
+          const collab = dataModel['' + key];
+          if (!!collab && !!collab.filters) {
+            collab.filters = new Map(Object.entries(collab.filters));
+          } else if (!!collab && !collab.filters && !!collab.filter) {
+            /** retrocompatibility code to transform an pre-18 collaboration structure to 18 one */
+            collab.filters = new Map<string, Filter[]>();
+            collab.filters.set(this.defaultCollection, [Object.assign({}, collab.filter)]);
+            delete collab.filter;
+          }
+        });
         return dataModel;
     }
 
     public urlBuilder(): string {
         const dataModel = {};
         Array.from(this.collaborations.keys()).forEach(identifier => {
-            dataModel[identifier] = this.collaborations.get(identifier);
+          dataModel[identifier] = Object.assign({}, this.collaborations.get(identifier));
+          if (!dataModel[identifier].filters && !!dataModel[identifier].filter) {
+            /** retrocompatibility code to transform an pre-18 collaboration structure to 18 one */
+            dataModel[identifier].filters = {};
+            dataModel[identifier].filters[this.defaultCollection] = [Object.assign({}, dataModel[identifier].filter)];
+            delete dataModel[identifier].filter;
+          } else if (!!dataModel[identifier].filters) {
+            dataModel[identifier].filters = Object.fromEntries(dataModel[identifier].filters);
+          }
         });
         const url = 'filter=' + JSON.stringify(dataModel);
         return url;
@@ -620,7 +640,10 @@ export class CollaborativesearchService {
                 if (collaboration !== undefined) {
                     if (collaboration.enabled) {
                         if (collaboration.filters && collaboration.filters.get(collection)) {
-                          filters.push(collaboration.filters.get(collection));
+                          const collabFilters = collaboration.filters.get(collection);
+                          if (!!collabFilters && collabFilters.length > 0) {
+                            filters.push(collabFilters[0]);
+                          }
                         }
                     }
                 }
@@ -660,17 +683,27 @@ export class CollaborativesearchService {
             const filters: Array<Filter> = new Array<Filter>();
             if (contributorId) {
                 collaborations.forEach((collab, c) => {
-                    if (c !== contributorId && collab.enabled && (this.registry.get(c).collection === collection || c === 'timeline')) {
-                        if (collab.filters && collab.filters.get(collection)) { filters.push(collab.filters.get(collection)); }
+                    if (c !== contributorId && collab.enabled) {
+                        if (collab.filters && collab.filters.get(collection)) {
+                          const collabFilters = collab.filters.get(collection);
+                          if (!!collabFilters && collabFilters.length > 0) {
+                            filters.push(collabFilters[0]);
+                          }
+                        }
                     } else {
                         return;
                     }
                 });
             } else {
                 collaborations.forEach((collab, c) => {
-                    if (collab.enabled && this.registry.get(c).collection === collection) {
-                        if (collab.filters && collab.filters.get(collection)) { filters.push(collab.filters.get(collection)); }
+                  if (collab.enabled) {
+                    if (collab.filters && collab.filters.get(collection)) {
+                      const collabFilters = collab.filters.get(collection);
+                      if (!!collabFilters && collabFilters.length > 0) {
+                        filters.push(collabFilters[0]);
+                      }
                     }
+                  }
                 });
             }
             if (filter) {
