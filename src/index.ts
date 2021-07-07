@@ -23,5 +23,6 @@ export { ConfigService } from './services/config.service';
 export { projType, TiledSearch, GeohashAggregation, GeoTileAggregation } from './models/projections';
 export { Contributor } from './models/contributor';
 export { Collaboration, OperationEnum, CollaborationEvent } from './models/collaboration';
+export { fromEntries } from './utils/utils';
 
 

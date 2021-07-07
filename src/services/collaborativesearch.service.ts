@@ -23,6 +23,7 @@ import {
 } from 'arlas-api';
 import { Observable, Subject, from } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { fromEntries } from '../utils/utils';
 import { Collaboration, CollaborationEvent, OperationEnum } from '../models/collaboration';
 import { Contributor } from '../models/contributor';
 import { GeohashAggregation, TiledSearch, projType, GeoTileAggregation } from '../models/projections';
@@ -228,7 +229,7 @@ export class CollaborativesearchService {
             dataModel[identifier].filters[this.defaultCollection] = [Object.assign({}, dataModel[identifier].filter)];
             delete dataModel[identifier].filter;
           } else if (!!dataModel[identifier].filters) {
-            dataModel[identifier].filters = Object.fromEntries(dataModel[identifier].filters);
+            dataModel[identifier].filters = fromEntries(dataModel[identifier].filters);
           }
         });
         const url = 'filter=' + JSON.stringify(dataModel);
