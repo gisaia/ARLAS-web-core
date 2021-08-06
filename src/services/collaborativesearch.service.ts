@@ -206,15 +206,15 @@ export class CollaborativesearchService {
         const dataModel = JSON.parse(filter);
         /** transform "filters" object to Map */
         Object.keys(dataModel).forEach(key => {
-          const collab = dataModel['' + key];
-          if (!!collab && !!collab.filters) {
-            collab.filters = new Map(Object.entries(collab.filters));
-          } else if (!!collab && !collab.filters && !!collab.filter) {
-            /** retrocompatibility code to transform an pre-18 collaboration structure to 18 one */
-            collab.filters = new Map<string, Filter[]>();
-            collab.filters.set(this.defaultCollection, [Object.assign({}, collab.filter)]);
-            delete collab.filter;
-          }
+            const collab = dataModel['' + key];
+            if (!!collab && !!collab.filters) {
+                collab.filters = new Map(Object.entries(collab.filters));
+            } else if (!!collab && !collab.filters && !!collab.filter) {
+                /** retrocompatibility code to transform an pre-18 collaboration structure to 18 one */
+                collab.filters = new Map<string, Filter[]>();
+                collab.filters.set(this.defaultCollection, [Object.assign({}, collab.filter)]);
+                delete collab.filter;
+            }
         });
         return dataModel;
     }
@@ -222,15 +222,15 @@ export class CollaborativesearchService {
     public urlBuilder(): string {
         const dataModel = {};
         Array.from(this.collaborations.keys()).forEach(identifier => {
-          dataModel[identifier] = Object.assign({}, this.collaborations.get(identifier));
-          if (!dataModel[identifier].filters && !!dataModel[identifier].filter) {
-            /** retrocompatibility code to transform an pre-18 collaboration structure to 18 one */
-            dataModel[identifier].filters = {};
-            dataModel[identifier].filters[this.defaultCollection] = [Object.assign({}, dataModel[identifier].filter)];
-            delete dataModel[identifier].filter;
-          } else if (!!dataModel[identifier].filters) {
-            dataModel[identifier].filters = fromEntries(dataModel[identifier].filters);
-          }
+            dataModel[identifier] = Object.assign({}, this.collaborations.get(identifier));
+            if (!dataModel[identifier].filters && !!dataModel[identifier].filter) {
+                /** retrocompatibility code to transform an pre-18 collaboration structure to 18 one */
+                dataModel[identifier].filters = {};
+                dataModel[identifier].filters[this.defaultCollection] = [Object.assign({}, dataModel[identifier].filter)];
+                delete dataModel[identifier].filter;
+            } else if (!!dataModel[identifier].filters) {
+                dataModel[identifier].filters = fromEntries(dataModel[identifier].filters);
+            }
         });
         const url = 'filter=' + JSON.stringify(dataModel);
         return url;
@@ -641,10 +641,10 @@ export class CollaborativesearchService {
                 if (collaboration !== undefined) {
                     if (collaboration.enabled) {
                         if (collaboration.filters && collaboration.filters.get(collection)) {
-                          const collabFilters = collaboration.filters.get(collection);
-                          if (!!collabFilters && collabFilters.length > 0) {
-                            filters.push(collabFilters[0]);
-                          }
+                            const collabFilters = collaboration.filters.get(collection);
+                            if (!!collabFilters && collabFilters.length > 0) {
+                                filters.push(collabFilters[0]);
+                            }
                         }
                     }
                 }
@@ -686,10 +686,10 @@ export class CollaborativesearchService {
                 collaborations.forEach((collab, c) => {
                     if (c !== contributorId && collab.enabled) {
                         if (collab.filters && collab.filters.get(collection)) {
-                          const collabFilters = collab.filters.get(collection);
-                          if (!!collabFilters && collabFilters.length > 0) {
-                            filters.push(collabFilters[0]);
-                          }
+                            const collabFilters = collab.filters.get(collection);
+                            if (!!collabFilters && collabFilters.length > 0) {
+                                filters.push(collabFilters[0]);
+                            }
                         }
                     } else {
                         return;
@@ -697,14 +697,14 @@ export class CollaborativesearchService {
                 });
             } else {
                 collaborations.forEach((collab, c) => {
-                  if (collab.enabled) {
-                    if (collab.filters && collab.filters.get(collection)) {
-                      const collabFilters = collab.filters.get(collection);
-                      if (!!collabFilters && collabFilters.length > 0) {
-                        filters.push(collabFilters[0]);
-                      }
+                    if (collab.enabled) {
+                        if (collab.filters && collab.filters.get(collection)) {
+                            const collabFilters = collab.filters.get(collection);
+                            if (!!collabFilters && collabFilters.length > 0) {
+                                filters.push(collabFilters[0]);
+                            }
+                        }
                     }
-                  }
                 });
             }
             if (filter) {
@@ -773,9 +773,17 @@ export class CollaborativesearchService {
             if (form !== undefined) {
                 if (form.flat !== undefined) {
                     flat = form.flat;
+                } else {
+                    if (isFlat !== undefined && isFlat !== null) {
+                        flat = isFlat;
+                    }
                 }
                 if (form.pretty !== undefined) {
                     pretty = form.pretty;
+                }
+            } else {
+                if (isFlat !== undefined && isFlat !== null) {
+                    flat = isFlat;
                 }
             }
             if (page !== undefined) {
