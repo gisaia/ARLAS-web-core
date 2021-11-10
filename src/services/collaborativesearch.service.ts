@@ -21,9 +21,9 @@ import {
     CollectionReferenceDescription, Count, ExploreApi, Expression,
     FeatureCollection, Filter, Hits, Search, Metric, Page, Form, ComputationRequest, ComputationResponse
 } from 'arlas-api';
-import { Observable, Subject, from } from 'rxjs';
+import { Observable, Subject, from, zip } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { fromEntries } from '../utils/utils';
+import { fromEntries, CollectionCount } from '../utils/utils';
 import { Collaboration, CollaborationEvent, OperationEnum } from '../models/collaboration';
 import { Contributor } from '../models/contributor';
 import { GeohashAggregation, TiledSearch, projType, GeoTileAggregation } from '../models/projections';
@@ -51,6 +51,10 @@ export class CollaborativesearchService {
     * ARLAS SERVER collection used by default by the contributors.
     */
     public defaultCollection: string;
+
+    /** ARLAS SERVER collections that declared in the contributos */
+
+    public collections: Set<string> = new Set();
     /**
     * ARLAS SERVER max age cache used by the collaborativesearchService.
     */
@@ -58,7 +62,7 @@ export class CollaborativesearchService {
     /**
     * Number of entity return by the collaborativesearchService at any time
     */
-    public countAll: Observable<number>;
+    public countAll: Observable<CollectionCount[]>;
     /**
     * Bus number of ongoing subscribe to the collaborativesearchService
     */
@@ -159,6 +163,14 @@ export class CollaborativesearchService {
     */
     public register(identifier: string, contributor: Contributor): void {
         this.registry.set(identifier, contributor);
+        if (contributor.collections) {
+            contributor.collections.forEach(cf => {
+                this.collections.add(cf.collectionName);
+            });
+        }
+        if (contributor.collection) {
+            this.collections.add(contributor.collection);
+        }
     }
     /**
     * Add Filter setted by a contributor in the registry of collaboration, notify the collaborationBus of a changement.
@@ -472,8 +484,11 @@ export class CollaborativesearchService {
     * Update countAll property.
     */
     public setCountAll(collaborations: Map<string, Collaboration>) {
-        const result: Observable<Hits> = this.resolveButNot([projType.count, {}], collaborations, this.defaultCollection);
-        this.countAll = result.pipe(map(c => c.totalnb));
+        this.countAll = zip(...Array.from(this.collections).map(c => {
+            return this.resolveButNot([projType.count, {}], collaborations, c);
+        })).pipe(map(l => {
+            return l.map(count => ({count: count.totalnb, collection: count.collection}));
+        }));
     }
 
     /**

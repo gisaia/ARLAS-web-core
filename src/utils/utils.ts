@@ -73,3 +73,8 @@ export function fromEntries<T = any>(map: Map<string, T>): { [k: string]: T } {
   return object;
 }
 
+export interface CollectionCount {
+  count: number;
+  collection: string;
+}
+
