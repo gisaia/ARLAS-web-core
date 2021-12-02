@@ -163,6 +163,13 @@ export class CollaborativesearchService {
     */
     public register(identifier: string, contributor: Contributor): void {
         this.registry.set(identifier, contributor);
+        this.registerCollections(contributor);
+    }
+
+    /**
+    *  Register collections of the given contributor in a collections registry.
+    */
+    public registerCollections(contributor: Contributor) {
         if (contributor.collections) {
             contributor.collections.forEach(cf => {
                 this.collections.add(cf.collectionName);
@@ -172,6 +179,7 @@ export class CollaborativesearchService {
             this.collections.add(contributor.collection);
         }
     }
+
     /**
     * Add Filter setted by a contributor in the registry of collaboration, notify the collaborationBus of a changement.
     * @param contributorId  Sting identifier of contributor.
