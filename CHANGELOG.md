@@ -1,5 +1,13 @@
 # Change Log
 
+## [v19.2.0](https://github.com/gisaia/ARLAS-web-core/tree/v19.2.0) (2021-12-02)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v19.0.0...v19.2.0)
+
+**New stuff:**
+
+- Calculate the count of all decalred collections in collaborations [\#150](https://github.com/gisaia/ARLAS-web-core/issues/150)
+
 ## [v19.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v19.0.0) (2021-09-27)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v18.1.0...v19.0.0)
