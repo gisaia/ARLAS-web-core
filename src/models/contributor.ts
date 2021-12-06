@@ -150,7 +150,7 @@ export abstract class Contributor {
                     this.collaborativeSearcheService.ongoingSubscribe.
                         next(-1);
                     this.isDataUpdating = false;
-                    this.endCollaborationEvent.next();
+                    this.endCollaborationEvent.next({});
                 })
             )
             .subscribe(
