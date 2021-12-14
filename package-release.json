@@ -6,6 +6,9 @@
     "type": "git",
     "url": "https://github.com/gisaia/ARLAS-web-core.git"
   },
+  "scripts": {
+     "postinstall": "patch-package"
+  },
   "author": "gisaia-team",
   "license": "Apache-2.0",
   "dependencies": {
