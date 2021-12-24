@@ -31,17 +31,14 @@ if  [ -z "$npmlogin"  ] ; then echo "your are not logged on npm"; exit -1; else 
 level_version=("major" "minor" "patch")
 
 usage(){
-	echo "Usage: ./release.sh -core='1.0.0;major' -cont='1.1.0;minor' -comp='1.1.1;patch' -prod -ref_branch=develop"
-	echo "Usage: ./release.sh -all='1.0.0-dev0;minor'"
-	echo "Usage: ./release.sh -all='1.0.0;major' -cont='1.1.0;minor'"
+	echo "Usage: ./release.sh -core='1.0.0;major' -cont='1.1.0;minor' -comp='1.1.1;patch' -ref_branch=develop"
 	echo " -core|--arlas-web-core     arlas-web-core version release,level of evolution"
 	echo " -cont|--arlas-web-contributors      arlas-web-contributors version release, level of evolution"
 	echo " -comp|--arlas-web-components    arlas-web-components version release, level of evolution"
 	echo " -d3|--arlas-d3    arlas-d3 version release, level of evolution"
     echo " -tool|--arlas-wui-toolkit    arlas-wui-toolkit version release, level of evolution"
-	echo " -all|--global    all project have same version release, level of evolution"
-    echo " -prod|--production    if present publish on public npm and tag from master git branch, if not publish on gisaia private npm and tag from develop, not present by defaut"
-	echo " if -all and -core or -cont or -comp or -d3 parametes are mixed, the specified version is released"
+    echo " -beta|--beta    if present publish the npm package with beta tag. If the beta is launched from develop, there is no merge of develop into master"
+    echo " -beta_n|--beta_number=n, the released version will be : [x].[y].[z]-beta.[n]"
 	echo " -ref_branch | --reference_branch  from which branch to start the release."
     echo "    Add -ref_branch=develop for a new official release"
     echo "    Add -ref_branch=x.x.x for a maintenance release"
