@@ -96,7 +96,6 @@ releaseProd(){
         then
         local VERSION="${VERSION}-beta.${BETA_NUMBER_LOCAL}"
     fi
-
     if [ "$PROJECT" == "components" ];
         then
         cd ../ARLAS-web-components/
@@ -119,21 +118,25 @@ releaseProd(){
     git checkout "$BRANCH"
     git pull origin "$BRANCH"
     echo "=> Test to lint and build the project on "$BRANCH" branch"
+    npm --no-git-tag-version version ${VERSION}
+     if [ "$PROJECT" == "components" ];
+        then
+        npm --no-git-tag-version --prefix projects/arlas-components version ${VERSION}
+    elif [ "$PROJECT" == "toolkit" ];
+        then
+        npm --no-git-tag-version --prefix projects/arlas-toolkit version ${VERSION}
+    fi
     npm install
     npm run lint
     npm run build-release
     rm -rf dist
 
-    npm --no-git-tag-version version ${VERSION}
     git add .
     commit_message_release="Release prod version $VERSION"
 
     echo "=> Tag version $VERSION"
-    npm install
-    npm run lint
     npm run build-release
-    cp package-release.json  dist/package.json
-    npm --no-git-tag-version --prefix dist version ${VERSION}
+    
     cp README-NPM.md dist/README.md
     cp LICENSE.txt dist/LICENSE
     git tag -a v"$VERSION" -m "$commit_message_release"
@@ -158,20 +161,22 @@ releaseProd(){
     git push origin v"$VERSION"
     git push origin "$BRANCH"
 
-    cd dist
     if [ "$PROJECT" == "components" ];
         then
-        cd arlas-components/
+        cd dist/arlas-web-components/
     elif [ "$PROJECT" == "toolkit" ];
         then
-        cd arlas-toolkit/
+        cd dist/arlas-toolkit/
+    else
+        cp package-release.json  dist/package.json
+        npm --no-git-tag-version --prefix dist version ${VERSION}
+        cd dist
     fi
     echo "=> Publish to npm"
     if [ "${IS_BETA}" == "true" ];
         then
         npm publish --tag=beta
     else 
-        then
         npm publish
     fi
     if [ "$PROJECT" == "components" ] || [ "$PROJECT" == "toolkit" ];
@@ -199,7 +204,7 @@ releaseProd(){
     minor=${TAB[1]}
     newminor=$(( $minor + 1 ))
     newDevVersion=${major}.${newminor}.0
-    npm --no-git-tag-version version "'"$newDevVersion"'-dev0"
+    npm --no-git-tag-version version ""$newDevVersion"-dev0"
     git add .
     commit_message="update package.json to"-"$newDevVersion"
     git commit -m "$commit_message" --allow-empty
@@ -274,9 +279,9 @@ if [ -z ${REF_BRANCH+x} ];
         usage;
 fi
 
-if if [ "${ARLAS_BETA}" == "true" ];
+if [ "${ARLAS_BETA}" == "true" ];
     then
-       if [ -z ${BETA_NUMBER+x} ];
+        if [ -z ${BETA_NUMBER+x} ];
         then
             echo ""
             echo "###########"
@@ -286,7 +291,7 @@ if if [ "${ARLAS_BETA}" == "true" ];
             echo "###########"
             echo ""
             usage;
-    fi
+        fi
 fi
 
 if [ ! -z ${ARLAS_HELP+x} ];
