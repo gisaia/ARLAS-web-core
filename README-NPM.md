@@ -9,7 +9,7 @@
 
 ## Install
 
-To install this library in your npm web application, add the dependency in your `package.json` file.
+To install this library in your web application, add the dependency in your `package.json` file.
 
 ```shell
 $ npm install --save arlas-web-core
@@ -22,8 +22,8 @@ Please find the documentation [here](http://docs.arlas.io/arlas-tech/current/cla
 ## Build
 
 To build the project you need to have installed
-- [Node](https://nodejs.org/en/) version >= 8.0.0 
-- [npm](https://github.com/npm/npm) version >= 5.2.0
+- [Node](https://nodejs.org/en/) version >= 16.3.0 
+- [npm](https://github.com/npm/npm) version >= 8.3.0
 
 Then, clone the project
 
