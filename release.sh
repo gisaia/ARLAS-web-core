@@ -126,19 +126,15 @@ releaseProd(){
         then
         npm --no-git-tag-version --prefix projects/arlas-toolkit version ${VERSION}
     fi
+
+    echo "=> Build the ARLAS-$folder library"
     npm install
     npm run lint
     npm run build-release
-    rm -rf dist
 
+    echo "=> Tag version $VERSION"    
     git add .
     commit_message_release="Release prod version $VERSION"
-
-    echo "=> Tag version $VERSION"
-    npm run build-release
-    
-    cp README-NPM.md dist/README.md
-    cp LICENSE.txt dist/LICENSE
     git tag -a v"$VERSION" -m "$commit_message_release"
     git push origin v"$VERSION"
 
@@ -163,11 +159,17 @@ releaseProd(){
 
     if [ "$PROJECT" == "components" ];
         then
+        cp README-NPM.md dist/arlas-web-components/README.md
+        cp LICENSE.txt dist/arlas-web-components/LICENSE
         cd dist/arlas-web-components/
     elif [ "$PROJECT" == "toolkit" ];
         then
-        cd dist/arlas-toolkit/
+        cp README-NPM.md dist/arlas-wui-toolkit/README.md
+        cp LICENSE.txt dist/arlas-wui-toolkit/LICENSE
+        cd dist/arlas-wui-toolkit/
     else
+        cp README-NPM.md dist/README.md
+        cp LICENSE.txt dist/LICENSE
         cp package-release.json  dist/package.json
         npm --no-git-tag-version --prefix dist version ${VERSION}
         cd dist
@@ -175,6 +177,7 @@ releaseProd(){
     echo "=> Publish to npm"
     if [ "${IS_BETA}" == "true" ];
         then
+        echo "  -- tagged as beta"
         npm publish --tag=beta
     else 
         npm publish
