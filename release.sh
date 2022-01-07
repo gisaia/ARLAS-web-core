@@ -31,14 +31,14 @@ if  [ -z "$npmlogin"  ] ; then echo "your are not logged on npm"; exit -1; else 
 level_version=("major" "minor" "patch")
 
 usage(){
-	echo "Usage: ./release.sh -core='1.0.0;major' -cont='1.1.0;minor' -comp='1.1.1;patch' -ref_branch=develop"
+	echo "Usage: ./release.sh -core='1.0.0;major' -cont='1.1.0;minor' -comp='1.1.1;patch' -ref_branch=develop --stage=beta|rc|stable"
 	echo " -core|--arlas-web-core     arlas-web-core version release,level of evolution"
 	echo " -cont|--arlas-web-contributors      arlas-web-contributors version release, level of evolution"
 	echo " -comp|--arlas-web-components    arlas-web-components version release, level of evolution"
 	echo " -d3|--arlas-d3    arlas-d3 version release, level of evolution"
     echo " -tool|--arlas-wui-toolkit    arlas-wui-toolkit version release, level of evolution"
-    echo " -beta|--beta    if present publish the npm package with beta tag. If the beta is launched from develop, there is no merge of develop into master"
-    echo " -beta_n|--beta_number=n, the released version will be : [x].[y].[z]-beta.[n]"
+    echo " -s|--stage    Stage of the release : beta | rc | stable. If --stage is 'rc' or 'beta', there is no merge of develop into master (if -ref_branch=develop)"
+    echo " -i|--stage_iteration=n, the released version will be : [x].[y].[z]-beta.[n] OR  [x].[y].[z]-rc.[n] according to the given --stage"
 	echo " -ref_branch | --reference_branch  from which branch to start the release."
     echo "    Add -ref_branch=develop for a new official release"
     echo "    Add -ref_branch=x.x.x for a maintenance release"
@@ -84,17 +84,17 @@ checkInput(){
 }
 
 
-# ARGUMENTS $1 = VERSION  $2 = patch/minor/major $3 = PROJECT $4 ref_branch
+# ARGUMENTS $1 = VERSION  $2 = patch/minor/major $3 = PROJECT $4 ref_branch $5 stage $6 stage iteration (for beta & rc)
 releaseProd(){
     local folder="web-core"
     local VERSION=$1
     local PROJECT=$3
     local BRANCH=$4
-    local IS_BETA=$5
-    local BETA_NUMBER_LOCAL=$6
-    if [ "${IS_BETA}" == "true" ];
+    local STAGE_LOCAL=$5
+    local STAGE_ITERATION_LOCAL=$6
+    if [ "${STAGE_LOCAL}" == "rc" ] || ["${STAGE_LOCAL}" == "beta"];
         then
-        local VERSION="${VERSION}-beta.${BETA_NUMBER_LOCAL}"
+        local VERSION="${VERSION}-${STAGE_LOCAL}.${STAGE_ITERATION_LOCAL}"
     fi
     if [ "$PROJECT" == "components" ];
         then
@@ -175,10 +175,10 @@ releaseProd(){
         cd dist
     fi
     echo "=> Publish to npm"
-    if [ "${IS_BETA}" == "true" ];
+    if [ "${STAGE_LOCAL}" == "rc" ] || ["${STAGE_LOCAL}" == "beta"];
         then
-        echo "  -- tagged as beta"
-        npm publish --tag=beta
+        echo "  -- tagged as ${STAGE_LOCAL}"
+        npm publish --tag=${STAGE_LOCAL}
     else 
         npm publish
     fi
@@ -190,7 +190,7 @@ releaseProd(){
         cd ..
     fi
     rm -rf dist
-    if [ "$BRANCH" == "develop" ] && [ "$IS_BETA" == "false" ];
+    if [ "$BRANCH" == "develop" ] && [ "$STAGE_LOCAL" == "stable" ];
         then
         echo "=> Merge develop into master"
         git checkout master
@@ -216,11 +216,11 @@ releaseProd(){
 
 }
 
-# ARGUMENTS $1 = VERSION  $2 = patch/minor/major $3 = PROJECT $4 ref_branch $5 is beta $6 beta_number
+# ARGUMENTS $1 = VERSION  $2 = patch/minor/major $3 = PROJECT $4 ref_branch $5 is beta $6 stage_iteration
 release(){
     releaseProd $1 $2 $3 $4 $5 $6
 }
-ARLAS_BETA="false"
+STAGE="stable"
 for i in "$@"
 do
 case $i in
@@ -256,12 +256,12 @@ case $i in
     REF_BRANCH="${i#*=}"
     shift # past argument=value
     ;;
-     -beta|--beta)
-    ARLAS_BETA="true"
+    -s=*|--stage=*)
+    STAGE="${i#*=}"
     shift # past argument=value
     ;;
-    -beta_n=*|--beta_number=*)
-    BETA_NUMBER="${i#*=}"
+    -i=*|--stage_iteration=*)
+    STAGE_ITERATION="${i#*=}"
     shift # past argument=value
     ;;
     *)
@@ -282,18 +282,40 @@ if [ -z ${REF_BRANCH+x} ];
         usage;
 fi
 
-if [ "${ARLAS_BETA}" == "true" ];
+if [ -z ${STAGE+x} ];
     then
-        if [ -z ${BETA_NUMBER+x} ];
-        then
-            echo ""
-            echo "###########"
-            echo "You chose to release this version as beta."
-            echo "--beta_number is missing."
-            echo "  Add --beta_number=n, the released version will be : [x].[y].[z]-beta.[n]"
-            echo "###########"
-            echo ""
-            usage;
+        echo ""
+        echo "###########"
+        echo "-s=*|--stage* is missing."
+        echo "  Add --stage=beta|rc|stable to define the release stage"
+        echo "###########"
+        echo ""
+        usage;
+fi
+
+if [ "${STAGE}" != "beta" ] && [ "${STAGE}" != "rc" ] && [ "${STAGE}" != "stable" ];
+    then
+        echo ""
+        echo "###########"
+        echo "Stage ${STAGE} is invalid."
+        echo "  Add --stage=beta|rc|stable to define the release stage"
+        echo "###########"
+        echo ""
+        usage;
+fi
+
+if [ "${STAGE}" == "beta" ] || [ "${STAGE}" == "rc" ];
+    then
+        if [ -z ${STAGE_ITERATION+x} ];
+            then
+                echo ""
+                echo "###########"
+                echo "You chose to release this version as ${STAGE}."
+                echo "--stage_iteration is missing."
+                echo "  Add -i=n|--stage_iteration=n, the released version will be : [x].[y].[z]-${STAGE}.[n]"
+                echo "###########"
+                echo ""
+                usage;
         fi
 fi
 
@@ -375,29 +397,29 @@ fi
 if [ ! -z ${ARLAS_CORE_VERS+x} ] && [ ! -z ${ARLAS_CORE_LEVEL+x} ];
     then
         echo "Release ARLAS-web-core  ${ARLAS_CORE_LEVEL} version                    : ${ARLAS_CORE_VERS}";
-        release ${ARLAS_CORE_VERS} ${ARLAS_CORE_LEVEL} "core" ${REF_BRANCH} ${ARLAS_BETA} ${BETA_NUMBER}
+        release ${ARLAS_CORE_VERS} ${ARLAS_CORE_LEVEL} "core" ${REF_BRANCH} ${STAGE} ${STAGE_ITERATION}
 fi
 
 if [ ! -z ${ARLAS_CONT_VERS+x} ] && [ ! -z ${ARLAS_CONT_LEVEL+x} ];
     then
         echo "Release ARLAS-web-contributors  ${ARLAS_CONT_VERS} version                    : ${ARLAS_CONT_LEVEL}";
-        release ${ARLAS_CONT_VERS} ${ARLAS_CONT_LEVEL} "contributors" ${REF_BRANCH} ${ARLAS_BETA} ${BETA_NUMBER}
+        release ${ARLAS_CONT_VERS} ${ARLAS_CONT_LEVEL} "contributors" ${REF_BRANCH} ${STAGE} ${STAGE_ITERATION}
 fi
 
 if [ ! -z ${ARLAS_COMP_VERS+x} ] && [ ! -z ${ARLAS_COMP_LEVEL+x} ];
     then
         echo "Release ARLAS-web-components  ${ARLAS_COMP_VERS} version                    : ${ARLAS_COMP_LEVEL}";
-        release ${ARLAS_COMP_VERS} ${ARLAS_COMP_LEVEL} "components" ${REF_BRANCH} ${ARLAS_BETA} ${BETA_NUMBER}
+        release ${ARLAS_COMP_VERS} ${ARLAS_COMP_LEVEL} "components" ${REF_BRANCH} ${STAGE} ${STAGE_ITERATION}
 fi
 
 if [ ! -z ${ARLAS_D3_VERS+x} ] && [ ! -z ${ARLAS_D3_LEVEL+x} ];
     then
         echo "Release ARLAS-d3  ${ARLAS_D3_VERS} version                    : ${ARLAS_D3_LEVEL}";
-        release ${ARLAS_D3_VERS} ${ARLAS_D3_LEVEL} "d3" ${REF_BRANCH} ${ARLAS_BETA} ${BETA_NUMBER}
+        release ${ARLAS_D3_VERS} ${ARLAS_D3_LEVEL} "d3" ${REF_BRANCH} ${STAGE} ${STAGE_ITERATION}
 fi
 
 if [ ! -z ${ARLAS_TOOL_VERS+x} ] && [ ! -z ${ARLAS_TOOL_LEVEL+x} ];
     then
         echo "Release ARLAS-wui-toolkit  ${ARLAS_TOOL_VERS} version                    : ${ARLAS_TOOL_LEVEL}";
-        release ${ARLAS_TOOL_VERS} ${ARLAS_TOOL_LEVEL} "toolkit" ${REF_BRANCH} ${ARLAS_BETA} ${BETA_NUMBER}
+        release ${ARLAS_TOOL_VERS} ${ARLAS_TOOL_LEVEL} "toolkit" ${REF_BRANCH} ${STAGE} ${STAGE_ITERATION}
 fi
