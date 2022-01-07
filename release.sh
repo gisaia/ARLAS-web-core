@@ -38,7 +38,7 @@ usage(){
 	echo " -d3|--arlas-d3    arlas-d3 version release, level of evolution"
     echo " -tool|--arlas-wui-toolkit    arlas-wui-toolkit version release, level of evolution"
     echo " -s|--stage    Stage of the release : beta | rc | stable. If --stage is 'rc' or 'beta', there is no merge of develop into master (if -ref_branch=develop)"
-    echo " -i|--stage-iteration=n, the released version will be : [x].[y].[z]-beta.[n] OR  [x].[y].[z]-rc.[n] according to the given --stage"
+    echo " -i|--stage_iteration=n, the released version will be : [x].[y].[z]-beta.[n] OR  [x].[y].[z]-rc.[n] according to the given --stage"
 	echo " -ref_branch | --reference_branch  from which branch to start the release."
     echo "    Add -ref_branch=develop for a new official release"
     echo "    Add -ref_branch=x.x.x for a maintenance release"
@@ -175,10 +175,10 @@ releaseProd(){
         cd dist
     fi
     echo "=> Publish to npm"
-    if [ "${IS_BETA}" == "true" ];
+    if [ "${STAGE_LOCAL}" == "rc" ] || ["${STAGE_LOCAL}" == "beta"];
         then
-        echo "  -- tagged as beta"
-        npm publish --tag=beta
+        echo "  -- tagged as ${STAGE_LOCAL}"
+        npm publish --tag=${STAGE_LOCAL}
     else 
         npm publish
     fi
@@ -190,7 +190,7 @@ releaseProd(){
         cd ..
     fi
     rm -rf dist
-    if [ "$BRANCH" == "develop" ] && [ "$IS_BETA" == "false" ];
+    if [ "$BRANCH" == "develop" ] && [ "$STAGE_LOCAL" == "stable" ];
         then
         echo "=> Merge develop into master"
         git checkout master
@@ -312,7 +312,7 @@ if [ "${STAGE}" == "beta" ] || [ "${STAGE}" == "rc" ];
                 echo "###########"
                 echo "You chose to release this version as ${STAGE}."
                 echo "--stage_iteration is missing."
-                echo "  Add --stage_iteration=n, the released version will be : [x].[y].[z]-${STAGE}.[n]"
+                echo "  Add -i=n|--stage_iteration=n, the released version will be : [x].[y].[z]-${STAGE}.[n]"
                 echo "###########"
                 echo ""
                 usage;
