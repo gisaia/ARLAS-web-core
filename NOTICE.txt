@@ -1,5 +1,5 @@
 ARLAS-web-core
-Copyright 2019 and onwards Gisaïa
+Copyright 2022 and onwards Gisaïa
 
 ARLAS-web-core embeds the following dependencies :
 
