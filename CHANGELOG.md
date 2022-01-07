@@ -1,5 +1,13 @@
 # Change Log
 
+## [v20.0.0-rc.1](https://github.com/gisaia/ARLAS-web-core/tree/v20.0.0-rc.1) (2022-01-07)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v20.0.0-beta.6...v20.0.0-rc.1)
+
+**Miscellaneous:**
+
+- Upgrade typescript and rxjs versions [\#156](https://github.com/gisaia/ARLAS-web-core/issues/156)
+
 ## [v20.0.0-beta.6](https://github.com/gisaia/ARLAS-web-core/tree/v20.0.0-beta.6) (2022-01-07)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v19.2.0...v20.0.0-beta.6)
