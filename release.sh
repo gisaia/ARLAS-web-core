@@ -92,7 +92,8 @@ releaseProd(){
     local BRANCH=$4
     local STAGE_LOCAL=$5
     local STAGE_ITERATION_LOCAL=$6
-    if [ "${STAGE_LOCAL}" == "rc" ] || ["${STAGE_LOCAL}" == "beta"];
+    
+    if [ "${STAGE_LOCAL}" == "rc" ] || [ "${STAGE_LOCAL}" == "beta" ];
         then
         local VERSION="${VERSION}-${STAGE_LOCAL}.${STAGE_ITERATION_LOCAL}"
     fi
@@ -175,7 +176,7 @@ releaseProd(){
         cd dist
     fi
     echo "=> Publish to npm"
-    if [ "${STAGE_LOCAL}" == "rc" ] || ["${STAGE_LOCAL}" == "beta"];
+    if [ "${STAGE_LOCAL}" == "rc" ] || [ "${STAGE_LOCAL}" == "beta" ];
         then
         echo "  -- tagged as ${STAGE_LOCAL}"
         npm publish --tag=${STAGE_LOCAL}
