@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - "10"
+  - "16"
 
 sudo: required
 
@@ -16,7 +16,7 @@ jobs:
     - before_script: npm install -g tslint typescript
       env:
         - job=lint
-      script: npm run tslint
+      script: npm run lint
     - env:
         - job=build_release
       script:

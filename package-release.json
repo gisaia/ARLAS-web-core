@@ -1,5 +1,5 @@
 {
-  "name": "***update during release***/arlas-web-core",
+  "name": "arlas-web-core",
   "version": "***update during release***",
   "description": "Core Service Library for ARLAS Web App",
   "repository": {
@@ -9,14 +9,8 @@
   "author": "gisaia-team",
   "license": "Apache-2.0",
   "dependencies": {
-    "arlas-api": "19.0.0",
-    "rxjs": "~6.5.3"
-  },
-  "devDependencies": {
-    "@types/node": "^8.0.0",
-    "rimraf": "^2.6.2",
-    "tslint": "~5.11.0",
-    "typescript": "~3.5.3"
+    "arlas-api": "20.0.0",
+    "rxjs": "~7.4.0"
   },
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-web-core/issues"

@@ -1,0 +1,12 @@
+diff --git a/node_modules/url/url.js b/node_modules/url/url.js
+index 23ac6f5..e236dd5 100644
+--- a/node_modules/url/url.js
++++ b/node_modules/url/url.js
+@@ -28,6 +28,7 @@ exports.parse = urlParse;
+ exports.resolve = urlResolve;
+ exports.resolveObject = urlResolveObject;
+ exports.format = urlFormat;
++exports.URLSearchParams = URLSearchParams;
+ 
+ exports.Url = Url;
+ 
