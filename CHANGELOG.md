@@ -1,8 +1,16 @@
 # Change Log
 
-## [v20.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v20.0.0) (2022-01-07)
+## [v20.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v20.1.0) (2022-02-01)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v20.0.0...v20.1.0)
+
+## [v20.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v20.0.0) (2022-02-01)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v20.0.0-rc.1...v20.0.0)
+
+**New stuff:**
+
+- Add a bus  \(Observable\) of global message [\#81](https://github.com/gisaia/ARLAS-web-core/issues/81)
 
 ## [v20.0.0-rc.1](https://github.com/gisaia/ARLAS-web-core/tree/v20.0.0-rc.1) (2022-01-07)
 
