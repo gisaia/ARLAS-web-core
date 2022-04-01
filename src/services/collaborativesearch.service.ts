@@ -552,6 +552,7 @@ export class CollaborativesearchService {
             queryParameters.set('dateformat', finalFilter.dateformat.toString());
 
         }
+        queryParameters.set('righthand', 'false');
         return queryParameters.toString();
     }
 
@@ -584,6 +585,7 @@ export class CollaborativesearchService {
                         }
                     });
                 }
+                filter.righthand = false;
 
             }
         });
@@ -593,6 +595,7 @@ export class CollaborativesearchService {
         if (q.length > 0) {
             finalFilter.q = q;
         }
+        finalFilter.righthand = false;
         return finalFilter;
     }
 
@@ -761,6 +764,7 @@ export class CollaborativesearchService {
     ): Observable<any> {
         const finalFilter = this.getFinalFilter(filters);
         const dateformat = finalFilter.dateformat;
+        const righthand = finalFilter.righthand;
         let aggregationRequest: AggregationsRequest;
         let aggregationsForGet: string[];
         let includes: string[] = [];
@@ -836,7 +840,7 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<AggregationResponse>>from(
                     this.exploreApi.aggregate(collection, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, max_age, fetchOptions)
+                        fForGet, qForGet, dateformat, righthand, false, isFlat, max_age, fetchOptions)
                 );
                 break;
             case projType.geoaggregate.valueOf():
@@ -847,7 +851,7 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geoaggregate(collection, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, max_age, fetchOptions)
+                        fForGet, qForGet, dateformat, righthand, false, isFlat, max_age, fetchOptions)
                 );
                 break;
             case projType.shapeaggregate.valueOf():
@@ -859,14 +863,14 @@ export class CollaborativesearchService {
                 fetchOptions.responseType = 'arraybuffer';
                 result = <Observable<ArrayBuffer>>from(
                     this.exploreApi.shapeaggregate(collection, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, max_age, fetchOptions).then(re => Promise.resolve(re.arrayBuffer()))
+                        fForGet, qForGet, dateformat, righthand, false, max_age, fetchOptions).then(re => Promise.resolve(re.arrayBuffer()))
                 );
                 break;
             case projType.shapesearch.valueOf():
                 fetchOptions.responseType = 'arraybuffer';
                 result = <Observable<ArrayBuffer>>from(
                     this.exploreApi.shapesearch(collection, fForGet, qForGet
-                        , dateformat, false, includes, excludes, returned_geometries, pageSize,
+                        , dateformat, righthand, false, includes, excludes, returned_geometries, pageSize,
                         pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions).then(re => Promise.resolve(re.arrayBuffer()))
                 );
                 break;
@@ -880,7 +884,7 @@ export class CollaborativesearchService {
                 aggregationsForGet = this.buildAggGetParam(aggregationRequest);
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geohashgeoaggregate(collection, geohash, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, max_age, fetchOptions)
+                        fForGet, qForGet, dateformat, righthand, false, isFlat, max_age, fetchOptions)
                 );
                 break;
             case projType.geotilegeoaggregate.valueOf():
@@ -895,24 +899,24 @@ export class CollaborativesearchService {
                 const zGeotile = (<GeoTileAggregation>projection[1]).z;
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geotilegeoaggregate(collection, zGeotile, xGeotile, yGeotile, aggregationsForGet,
-                        fForGet, qForGet, dateformat, false, isFlat, max_age, fetchOptions)
+                        fForGet, qForGet, dateformat, righthand, false, isFlat, max_age, fetchOptions)
                 );
                 break;
             case projType.count.valueOf():
                 result = <Observable<Hits>>from(
-                    this.exploreApi.count(collection, fForGet, qForGet, dateformat, false, max_age, fetchOptions));
+                    this.exploreApi.count(collection, fForGet, qForGet, dateformat, righthand, false, max_age, fetchOptions));
                 break;
             case projType.search.valueOf():
                 result = <Observable<Hits>>from(
                     this.exploreApi.search(collection, fForGet, qForGet
-                        , dateformat, false, flat, includes, excludes, returned_geometries, pageSize,
+                        , dateformat, righthand, false, flat, includes, excludes, returned_geometries, pageSize,
                         pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
             case projType.geosearch.valueOf():
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geosearch(collection, fForGet, qForGet
-                        , dateformat, false, flat, includes, excludes, returned_geometries, pageSize,
+                        , dateformat, righthand, false, flat, includes, excludes, returned_geometries, pageSize,
                         pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
@@ -923,7 +927,7 @@ export class CollaborativesearchService {
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.tiledgeosearch(collection, x, y, z
                         , fForGet, qForGet
-                        , dateformat, false, flat, includes, excludes, returned_geometries,
+                        , dateformat, righthand, false, flat, includes, excludes, returned_geometries,
                         pageSize, pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
@@ -932,7 +936,7 @@ export class CollaborativesearchService {
                 const metric = (<ComputationRequest>projection[1]).metric;
                 result = <Observable<ComputationResponse>>from(
                     this.exploreApi.compute(collection, field, metric.toString().toLowerCase(), fForGet,
-                        qForGet, dateformat, false, max_age, fetchOptions)
+                        qForGet, dateformat, righthand, false, max_age, fetchOptions)
                 );
                 break;
         }
