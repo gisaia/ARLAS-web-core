@@ -9,7 +9,7 @@
   "author": "gisaia-team",
   "license": "Apache-2.0",
   "dependencies": {
-    "arlas-api": "21.0.0",
+    "arlas-api": "22.0.0",
     "rxjs": "~7.4.0"
   },
   "bugs": {
