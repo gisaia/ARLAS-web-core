@@ -138,31 +138,26 @@ export abstract class Contributor {
     public abstract setSelection(data: any, c: Collaboration): any;
 
     public updateFromCollaboration(collaborationEvent: CollaborationEvent) {
-        /** avoid to launch an "Add" collaboration event if it is the same contributor */
-        const addOp = collaborationEvent.operation === OperationEnum.add && collaborationEvent.id !== this.identifier;
-        const removeOp = collaborationEvent.operation === OperationEnum.remove;
-        if (addOp || removeOp) {
-            this.collaborativeSearcheService.ongoingSubscribe.next(1);
-            this.isDataUpdating = true;
-            this.fetchData(collaborationEvent)
-                .pipe(
-                    map(f => this.computeData(f)),
-                    map(f => { this.fetchedData = f; this.setData(f); }),
-                    finalize(() => {
-                        this.setSelection(this.fetchedData, this.collaborativeSearcheService.getCollaboration(this.identifier));
-                        this.collaborativeSearcheService.contribFilterBus
-                            .next(this.collaborativeSearcheService.registry.get(this.identifier));
-                        this.collaborativeSearcheService.ongoingSubscribe.
-                            next(-1);
-                        this.isDataUpdating = false;
-                        this.endCollaborationEvent.next({});
-                    })
-                )
-                .subscribe({
-                    next: (data) => data,
-                    error: (error) => this.collaborativeSearcheService.collaborationErrorBus.next(error)
-                });
+        this.collaborativeSearcheService.ongoingSubscribe.next(1);
+        this.isDataUpdating = true;
+        this.fetchData(collaborationEvent)
+            .pipe(
+                map(f => this.computeData(f)),
+                map(f => { this.fetchedData = f; this.setData(f); }),
+                finalize(() => {
+                    this.setSelection(this.fetchedData, this.collaborativeSearcheService.getCollaboration(this.identifier));
+                    this.collaborativeSearcheService.contribFilterBus
+                        .next(this.collaborativeSearcheService.registry.get(this.identifier));
+                    this.collaborativeSearcheService.ongoingSubscribe.
+                        next(-1);
+                    this.isDataUpdating = false;
+                    this.endCollaborationEvent.next({});
+                })
+            )
+            .subscribe({
+                next: (data) => data,
+                error: (error) => this.collaborativeSearcheService.collaborationErrorBus.next(error)
+            });
 
-        }
     }
 }
