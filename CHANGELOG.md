@@ -1,6 +1,14 @@
 # Change Log
 
-## [v22.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v22.0.0) (2022-05-23)
+## [v22.0.1](https://github.com/gisaia/ARLAS-web-core/tree/v22.0.1) (2022-07-05)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v22.0.0...v22.0.1)
+
+**New stuff:**
+
+- Avoid triggering an 'Add' collaboration in the contributor that produced it [\#162](https://github.com/gisaia/ARLAS-web-core/issues/162)
+
+## [v22.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v22.0.0) (2022-05-24)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v21.0.0...v22.0.0)
 
