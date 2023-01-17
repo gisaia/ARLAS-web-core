@@ -495,7 +495,7 @@ export class CollaborativesearchService {
         this.countAll = zip(...Array.from(this.collections).map(c => {
             return this.resolveButNot([projType.count, {}], collaborations, c);
         })).pipe(map(l => {
-            return l.map(count => ({count: count.totalnb, collection: count.collection}));
+            return l.map(count => ({ count: count.totalnb, collection: count.collection }));
         }));
     }
 
@@ -934,8 +934,10 @@ export class CollaborativesearchService {
             case projType.compute.valueOf():
                 const field = (<ComputationRequest>projection[1]).field;
                 const metric = (<ComputationRequest>projection[1]).metric;
+                const precisionThreshold = (<ComputationRequest>projection[1]).precision_threshold;
+
                 result = <Observable<ComputationResponse>>from(
-                    this.exploreApi.compute(collection, field, metric.toString().toLowerCase(), fForGet,
+                    this.exploreApi.compute(collection, field, metric.toString().toLowerCase(), precisionThreshold, fForGet,
                         qForGet, dateformat, righthand, false, max_age, fetchOptions)
                 );
                 break;
@@ -966,6 +968,9 @@ export class CollaborativesearchService {
             if (agg.metrics) {
                 agg.metrics.filter((m: Metric) => (m.collect_field && m.collect_fct)).forEach(m => {
                     aggregation += ':collect_field-' + m.collect_field + ':collect_fct-' + m.collect_fct;
+                    if (!!m.precision_threshold) {
+                        aggregation += ':precision_threshold-' + m.precision_threshold;
+                    }
                 });
             }
             if (agg.order !== undefined) {
