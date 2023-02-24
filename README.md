@@ -17,7 +17,7 @@ $ npm install --save arlas-web-core
 
 ## Documentation
 
-Please find the documentation [here](http://docs.arlas.io/arlas-tech/current/classes/_src_app_services_startup_startup_service_.arlascollaborativesearchservice/)
+Please find the documentation [here](https://docs.arlas.io/classes/CollaborativesearchService/).
 
 ## Build
 
@@ -68,7 +68,7 @@ We use [SemVer](http://semver.org/) for versioning : `x.y.z`.
 
 ## Authors
 
-* **Gisaïa** - *Initial work* - [Gisaïa](http://gisaia.fr/)
+* **Gisaïa** - *Initial work* - [Gisaïa](http://gisaia.com/)
 
 See also the list of [contributors](https://github.com/gisaia/ARLAS-web-core/graphs/contributors) who participated in this project.
 
