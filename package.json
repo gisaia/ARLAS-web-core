@@ -20,6 +20,11 @@
     "patch-package": "^6.4.7",
     "rxjs": "~7.4.0"
   },
+  "overrides": {
+    "portable-fetch": {
+      "node-fetch": "3.3.0"
+    }
+  },
   "devDependencies": {
     "@types/node": "16.11.20",
     "rimraf": "^2.6.2",
