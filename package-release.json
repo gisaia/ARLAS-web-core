@@ -12,6 +12,11 @@
     "arlas-api": "23.0.9",
     "rxjs": "~7.4.0"
   },
+  "overrides": {
+    "portable-fetch": {
+      "node-fetch": "3.3.0"
+    }
+  },
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-web-core/issues"
   },
