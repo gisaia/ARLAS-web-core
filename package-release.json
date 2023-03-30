@@ -13,8 +13,10 @@
     "rxjs": "~7.4.0"
   },
   "overrides": {
-    "portable-fetch": {
-      "node-fetch": "3.3.0"
+    "arlas-api": {
+      "portable-fetch": {
+        "node-fetch": "3.3.0"
+      }
     }
   },
   "bugs": {
