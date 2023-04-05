@@ -6,7 +6,7 @@
     "build-release": "tsc -p tsconfig-build.json && cp -r patches dist/",
     "clean": "npm cache clear && rimraf -- dist",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "tslint -c tslint.json 'src/**/*.ts?(x)'",
+    "lint": "eslint . --ext .ts",
     "postinstall": "patch-package"
   },
   "repository": {
@@ -29,8 +29,10 @@
   },
   "devDependencies": {
     "@types/node": "16.11.20",
+    "@typescript-eslint/eslint-plugin": "^5.27.1",
+    "@typescript-eslint/parser": "^5.27.1",
+    "eslint": "^8.17.0",
     "rimraf": "^2.6.2",
-    "tslint": "~6.1.3",
     "typescript": "~4.6.0"
   },
   "bugs": {

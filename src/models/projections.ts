@@ -31,7 +31,7 @@ export enum projType {
   search,
   geosearch,
   tiledgeosearch,
-  /**range is deprecated and will be removed in v13.0.0 */
+  /** range is deprecated and will be removed in v13.0.0 */
   range,
   compute,
   shapesearch,

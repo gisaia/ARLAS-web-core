@@ -29,7 +29,7 @@ export class ConfigService {
     * Object which contains the configuration (json format).
     */
     private config: Object;
-    constructor() {
+    public constructor() {
     }
     /**
     * Retrieve Value from key in configuration object.
