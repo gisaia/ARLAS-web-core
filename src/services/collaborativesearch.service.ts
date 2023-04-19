@@ -87,15 +87,15 @@ export class CollaborativesearchService {
     * Configuration object of fetch call. By default all credentials are included.
     */
     private fetchOptions: {
-        credentials: string,
-        signal?: any,
-        responseType?: string,
-        referrerPolicy?: string
+        credentials: string;
+        signal?: any;
+        responseType?: string;
+        referrerPolicy?: string;
     } = {
             credentials: 'include',
             referrerPolicy: 'origin'
         };
-    constructor() {
+    public constructor() {
         /**
         * Subscribe ongoingSubscribe bus to know how many subscribe are on going.
         */
@@ -492,11 +492,11 @@ export class CollaborativesearchService {
     * Update countAll property.
     */
     public setCountAll(collaborations: Map<string, Collaboration>) {
-        this.countAll = zip(...Array.from(this.collections).map(c => {
-            return this.resolveButNot([projType.count, {}], collaborations, c);
-        })).pipe(map(l => {
-            return l.map(count => ({count: count.totalnb, collection: count.collection}));
-        }));
+        this.countAll = zip(...Array.from(this.collections).map(c =>
+            this.resolveButNot([projType.count, {}], collaborations, c)
+        )).pipe(map(l =>
+            l.map(count => ({count: count.totalnb, collection: count.collection}))
+        ));
     }
 
     /**
@@ -512,18 +512,16 @@ export class CollaborativesearchService {
         filters: Array<Filter>, max_age = this.max_age): string {
 
         const finalFilter = this.getFinalFilter(filters);
-        let aggregationRequest: AggregationsRequest;
-        let aggregationsForGet: string[];
 
         const fForGet = this.buildFilterFieldGetParam('f', finalFilter);
         const qForGet = this.buildFilterFieldGetParam('q', finalFilter);
 
         const queryParameters = new URLSearchParams();
-        aggregationRequest = <AggregationsRequest>{
+        const aggregationRequest = <AggregationsRequest>{
             filter: finalFilter,
             aggregations: projection[1]
         };
-        aggregationsForGet = this.buildAggGetParam(aggregationRequest);
+        const aggregationsForGet = this.buildAggGetParam(aggregationRequest);
 
         if (aggregationsForGet
             && (projection[0] === projType.geoaggregate
@@ -769,7 +767,7 @@ export class CollaborativesearchService {
         let aggregationsForGet: string[];
         let includes: string[] = [];
         let excludes: string[] = [];
-        let returned_geometries: string;
+        let returnedGeometries: string;
         let result;
         const fForGet = this.buildFilterFieldGetParam('f', finalFilter);
         const qForGet = this.buildFilterFieldGetParam('q', finalFilter);
@@ -794,7 +792,7 @@ export class CollaborativesearchService {
                     includes.push(search.projection.includes);
                 }
             }
-            returned_geometries = search.returned_geometries;
+            returnedGeometries = search.returned_geometries;
             const form: Form = search.form;
             const page: Page = search.page;
             if (form !== undefined) {
@@ -870,7 +868,7 @@ export class CollaborativesearchService {
                 fetchOptions.responseType = 'arraybuffer';
                 result = <Observable<ArrayBuffer>>from(
                     this.exploreApi.shapesearch(collection, fForGet, qForGet
-                        , dateformat, righthand, false, includes, excludes, returned_geometries, pageSize,
+                        , dateformat, righthand, false, includes, excludes, returnedGeometries, pageSize,
                         pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions).then(re => Promise.resolve(re.arrayBuffer()))
                 );
                 break;
@@ -909,14 +907,14 @@ export class CollaborativesearchService {
             case projType.search.valueOf():
                 result = <Observable<Hits>>from(
                     this.exploreApi.search(collection, fForGet, qForGet
-                        , dateformat, righthand, false, flat, includes, excludes, returned_geometries, pageSize,
+                        , dateformat, righthand, false, flat, includes, excludes, returnedGeometries, pageSize,
                         pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
             case projType.geosearch.valueOf():
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geosearch(collection, fForGet, qForGet
-                        , dateformat, righthand, false, flat, includes, excludes, returned_geometries, pageSize,
+                        , dateformat, righthand, false, flat, includes, excludes, returnedGeometries, pageSize,
                         pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
@@ -927,7 +925,7 @@ export class CollaborativesearchService {
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.tiledgeosearch(collection, x, y, z
                         , fForGet, qForGet
-                        , dateformat, righthand, false, flat, includes, excludes, returned_geometries,
+                        , dateformat, righthand, false, flat, includes, excludes, returnedGeometries,
                         pageSize, pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;

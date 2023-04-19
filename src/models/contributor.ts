@@ -40,7 +40,7 @@ export abstract class Contributor {
     * @param identifier  string identifier of the contributor.
     * @param configService  configService of the contributor.
     */
-    constructor(public identifier: string,
+    public constructor(public identifier: string,
         public configService: ConfigService,
         public collaborativeSearcheService: CollaborativesearchService, collection?: string) {
         if (!!collection) {
@@ -143,7 +143,9 @@ export abstract class Contributor {
         this.fetchData(collaborationEvent)
             .pipe(
                 map(f => this.computeData(f)),
-                map(f => { this.fetchedData = f; this.setData(f); }),
+                map(f => {
+                    this.fetchedData = f; this.setData(f);
+                }),
                 finalize(() => {
                     this.setSelection(this.fetchedData, this.collaborativeSearcheService.getCollaboration(this.identifier));
                     this.collaborativeSearcheService.contribFilterBus
