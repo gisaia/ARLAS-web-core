@@ -79,7 +79,8 @@ export abstract class Contributor {
                         (!this.isMyOwnCollaboration(collaborationEvent) &&
                             !this.isMyLinkedContributorCollaboration(collaborationEvent) &&
                             hasAtLeastOneCommon(cs1, cs2)
-                        );
+                        ) ||
+                        collaborationEvent.operation === OperationEnum.remove;
                     if (this._updateData && update) {
                         this.updateFromCollaboration(<CollaborationEvent>collaborationEvent);
                     }

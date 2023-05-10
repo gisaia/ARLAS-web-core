@@ -1,6 +1,6 @@
 {
   "name": "arlas-web-core",
-  "version": "24.1.0-beta.2",
+  "version": "24.2.0-dev0",
   "description": "Core Service Library for ARLAS Web App",
   "scripts": {
     "build-release": "tsc -p tsconfig-build.json && cp -r patches dist/",
