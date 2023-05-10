@@ -57,6 +57,7 @@ export abstract class Contributor {
         const configName = this.getConfigValue('name');
         const configCacheDuration = this.getConfigValue('cache_duration');
         this.cacheDuration = configCacheDuration ? configCacheDuration : this.collaborativeSearcheService.max_age;
+        this.linkedContributorId = this.getConfigValue('linked_contributor_id');
         this.name = configName ? configName : this.identifier;
         // Register the contributor in collaborativeSearcheService registry
         this.collaborativeSearcheService.register(this.identifier, this);
