@@ -88,6 +88,10 @@ export abstract class Contributor {
                         const myLinkedContribCollaboration = this.collaborativeSearcheService.getCollaboration(this.linkedContributorId);
                         this.setSelection(this.fetchedData, myLinkedContribCollaboration);
                     }
+                    if (!update && this.isMyOwnCollaboration(collaborationEvent)) {
+                        const myOwnCollaboration = this.collaborativeSearcheService.getCollaboration(this.identifier);
+                        this.setSelection(this.fetchedData, myOwnCollaboration);
+                    }
                 },
                 error: (error) => this.collaborativeSearcheService.collaborationErrorBus.next(error)}
             );

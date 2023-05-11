@@ -181,13 +181,19 @@ export class CollaborativesearchService {
     }
 
     /**
-    * Add Filter setted by a contributor in the registry of collaboration, notify the collaborationBus of a changement.
-    * @param contributorId  Sting identifier of contributor.
-    * @param collaboration  Collaboration added by the contributor.
+    * Adds the contributor's collaboration in the registry of collaborations. Notifies the collaborationBus of the changement.
+    * If the given contributor is linked to another one, the linked contributor will be assigned the same collaboration.
+    * The collaborationBus in this case doesn't need to be notified.
+    * @param contributorId identifier of contributor.
+    * @param collaboration collaboration added by the contributor.
     */
     public setFilter(contributorId: string, collaboration: Collaboration) {
+        const contributor = this.registry.get(contributorId);
         collaboration.enabled = true;
         this.collaborations.set(contributorId, collaboration);
+        if (contributor.linkedContributorId) {
+            this.collaborations.set(contributor.linkedContributorId, collaboration);
+        }
         const collaborationEvent: CollaborationEvent = {
             id: contributorId,
             operation: OperationEnum.add,
@@ -195,13 +201,26 @@ export class CollaborativesearchService {
         };
         this.collaborationBus.next(collaborationEvent);
     }
+
     /**
-    * Remove Filter from the registry of collaboration , notify the collaborationBus of a removing changement.
+    * Removes the contributor's collaboration of the registry of collaborations. Notifies the collaborationBus of the removed collaboration.
+    * If the given contributor is linked to another one, the linked contributor's collaboration will be removed as well.
+    * The collaborationBus needs to be notified of this removal as well.
     * @param contributorId  Sting identifier of contributor.
     * @param collaboration  Collaboration added by the contributor.
     */
     public removeFilter(contributorId: string) {
+        const contributor = this.registry.get(contributorId);
         this.collaborations.delete(contributorId);
+        if (contributor.linkedContributorId) {
+            this.collaborations.delete(contributor.linkedContributorId);
+            const linkedCollaborationEvent: CollaborationEvent = {
+                id: contributor.linkedContributorId,
+                operation: OperationEnum.remove,
+                all: false
+            };
+            this.collaborationBus.next(linkedCollaborationEvent);
+        }
         const collaborationEvent: CollaborationEvent = {
             id: contributorId,
             operation: OperationEnum.remove,
@@ -209,6 +228,7 @@ export class CollaborativesearchService {
         };
         this.collaborationBus.next(collaborationEvent);
     }
+
     /**
     * Remove all the collaborations filters,  notify the collaborationBus of a all removing changement.
     */
@@ -257,7 +277,7 @@ export class CollaborativesearchService {
     }
 
     /**
-    * Initialize all the contributor in the state of dataModel.
+    * Initialise all the contributors collaborations from dataModel.
     * @param dataModel
     */
     public setCollaborations(dataModel: Object) {
@@ -265,7 +285,11 @@ export class CollaborativesearchService {
         Array.from(this.registry.keys()).forEach(identifier => {
             if (dataModel[identifier] !== undefined) {
                 const collaboration: Collaboration = dataModel[identifier];
+                const contributor = this.registry.get(identifier);
                 this.collaborations.set(identifier, collaboration);
+                if (contributor.linkedContributorId) {
+                    this.collaborations.set(contributor.linkedContributorId, collaboration);
+                }
             }
         });
         const collaborationEvent: CollaborationEvent = {
@@ -623,20 +647,26 @@ export class CollaborativesearchService {
 
     /**
     * Set enabled value of a collaboration from a contributor identifier.
+    * If the given contributor is linked to another one, the linked contributor will have the same enabling value.
     * @param enabled  Enabled collaboration value.
     * @param contributorId  Contributor identifier.
     */
     private setEnable(enabled: boolean, contributorId: string) {
+        const contributor = this.registry.get(contributorId);
         const collaboration = this.collaborations.get(contributorId);
         if (collaboration) {
             collaboration.enabled = enabled;
         }
         this.collaborations.set(contributorId, collaboration);
+        if (contributor.linkedContributorId) {
+            this.collaborations.set(contributor.linkedContributorId, collaboration);
+        }
         const collaborationEvent: CollaborationEvent = {
             id: contributorId,
             operation: OperationEnum.add,
             all: true
         };
+        // Emitting the collaboration event of the contributor is enough : no need to emit the collaboration of the linked contributor.
         this.collaborationBus.next(collaborationEvent);
     }
     /**
@@ -708,7 +738,8 @@ export class CollaborativesearchService {
             const filters: Array<Filter> = new Array<Filter>();
             if (contributorId) {
                 collaborations.forEach((collab, c) => {
-                    if (c !== contributorId && collab.enabled) {
+                    const contributor = this.registry.get(contributorId);
+                    if ((c !== contributorId && c !== contributor.linkedContributorId) && collab.enabled) {
                         if (collab.filters && collab.filters.get(collection)) {
                             const collabFilters = collab.filters.get(collection);
                             if (!!collabFilters && collabFilters.length > 0) {
