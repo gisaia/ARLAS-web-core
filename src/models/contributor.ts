@@ -24,20 +24,24 @@ import { Observable, Subject } from 'rxjs';
 import { map, finalize, debounceTime } from 'rxjs/operators';
 import { CollectionAggField, hasAtLeastOneCommon as hasAtLeastOneCommon } from '../utils/utils';
 
+
 export abstract class Contributor {
 
     private name: string;
     private fetchedData: any;
     private _updateData = true;
+
     public isDataUpdating = false;
     public collection: string;
     public collections: CollectionAggField[];
     public endCollaborationEvent = new Subject();
+
+    public linkedContributorId: string;
+
     protected cacheDuration: number;
 
-
     /**
-    * @param identifier  string identifier of the contributor.
+    * @param identifier identifier of the contributor.
     * @param configService  configService of the contributor.
     */
     public constructor(public identifier: string,
@@ -53,6 +57,7 @@ export abstract class Contributor {
         const configName = this.getConfigValue('name');
         const configCacheDuration = this.getConfigValue('cache_duration');
         this.cacheDuration = configCacheDuration ? configCacheDuration : this.collaborativeSearcheService.max_age;
+        this.linkedContributorId = this.getConfigValue('linked_contributor_id');
         this.name = configName ? configName : this.identifier;
         // Register the contributor in collaborativeSearcheService registry
         this.collaborativeSearcheService.register(this.identifier, this);
@@ -67,9 +72,21 @@ export abstract class Contributor {
                     }
                     const cs1 = !!this.collections ? this.collections.map(c => c.collectionName) : [];
                     const cs2 = !!collaborationCollections ? collaborationCollections.map(c => c.collectionName) : [];
-                    const update = collaborationEvent.id === 'url' || collaborationEvent.id === 'all' || hasAtLeastOneCommon(cs1, cs2);
+                    const update =
+                        collaborationEvent.id === 'url' ||
+                        collaborationEvent.id === 'all' ||
+                        this.isUpdateEnabledOnOwnCollaboration() ||
+                        (!this.isMyOwnCollaboration(collaborationEvent) &&
+                            !this.isMyLinkedContributorCollaboration(collaborationEvent) &&
+                            hasAtLeastOneCommon(cs1, cs2)
+                        ) ||
+                        collaborationEvent.operation === OperationEnum.remove;
                     if (this._updateData && update) {
                         this.updateFromCollaboration(<CollaborationEvent>collaborationEvent);
+                    }
+                    if (!update && this.isMyLinkedContributorCollaboration(collaborationEvent)) {
+                        const myLinkedContribCollaboration = this.collaborativeSearcheService.getCollaboration(this.linkedContributorId);
+                        this.setSelection(this.fetchedData, myLinkedContribCollaboration);
                     }
                 },
                 error: (error) => this.collaborativeSearcheService.collaborationErrorBus.next(error)}
@@ -94,6 +111,18 @@ export abstract class Contributor {
         }
         return configValue;
     }
+
+    public abstract isUpdateEnabledOnOwnCollaboration(): boolean;
+
+    public isMyOwnCollaboration(collaborationEvent: CollaborationEvent): boolean {
+        return collaborationEvent.id === this.identifier;
+    }
+
+    public isMyLinkedContributorCollaboration(collaborationEvent: CollaborationEvent): boolean {
+        return collaborationEvent.id === this.linkedContributorId;
+    }
+
+
 
     /**
     * @returns  name of contributor set in configuration.
