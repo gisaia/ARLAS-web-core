@@ -1,5 +1,13 @@
 # Change Log
 
+## [v24.1.0-beta.4](https://github.com/gisaia/ARLAS-web-core/tree/v24.1.0-beta.4) (2023-05-12)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v24.1.0-beta.3...v24.1.0-beta.4)
+
+**New stuff:**
+
+- Link a contributor to a similar contributor and synchronize their selections [\#172](https://github.com/gisaia/ARLAS-web-core/issues/172)
+
 ## [v24.1.0-beta.3](https://github.com/gisaia/ARLAS-web-core/tree/v24.1.0-beta.3) (2023-05-10)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v24.1.0-beta.2...v24.1.0-beta.3)
