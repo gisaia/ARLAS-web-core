@@ -75,12 +75,10 @@ export abstract class Contributor {
                     const update =
                         collaborationEvent.id === 'url' ||
                         collaborationEvent.id === 'all' ||
-                        this.isUpdateEnabledOnOwnCollaboration() ||
-                        (!this.isMyOwnCollaboration(collaborationEvent) &&
-                            !this.isMyLinkedContributorCollaboration(collaborationEvent) &&
+                        (this.isUpdateEnabledOnOwnCollaboration() && hasAtLeastOneCommon(cs1, cs2)) ||
+                        (!this.isMyOwnCollaboration(collaborationEvent) && !this.isMyLinkedContributorCollaboration(collaborationEvent) &&
                             hasAtLeastOneCommon(cs1, cs2)
-                        ) ||
-                        collaborationEvent.operation === OperationEnum.remove;
+                        );
                     if (this._updateData && update) {
                         this.updateFromCollaboration(<CollaborationEvent>collaborationEvent);
                     }
