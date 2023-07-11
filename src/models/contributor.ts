@@ -46,12 +46,14 @@ export abstract class Contributor {
     */
     public constructor(public identifier: string,
         public configService: ConfigService,
-        public collaborativeSearcheService: CollaborativesearchService, collection?: string) {
+        public collaborativeSearcheService: CollaborativesearchService,
+        collection?: string, updateData?: boolean) {
         if (!!collection) {
             this.collection = collection;
         } else {
             this.collection = this.collaborativeSearcheService.defaultCollection;
         }
+        this._updateData = updateData !== false;
         const configDebounceTime = this.configService.getValue('arlas.server.debounceCollaborationTime');
         const debounceDuration = configDebounceTime !== undefined ? configDebounceTime : 750;
         const configName = this.getConfigValue('name');
