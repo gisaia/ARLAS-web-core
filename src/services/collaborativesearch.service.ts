@@ -899,7 +899,7 @@ export class CollaborativesearchService {
                 fetchOptions.responseType = 'arraybuffer';
                 result = <Observable<ArrayBuffer>>from(
                     this.exploreApi.shapesearch(collection, fForGet, qForGet
-                        , dateformat, righthand, false, includes, excludes, returnedGeometries, pageSize,
+                        , dateformat, righthand, false, includes.join(','), excludes.join(','), returnedGeometries, pageSize,
                         pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions).then(re => Promise.resolve(re.arrayBuffer()))
                 );
                 break;
@@ -938,14 +938,14 @@ export class CollaborativesearchService {
             case projType.search.valueOf():
                 result = <Observable<Hits>>from(
                     this.exploreApi.search(collection, fForGet, qForGet
-                        , dateformat, righthand, false, flat, includes, excludes, returnedGeometries, pageSize,
+                        , dateformat, righthand, false, flat, includes.join(','), excludes.join(','), returnedGeometries, pageSize,
                         pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
             case projType.geosearch.valueOf():
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.geosearch(collection, fForGet, qForGet
-                        , dateformat, righthand, false, flat, includes, excludes, returnedGeometries, pageSize,
+                        , dateformat, righthand, false, flat, includes.join(','), excludes.join(','), returnedGeometries, pageSize,
                         pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
@@ -956,7 +956,7 @@ export class CollaborativesearchService {
                 result = <Observable<FeatureCollection>>from(
                     this.exploreApi.tiledgeosearch(collection, x, y, z
                         , fForGet, qForGet
-                        , dateformat, righthand, false, flat, includes, excludes, returnedGeometries,
+                        , dateformat, righthand, false, flat, includes.join(','), excludes.join(','), returnedGeometries,
                         pageSize, pageFrom, pageSort, pageAfter, pageBefore, max_age, fetchOptions)
                 );
                 break;
