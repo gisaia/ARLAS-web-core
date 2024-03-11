@@ -9,15 +9,8 @@
   "author": "gisaia-team",
   "license": "Apache-2.0",
   "dependencies": {
-    "arlas-api": "25.0.0-beta.1",
+    "arlas-api": "25.0.0-beta.2",
     "rxjs": "~7.4.0"
-  },
-  "overrides": {
-    "arlas-api": {
-      "portable-fetch": {
-        "node-fetch": "3.3.0"
-      }
-    }
   },
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-web-core/issues"
