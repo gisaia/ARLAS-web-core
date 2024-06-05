@@ -19,7 +19,7 @@
 
 import { ConfigService } from '../services/config.service';
 import { CollaborativesearchService } from '../services/collaborativesearch.service';
-import { CollaborationEvent, Collaboration, OperationEnum } from './collaboration';
+import { CollaborationEvent, Collaboration } from './collaboration';
 import { Observable, Subject } from 'rxjs';
 import { map, finalize, debounceTime } from 'rxjs/operators';
 import { CollectionAggField, hasAtLeastOneCommon as hasAtLeastOneCommon } from '../utils/utils';
@@ -34,7 +34,7 @@ export abstract class Contributor {
     public isDataUpdating = false;
     public collection: string;
     public collections: CollectionAggField[];
-    public endCollaborationEvent = new Subject();
+    public endCollaborationEvent = new Subject<CollaborationEvent>();
 
     public linkedContributorId: string;
 
@@ -42,7 +42,9 @@ export abstract class Contributor {
 
     /**
     * @param identifier identifier of the contributor.
-    * @param configService  configService of the contributor.
+    * @param configService Service to fetch the configuration of the contributor
+    * @param collaborativeSearcheService Service managing the collaborations between contributors
+    * @param collection Name of the collection of the contributor
     */
     public constructor(public identifier: string,
         public configService: ConfigService,
@@ -80,7 +82,7 @@ export abstract class Contributor {
                             hasAtLeastOneCommon(cs1, cs2)
                         );
                     if (this._updateData && update) {
-                        this.updateFromCollaboration(<CollaborationEvent>collaborationEvent);
+                        this.updateFromCollaboration(collaborationEvent);
                     }
                     if (!update && this.isMyLinkedContributorCollaboration(collaborationEvent)) {
                         const myLinkedContribCollaboration = this.collaborativeSearcheService.getCollaboration(this.linkedContributorId);
@@ -184,7 +186,7 @@ export abstract class Contributor {
                     this.collaborativeSearcheService.ongoingSubscribe.
                         next(-1);
                     this.isDataUpdating = false;
-                    this.endCollaborationEvent.next({});
+                    this.endCollaborationEvent.next(collaborationEvent);
                 })
             )
             .subscribe({
