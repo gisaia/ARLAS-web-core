@@ -1,0 +1,3 @@
+libId,version,moduleUrl,moduleLicense,description
+"arlas-api","24.0.0","","UNKNOWN","ARLAS Api."
+"patch-package","6.5.1","github:ds300/patch-package","MIT","Fix broken node modules with no fuss"
