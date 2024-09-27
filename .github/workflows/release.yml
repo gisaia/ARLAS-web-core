@@ -23,7 +23,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4.1.4
+    - uses: actions/setup-node@v4
+      with:
+        registry-url: 'https://registry.npmjs.org'
     - name: Extract branch name
       shell: bash
       run: echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
