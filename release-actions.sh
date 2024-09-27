@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e
 
-npmlogin=`npm whoami`
-if  [ -z "$npmlogin"  ] ; then echo "your are not logged on npm"; exit -1; else  echo "logged as "$npmlogin ; fi
-
 usage(){
 	echo "Usage: ./release.sh -version='1.0.0' -ref_branch=develop --stage=beta|rc|stable"
 	echo " -version     arlas-web-core version release,level of evolution"
@@ -42,12 +39,14 @@ releaseProd(){
 
     echo "=> Tag version $VERSION"
     git add .
+    git config --local user.email "github-actions[bot]@users.noreply.github.com"
+    git config --local user.name "github-actions[bot]"
     commit_message_release="Release prod version $VERSION"
     git tag -a v"$VERSION" -m "$commit_message_release"
     git push origin v"$VERSION"
 
     echo "=> Generate CHANGELOG"
-    docker run -it --rm -v "$(pwd)":/usr/local/src/your-app gisaia/github-changelog-generator:latest github_changelog_generator \
+    docker run --rm -v "$(pwd)":/usr/local/src/your-app gisaia/github-changelog-generator:latest github_changelog_generator \
       -u gisaia -p ARLAS-web-core --token ${GITHUB_CHANGELOG_TOKEN} --no-pr-wo-labels --no-issues-wo-labels --no-unreleased \
       --issue-line-labels conf,documentation,CI,ALL,DONUT,RESULTLIST,POWERBARS,HISTOGRAM,MAP \
       --exclude-labels type:duplicate,type:question,type:wontfix,type:invalid \
