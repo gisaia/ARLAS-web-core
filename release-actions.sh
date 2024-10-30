@@ -27,6 +27,7 @@ releaseProd(){
     fi
 
     echo "=> Get "$BRANCH" branch of ARLAS-web-core project"
+    git fetch
     git checkout "$BRANCH"
     git pull origin "$BRANCH"
     echo "=> Test to lint and build the project on "$BRANCH" branch"
