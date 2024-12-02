@@ -1,9 +1,9 @@
 {
   "name": "arlas-web-core",
-  "version": "26.0.1-beta.1",
+  "version": "27.1.0-dev0",
   "description": "Core Service Library for ARLAS Web App",
   "scripts": {
-    "build-release": "tsc -p tsconfig-build.json && cp -r patches dist/",
+    "build-release": "tsc -p tsconfig.json && cp -r patches dist/",
     "clean": "npm cache clear && rimraf -- dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts",
@@ -22,19 +22,20 @@
     "rxjs": "~7.4.0"
   },
   "devDependencies": {
-    "@types/node": "16.11.20",
+    "@types/node": "^18.19.0",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
     "eslint": "^8.17.0",
     "license-check-and-add": "^4.0.5",
+    "node": "^18.19.0",
     "rimraf": "^2.6.2",
-    "typescript": "~4.6.0"
+    "typescript": "~4.8.2"
   },
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-web-core/issues"
   },
   "homepage": "https://github.com/gisaia/ARLAS-web-core/blob/master/README.md",
   "overrides": {
-    "braces": "3.0.3"
+    "cross-spawn": "~7.0.5"
   }
 }
