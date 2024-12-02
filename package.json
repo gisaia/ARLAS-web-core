@@ -3,7 +3,7 @@
   "version": "27.1.0-dev0",
   "description": "Core Service Library for ARLAS Web App",
   "scripts": {
-    "build-release": "tsc -p tsconfig-build.json && cp -r patches dist/",
+    "build-release": "tsc -p tsconfig.json && cp -r patches dist/",
     "clean": "npm cache clear && rimraf -- dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts",
