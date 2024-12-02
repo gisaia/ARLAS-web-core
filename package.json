@@ -36,6 +36,6 @@
   },
   "homepage": "https://github.com/gisaia/ARLAS-web-core/blob/master/README.md",
   "overrides": {
-    "braces": "3.0.3"
+    "cross-spawn": "~7.0.5"
   }
 }
