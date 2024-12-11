@@ -10,7 +10,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "arlas-api": "26.0.0",
-    "rxjs": "~7.4.0"
+    "rxjs": "^7.4.0"
   },
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-web-core/issues"
