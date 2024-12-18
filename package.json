@@ -19,17 +19,17 @@
   "dependencies": {
     "arlas-api": "26.0.0",
     "patch-package": "^6.4.7",
-    "rxjs": "~7.4.0"
+    "rxjs": "^7.4.0"
   },
   "devDependencies": {
-    "@types/node": "^18.19.0",
-    "@typescript-eslint/eslint-plugin": "^5.27.1",
-    "@typescript-eslint/parser": "^5.27.1",
-    "eslint": "^8.17.0",
+    "@types/node": "^18.19.1",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "eslint": "^8.57.0",
     "license-check-and-add": "^4.0.5",
     "node": "^18.19.0",
     "rimraf": "^2.6.2",
-    "typescript": "~4.8.2"
+    "typescript": "~5.4.0"
   },
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-web-core/issues"
