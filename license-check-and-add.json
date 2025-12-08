@@ -1,14 +1,35 @@
 {
-    "ignore": [".github/**", ".git/**", "e2e/**", "*", "*.yml", "**/*.md", "**/*.svg", "**/*.spec.ts", "**/*.html", "**/*.woff2", "src/test.ts", "**/.DS_Store", "**/.gitkeep", "patches/*", "**/*.xml", "**/*.csv"],
-    "license": "LICENSE",
-    "trailingWhitespace": "TRIM",
-    "licenseFormats": {
-        "ts|js|css|scss": {
-            "prepend": "/*",
-            "append": " */",
-            "eachLine": {
-                "prepend": " * "
-            }
-        }
+  "ignore": [
+    ".github/**",
+    ".git/**",
+    "e2e/**",
+    "*",
+    "*.yml",
+    "**/*.md",
+    "**/*.svg",
+    "**/*.spec.ts",
+    "**/*.html",
+    "**/*.woff2",
+    "src/test.ts",
+    "**/.DS_Store",
+    "**/.gitkeep",
+    "patches/*",
+    "**/*.xml",
+    "**/*.csv"
+  ],
+  "license": "LICENSE",
+  "trailingWhitespace": "TRIM",
+  "defaultFormat": {
+    "prepend": "/*",
+    "append": "*/"
+  },
+  "licenseFormats": {
+    "ts|js|css|scss": {
+      "prepend": "/*",
+      "append": " */",
+      "eachLine": {
+        "prepend": " * "
+      }
     }
+  }
 }
