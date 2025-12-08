@@ -22,10 +22,12 @@
     "rxjs": "^7.4.0"
   },
   "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.6.1",
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.48.1",
     "@typescript-eslint/parser": "^8.48.1",
     "eslint": "^9.39.1",
+    "globals": "^16.5.0",
     "license-check-and-add": "^4.0.5",
     "node": "^24.10.1",
     "typescript": "~5.8.0"

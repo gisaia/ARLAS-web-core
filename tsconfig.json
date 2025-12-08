@@ -12,6 +12,7 @@
     "experimentalDecorators": true,
     "stripInternal": true,
     "skipLibCheck": true,
+    "allowJs": true,
     "typeRoots": [
       "node_modules/@types"
     ],
@@ -26,7 +27,8 @@
     "src/index.ts"
   ],
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "eslint.config.mjs"
   ],
   "exclude": [
     "node_modules",
