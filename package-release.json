@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-web-core/issues"
   },
-  "homepage": "https://github.com/gisaia/ARLAS-web-core/blob/master/README.md"
+  "homepage": "https://github.com/gisaia/ARLAS-web-core/blob/master/README.md",
+  "overrides": {
+    "license-check-and-add": {
+      "globby": "^11.0.0"
+    }
+  }
 }
