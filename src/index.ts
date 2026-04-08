@@ -1,4 +1,3 @@
-import { GeoTileAggregation } from './models/projections';
 /*
  * Licensed to Gisaïa under one or more contributor
  * license agreements. See the NOTICE.txt file distributed with
@@ -18,11 +17,10 @@ import { GeoTileAggregation } from './models/projections';
  * under the License.
  */
 
+export { Collaboration, CollaborationEvent, FilterOnCollection, OperationEnum } from './models/collaboration';
+export { Contributor } from './models/contributor';
+export { GeohashAggregation, GeoTileAggregation, projType, TiledSearch } from './models/projections';
 export { CollaborativesearchService } from './services/collaborativesearch.service';
 export { ConfigService } from './services/config.service';
-export { projType, TiledSearch, GeohashAggregation, GeoTileAggregation } from './models/projections';
-export { Contributor } from './models/contributor';
-export { Collaboration, OperationEnum, CollaborationEvent } from './models/collaboration';
-export { fromEntries, CollectionCount, CollectionAggField } from './utils/utils';
-
+export { CollectionAggField, CollectionCount, fromEntries } from './utils/utils';
 
