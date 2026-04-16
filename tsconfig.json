@@ -5,21 +5,16 @@
     "baseUrl": "src",
     "sourceMap": true,
     "declaration": true,
-    "target": "es6",
-    "module": "es2015",
+    "target": "esnext",
+    "module": "esnext",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "stripInternal": true,
     "skipLibCheck": true,
     "allowJs": true,
-    "typeRoots": [
-      "node_modules/@types"
-    ],
     "lib": [
-      "es2015",
-      "es6",
-      "es2019",
+      "esnext",
       "dom"
     ]
   },
@@ -34,5 +29,9 @@
     "node_modules",
     "dist",
     "eslint.config.mjs"
-  ]
+  ],
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": false
+  }
 }

@@ -9,16 +9,11 @@
   "author": "gisaia-team",
   "license": "Apache-2.0",
   "dependencies": {
-    "arlas-api": "27.0.0",
+    "arlas-api": "28.0.0-rc.1",
     "rxjs": "^7.4.0"
   },
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-web-core/issues"
   },
-  "homepage": "https://github.com/gisaia/ARLAS-web-core/blob/master/README.md",
-  "overrides": {
-    "license-check-and-add": {
-      "globby": "^11.0.0"
-    }
-  }
+  "homepage": "https://github.com/gisaia/ARLAS-web-core/blob/master/README.md"
 }
