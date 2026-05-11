@@ -28,20 +28,18 @@ export class ConfigService {
     /**
     * Object which contains the configuration (json format).
     */
-    private config: Object;
-    public constructor() {
-    }
+    private config?: Object;
+
     /**
     * Retrieve Value from key in configuration object.
     * @returns configuration value
     */
     public getValue(key: string): any {
-        const conf = this.config;
-        const value = getObject(conf, 'conf.' + key);
-        if (value !== null) {
-            return getObject(conf, 'conf.' + key);
-        } else {
+        const value = getObject(this.config, 'conf.' + key);
+        if (value === null) {
             this.errorCallBack(key);
+        } else {
+            return value;
         }
     }
     /**
@@ -54,7 +52,7 @@ export class ConfigService {
     * Get configuration object.
     * @returns configuration Object
     */
-    public getConfig(): Object {
+    public getConfig(): Object | undefined {
         return this.config;
     }
     /**

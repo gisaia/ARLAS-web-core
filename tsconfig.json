@@ -13,6 +13,7 @@
     "stripInternal": true,
     "skipLibCheck": true,
     "allowJs": true,
+    "strict": true,
     "lib": [
       "esnext",
       "dom"

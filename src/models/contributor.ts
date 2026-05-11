@@ -17,12 +17,12 @@
  * under the License.
  */
 
-import { ConfigService } from '../services/config.service';
-import { CollaborativesearchService } from '../services/collaborativesearch.service';
-import { CollaborationEvent, Collaboration } from './collaboration';
 import { Observable, Subject } from 'rxjs';
-import { map, finalize, debounceTime } from 'rxjs/operators';
-import { CollectionAggField, hasAtLeastOneCommon as hasAtLeastOneCommon } from '../utils/utils';
+import { debounceTime, finalize, map } from 'rxjs/operators';
+import { CollaborativesearchService } from '../services/collaborativesearch.service';
+import { ConfigService } from '../services/config.service';
+import { CollectionAggField, hasAtLeastOneCommon } from '../utils/utils';
+import { Collaboration, CollaborationEvent } from './collaboration';
 
 
 export abstract class Contributor {
@@ -33,7 +33,7 @@ export abstract class Contributor {
 
     public isDataUpdating = false;
     public collection: string;
-    public collections: CollectionAggField[];
+    public collections: CollectionAggField[] = [];
     public endCollaborationEvent = new Subject<CollaborationEvent>();
 
     public linkedContributorId: string;
@@ -48,19 +48,16 @@ export abstract class Contributor {
     */
     public constructor(public identifier: string,
         public configService: ConfigService,
-        public collaborativeSearcheService: CollaborativesearchService, collection?: string) {
-        if (!!collection) {
-            this.collection = collection;
-        } else {
-            this.collection = this.collaborativeSearcheService.defaultCollection;
-        }
+        public collaborativeSearcheService: CollaborativesearchService, collection?: string
+    ) {
+        this.collection = collection || this.collaborativeSearcheService.defaultCollection;
         const configDebounceTime = this.configService.getValue('arlas.server.debounceCollaborationTime');
-        const debounceDuration = configDebounceTime !== undefined ? configDebounceTime : 750;
+        const debounceDuration = configDebounceTime === undefined ? 750 : configDebounceTime;
         const configName = this.getConfigValue('name');
         const configCacheDuration = this.getConfigValue('cache_duration');
         this.cacheDuration = configCacheDuration ? configCacheDuration : this.collaborativeSearcheService.max_age;
         this.linkedContributorId = this.getConfigValue('linked_contributor_id');
-        this.name = configName ? configName : this.identifier;
+        this.name = configName || this.identifier;
         // Register the contributor in collaborativeSearcheService registry
         this.collaborativeSearcheService.register(this.identifier, this);
         // Subscribe a bus to update data and selection
@@ -68,12 +65,13 @@ export abstract class Contributor {
             .subscribe({
                 next: (collaborationEvent) => {
                     // Update only contributor of same collection that the current collaboration or on the init whit the url
-                    let collaborationCollections;
-                    if (!!this.collaborativeSearcheService.registry.get(collaborationEvent.id)) {
-                        collaborationCollections = this.collaborativeSearcheService.registry.get(collaborationEvent.id).collections;
+                    let collaborationCollections: CollectionAggField[] = [];
+                    const collaboration = this.collaborativeSearcheService.registry.get(collaborationEvent.id);
+                    if (collaboration) {
+                        collaborationCollections = collaboration.collections;
                     }
-                    const cs1 = !!this.collections ? this.collections.map(c => c.collectionName) : [];
-                    const cs2 = !!collaborationCollections ? collaborationCollections.map(c => c.collectionName) : [];
+                    const cs1 = this.collections.map(c => c.collectionName);
+                    const cs2 = collaborationCollections.map(c => c.collectionName);
                     const update =
                         collaborationEvent.id === 'url' ||
                         collaborationEvent.id === 'all' ||
@@ -86,11 +84,15 @@ export abstract class Contributor {
                     }
                     if (!update && this.isMyLinkedContributorCollaboration(collaborationEvent)) {
                         const myLinkedContribCollaboration = this.collaborativeSearcheService.getCollaboration(this.linkedContributorId);
-                        this.setSelection(this.fetchedData, myLinkedContribCollaboration);
+                        if (myLinkedContribCollaboration) {
+                            this.setSelection(this.fetchedData, myLinkedContribCollaboration);
+                        }
                     }
                     if (!update && this.isMyOwnCollaboration(collaborationEvent)) {
                         const myOwnCollaboration = this.collaborativeSearcheService.getCollaboration(this.identifier);
-                        this.setSelection(this.fetchedData, myOwnCollaboration);
+                        if (myOwnCollaboration) {
+                            this.setSelection(this.fetchedData, myOwnCollaboration);
+                        }
                     }
                 },
                 error: (error) => this.collaborativeSearcheService.collaborationErrorBus.next(error)}
@@ -108,7 +110,7 @@ export abstract class Contributor {
     public getConfigValue(key: string): any {
         let configValue = null;
         const contributor = this.configService.getValue('arlas.web.contributors').find(
-            contrib => contrib.identifier === this.identifier
+            (contrib: any) => contrib.identifier === this.identifier
         );
         if (contributor) {
             configValue = contributor[key];
@@ -125,8 +127,6 @@ export abstract class Contributor {
     public isMyLinkedContributorCollaboration(collaborationEvent: CollaborationEvent): boolean {
         return collaborationEvent.id === this.linkedContributorId;
     }
-
-
 
     /**
     * @returns  name of contributor set in configuration.
@@ -177,12 +177,20 @@ export abstract class Contributor {
             .pipe(
                 map(f => this.computeData(f)),
                 map(f => {
-                    this.fetchedData = f; this.setData(f);
+                    this.fetchedData = f;
+                    this.setData(f);
                 }),
                 finalize(() => {
-                    this.setSelection(this.fetchedData, this.collaborativeSearcheService.getCollaboration(this.identifier));
-                    this.collaborativeSearcheService.contribFilterBus
-                        .next(this.collaborativeSearcheService.registry.get(this.identifier));
+                    const collaboration = this.collaborativeSearcheService.getCollaboration(this.identifier);
+                    if (collaboration) {
+                        this.setSelection(this.fetchedData, collaboration);
+                    }
+
+                    const contributor = this.collaborativeSearcheService.registry.get(this.identifier);
+                    if (contributor) {
+                        this.collaborativeSearcheService.contribFilterBus.next(contributor);
+                    }
+
                     this.collaborativeSearcheService.ongoingSubscribe.
                         next(-1);
                     this.isDataUpdating = false;
