@@ -28,6 +28,13 @@ import { GeoTileAggregation, GeohashAggregation, TiledSearch, projType } from '.
 import { CollectionCount, fromEntries } from '../utils/utils';
 import { ConfigService } from './config.service';
 
+export interface FetchOptions {
+    credentials: string;
+    signal?: AbortSignal;
+    responseType?: string;
+    referrerPolicy?: string;
+}
+
 export class CollaborativesearchService {
     /**
     * Bus of CollaborationEvent.
@@ -61,7 +68,7 @@ export class CollaborativesearchService {
     /**
     * Number of entity return by the collaborativesearchService at any time
     */
-    public countAll: Observable<CollectionCount[]> = of([])
+    public countAll: Observable<CollectionCount[]> = of([]);
     /**
     * Bus number of ongoing subscribe to the collaborativesearchService
     */
@@ -85,15 +92,10 @@ export class CollaborativesearchService {
     /**
     * Configuration object of fetch call. By default all credentials are included.
     */
-    private fetchOptions: {
-        credentials: string;
-        signal?: any;
-        responseType?: string;
-        referrerPolicy?: string;
-    } = {
-            credentials: 'include',
-            referrerPolicy: 'origin'
-        };
+    private fetchOptions: FetchOptions = {
+        credentials: 'include',
+        referrerPolicy: 'origin'
+    };
 
     public constructor() {
         /**

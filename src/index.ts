@@ -20,7 +20,7 @@
 export { Collaboration, CollaborationEvent, FilterOnCollection, OperationEnum } from './models/collaboration';
 export { Contributor } from './models/contributor';
 export { GeohashAggregation, GeoTileAggregation, projType, TiledSearch } from './models/projections';
-export { CollaborativesearchService } from './services/collaborativesearch.service';
+export { CollaborativesearchService, FetchOptions } from './services/collaborativesearch.service';
 export { ConfigService } from './services/config.service';
 export { CollectionAggField, CollectionCount, fromEntries } from './utils/utils';
 
