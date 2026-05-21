@@ -1,5 +1,9 @@
 # Change Log
 
+## [v28.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v28.0.0) (2026-05-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v28.0.0-rc.2...v28.0.0)
+
 ## [v28.0.0-rc.2](https://github.com/gisaia/ARLAS-web-core/tree/v28.0.0-rc.2) (2026-04-16)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v28.0.0-rc.1...v28.0.0-rc.2)
