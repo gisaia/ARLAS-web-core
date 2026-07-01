@@ -39,12 +39,12 @@ export class CollaborativesearchService {
     /**
     * Bus of CollaborationEvent.
     */
-    public collaborationBus: Subject<CollaborationEvent> = new Subject<CollaborationEvent>();
+    public collaborationBus = new Subject<CollaborationEvent>();
 
     /**
     * Bus of CollaborationEvent.
     */
-    public contribFilterBus: Subject<Contributor> = new Subject<Contributor>();
+    public contribFilterBus = new Subject<Contributor<unknown>>();
     /**
     * Registry of Collaborations, Map of contributor identifier,Collaboration.
     */
@@ -52,7 +52,7 @@ export class CollaborativesearchService {
     /**
     * Registry of Contributor, Map of contributor identifier,Contributor.
     */
-    public registry = new Map<string, Contributor>();
+    public registry = new Map<string, Contributor<unknown>>();
     /**
     * ARLAS SERVER collection used by default by the contributors.
     */
@@ -129,7 +129,7 @@ export class CollaborativesearchService {
     * Set the fetch options.
     * @param fetchOptions : Object.
     */
-    public setFetchOptions(fetchOptions: any) {
+    public setFetchOptions(fetchOptions: FetchOptions) {
         this.fetchOptions = fetchOptions;
     }
     /**
@@ -166,7 +166,7 @@ export class CollaborativesearchService {
     /**
     *  Register contributor with its identifier in the map contributor registry.
     */
-    public register(identifier: string, contributor: Contributor): void {
+    public register(identifier: string, contributor: Contributor<unknown>): void {
         this.registry.set(identifier, contributor);
         this.registerCollections(contributor);
     }
@@ -174,7 +174,7 @@ export class CollaborativesearchService {
     /**
     *  Register collections of the given contributor in a collections registry.
     */
-    public registerCollections(contributor: Contributor) {
+    public registerCollections(contributor: Contributor<unknown>) {
         if (contributor.collections) {
             contributor.collections.forEach(cf => {
                 this.collections.add(cf.collectionName);

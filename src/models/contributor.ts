@@ -25,10 +25,10 @@ import { CollectionAggField, hasAtLeastOneCommon } from '../utils/utils';
 import { Collaboration, CollaborationEvent } from './collaboration';
 
 
-export abstract class Contributor {
+export abstract class Contributor<Data> {
 
     private name: string;
-    private fetchedData: any;
+    private fetchedData?: Data;
     private _updateData = true;
 
     public isDataUpdating = false;
@@ -46,9 +46,11 @@ export abstract class Contributor {
     * @param collaborativeSearcheService Service managing the collaborations between contributors
     * @param collection Name of the collection of the contributor
     */
-    public constructor(public identifier: string,
+    public constructor(
+        public identifier: string,
         public configService: ConfigService,
-        public collaborativeSearcheService: CollaborativesearchService, collection?: string
+        public collaborativeSearcheService: CollaborativesearchService,
+        collection?: string
     ) {
         this.collection = collection || this.collaborativeSearcheService.defaultCollection;
         const configDebounceTime = this.configService.getValue('arlas.server.debounceCollaborationTime');
@@ -162,13 +164,13 @@ export abstract class Contributor {
     */
     public abstract getFilterDisplayName(): string;
 
-    public abstract fetchData(collaborationEvent: CollaborationEvent): Observable<any>;
+    public abstract fetchData(collaborationEvent: CollaborationEvent): Observable<Data>;
 
-    public abstract computeData(data: any): any;
+    public abstract computeData(data: Data): Data;
 
-    public abstract setData(data: any): any;
+    public abstract setData(data: Data): void;
 
-    public abstract setSelection(data: any, c: Collaboration): any;
+    public abstract setSelection(data: Data | undefined, c: Collaboration): void;
 
     public updateFromCollaboration(collaborationEvent: CollaborationEvent) {
         this.collaborativeSearcheService.ongoingSubscribe.next(1);
