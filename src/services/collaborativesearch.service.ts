@@ -20,8 +20,7 @@ import {
     Aggregation, AggregationResponse, AggregationsRequest, CollectionReferenceDescription, ComputationRequest,
     ComputationResponse, Count, ExploreApi, Expression, FeatureCollection, Filter, Hits, Metric, Search
 } from 'arlas-api';
-import { Observable, Subject, from, of, throwError, zip } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subject, from, map, of, throwError, zip } from 'rxjs';
 import { Collaboration, CollaborationEvent, OperationEnum } from '../models/collaboration';
 import { Contributor } from '../models/contributor';
 import { GeoTileAggregation, GeohashAggregation, TiledSearch, projType } from '../models/projections';

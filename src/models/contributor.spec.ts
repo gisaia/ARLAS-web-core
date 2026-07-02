@@ -1,66 +1,19 @@
-import { of, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CollaborativesearchService } from '../services/collaborativesearch.service';
 import { ConfigService } from '../services/config.service';
-import { Collaboration, CollaborationEvent, OperationEnum } from './collaboration';
-import { Contributor } from './contributor';
-
-class TestContributor extends Contributor<null> {
-  public getPackageName(): string {
-    return 'test';
-  }
-  public isUpdateEnabledOnOwnCollaboration(): boolean {
-    return true;
-  }
-  public getFilterDisplayName(): string {
-    return 'test';
-  }
-  public fetchData() {
-    return of(null);
-  }
-  public computeData(data: null) {
-    return data;
-  }
-  public setData(data: null): void {
-    // noop
-  }
-  public setSelection(data: null | undefined, c: Collaboration): void {
-    // noop
-  }
-}
+import { configFor, createContributor } from '../tests/helpers';
+import { OTHER_COLLECTION, OTHER_CONTRIBUTOR_ID, TEST_CONTRIBUTOR_ID, TestContributor } from '../tests/mock.contributor';
+import { CollaborationEvent, OperationEnum } from './collaboration';
 
 function eventWithId(id: string): CollaborationEvent {
   return { id, operation: OperationEnum.add, all: id === 'all' };
 }
 
-const TEST_CONTRIBUTOR_ID = 'test-contributor';
-const TEST_COLLECTION = 'myCollection';
-
-const OTHER_CONTRIBUTOR_ID = 'other-contributor';
-const OTHER_COLLECTION = 'otherCollection';
-
 describe('Contributor', () => {
     let collaborativeSearchService: CollaborativesearchService;
     let configService: ConfigService;
     let contributor: TestContributor;
-
-    function createContributor(identifier = TEST_CONTRIBUTOR_ID, collection = TEST_COLLECTION): TestContributor {
-        const contributor = new TestContributor(identifier, configService, collaborativeSearchService);
-        contributor.collections = [{ collectionName: collection }];
-        collaborativeSearchService.registry.set(identifier, contributor);
-        return contributor;
-    }
-
-    function configFor(...identifiers: string[]) {
-        configService.setConfig({
-            arlas: {
-                server: { debounceCollaborationTime: 0 },
-                web: {
-                    contributors: identifiers.map(id => ({ identifier: id, name: id })),
-                },
-            },
-        });
-    }
 
     function checkUpdateFromCollaboration(eventId: string, shouldUpdate: boolean) {
         const spy = vi.spyOn(contributor, 'updateFromCollaboration');
@@ -86,8 +39,8 @@ describe('Contributor', () => {
         vi.useFakeTimers();
         collaborativeSearchService = new CollaborativesearchService();
         configService = new ConfigService();
-        configFor(TEST_CONTRIBUTOR_ID);
-        contributor = createContributor();
+        configFor(configService, TEST_CONTRIBUTOR_ID);
+        contributor = createContributor(collaborativeSearchService, configService);
     });
 
     afterEach(() => {
@@ -108,14 +61,14 @@ describe('Contributor', () => {
         });
 
         it('Collaboration from same collection', () => {
-            configFor(TEST_CONTRIBUTOR_ID, OTHER_CONTRIBUTOR_ID);
-            createContributor(OTHER_CONTRIBUTOR_ID);
+            configFor(configService, TEST_CONTRIBUTOR_ID, OTHER_CONTRIBUTOR_ID);
+            createContributor(collaborativeSearchService, configService, OTHER_CONTRIBUTOR_ID);
             checkUpdateFromCollaboration(OTHER_CONTRIBUTOR_ID, true);
         });
 
         it('Collaboration from different collections', () => {
-            configFor(TEST_CONTRIBUTOR_ID, OTHER_CONTRIBUTOR_ID);
-            const otherContributor = createContributor(OTHER_CONTRIBUTOR_ID, OTHER_COLLECTION);
+            configFor(configService, TEST_CONTRIBUTOR_ID, OTHER_CONTRIBUTOR_ID);
+            const otherContributor = createContributor(collaborativeSearchService, configService, OTHER_CONTRIBUTOR_ID, OTHER_COLLECTION);
             vi.spyOn(otherContributor, 'isUpdateEnabledOnOwnCollaboration').mockReturnValue(false);
 
             checkUpdateFromCollaboration(OTHER_CONTRIBUTOR_ID, false);
@@ -134,8 +87,8 @@ describe('Contributor', () => {
         })
 
         it('Collaboration from linked contributor', () => {
-            configFor(TEST_CONTRIBUTOR_ID, OTHER_CONTRIBUTOR_ID);
-            createContributor(OTHER_CONTRIBUTOR_ID);
+            configFor(configService, TEST_CONTRIBUTOR_ID, OTHER_CONTRIBUTOR_ID);
+            createContributor(collaborativeSearchService, configService, OTHER_CONTRIBUTOR_ID);
             contributor.linkedContributorId = OTHER_CONTRIBUTOR_ID;
 
             checkUpdateFromCollaboration(OTHER_CONTRIBUTOR_ID, true);

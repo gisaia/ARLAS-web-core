@@ -7,7 +7,7 @@
     "declaration": true,
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "stripInternal": true,
@@ -23,13 +23,14 @@
     "src/index.ts"
   ],
   "include": [
-    "src/**/*",
-    "eslint.config.mjs"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "eslint.config.mjs"
+    "eslint.config.mjs",
+    "src/tests/*",
+    "src/**/*.spec.ts"
   ],
   "tsc-alias": {
     "resolveFullPaths": true,
