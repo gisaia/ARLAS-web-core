@@ -8,7 +8,7 @@ export const TEST_COLLECTION = 'myCollection';
 export const OTHER_CONTRIBUTOR_ID = 'other-contributor';
 export const OTHER_COLLECTION = 'otherCollection';
 
-export class TestContributor extends Contributor<null> {
+export class TestContributor extends Contributor {
   public getPackageName(): string {
     return 'test';
   }

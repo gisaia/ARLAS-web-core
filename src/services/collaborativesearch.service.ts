@@ -32,6 +32,7 @@ export interface FetchOptions {
     signal?: AbortSignal;
     responseType?: string;
     referrerPolicy?: string;
+    headers?: Record<string, any>;
 }
 
 export class CollaborativesearchService {
@@ -43,7 +44,7 @@ export class CollaborativesearchService {
     /**
     * Bus of CollaborationEvent.
     */
-    public contribFilterBus = new Subject<Contributor<unknown>>();
+    public contribFilterBus = new Subject<Contributor>();
     /**
     * Registry of Collaborations, Map of contributor identifier,Collaboration.
     */
@@ -51,7 +52,7 @@ export class CollaborativesearchService {
     /**
     * Registry of Contributor, Map of contributor identifier,Contributor.
     */
-    public registry = new Map<string, Contributor<unknown>>();
+    public registry = new Map<string, Contributor>();
     /**
     * ARLAS SERVER collection used by default by the contributors.
     */
@@ -165,7 +166,7 @@ export class CollaborativesearchService {
     /**
     *  Register contributor with its identifier in the map contributor registry.
     */
-    public register(identifier: string, contributor: Contributor<unknown>): void {
+    public register(identifier: string, contributor: Contributor): void {
         this.registry.set(identifier, contributor);
         this.registerCollections(contributor);
     }
@@ -173,7 +174,7 @@ export class CollaborativesearchService {
     /**
     *  Register collections of the given contributor in a collections registry.
     */
-    public registerCollections(contributor: Contributor<unknown>) {
+    public registerCollections(contributor: Contributor) {
         if (contributor.collections) {
             contributor.collections.forEach(cf => {
                 this.collections.add(cf.collectionName);

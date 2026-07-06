@@ -25,10 +25,10 @@ import { CollectionAggField, hasAtLeastOneCommon } from '../utils/utils';
 import { Collaboration, CollaborationEvent } from './collaboration';
 
 
-export abstract class Contributor<Data> {
+export abstract class Contributor {
 
     private name: string;
-    private fetchedData?: Data;
+    private fetchedData?: any;
     private _updateData = true;
 
     public isDataUpdating = false;
@@ -164,13 +164,13 @@ export abstract class Contributor<Data> {
     */
     public abstract getFilterDisplayName(): string;
 
-    public abstract fetchData(collaborationEvent: CollaborationEvent): Observable<Data>;
+    public abstract fetchData(collaborationEvent: CollaborationEvent): Observable<any>;
 
-    public abstract computeData(data: Data): Data;
+    public abstract computeData(data: any): any;
 
-    public abstract setData(data: Data): void;
+    public abstract setData(data: any): void;
 
-    public abstract setSelection(data: Data | undefined, c: Collaboration): void;
+    public abstract setSelection(data: any, c: Collaboration | undefined): void;
 
     public updateFromCollaboration(collaborationEvent: CollaborationEvent) {
         this.collaborativeSearcheService.ongoingSubscribe.next(1);
@@ -184,9 +184,7 @@ export abstract class Contributor<Data> {
                 }),
                 finalize(() => {
                     const collaboration = this.collaborativeSearcheService.getCollaboration(this.identifier);
-                    if (collaboration) {
-                        this.setSelection(this.fetchedData, collaboration);
-                    }
+                    this.setSelection(this.fetchedData, collaboration);
 
                     const contributor = this.collaborativeSearcheService.registry.get(this.identifier);
                     if (contributor) {

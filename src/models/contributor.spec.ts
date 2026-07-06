@@ -56,7 +56,7 @@ describe('Contributor', () => {
             checkUpdateFromCollaboration('all', true);
         });
 
-        it('Collaboration from unknown id', () => {
+        it('Collaboration from unknown Contributor id', () => {
             checkUpdateFromCollaboration('unknown', false);
         });
 
