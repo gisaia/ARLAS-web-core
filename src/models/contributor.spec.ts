@@ -84,7 +84,7 @@ describe('Contributor', () => {
                 vi.spyOn(contributor, 'isUpdateEnabledOnOwnCollaboration').mockReturnValue(false);
                 checkUpdateFromCollaboration(TEST_CONTRIBUTOR_ID, false);
             });
-        })
+        });
 
         it('Collaboration from linked contributor', () => {
             configFor(configService, TEST_CONTRIBUTOR_ID, OTHER_CONTRIBUTOR_ID);

@@ -25,7 +25,7 @@ describe('CollaborativeSearchService', () => {
 
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledWith({ id: TEST_CONTRIBUTOR_ID, operation: OperationEnum.add, all: false});
-        expect(collaborativeSearchService.collaborations.has(TEST_CONTRIBUTOR_ID)).to.be.true;
+        expect(collaborativeSearchService.collaborations.has(TEST_CONTRIBUTOR_ID)).to.eq(true);
     });
 
     it('Removing a filter should trigger a CollaborationEvent', () => {
@@ -34,7 +34,7 @@ describe('CollaborativeSearchService', () => {
 
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledWith({ id: TEST_CONTRIBUTOR_ID, operation: OperationEnum.remove, all: false});
-        expect(collaborativeSearchService.collaborations.has(TEST_CONTRIBUTOR_ID)).to.be.false;
+        expect(collaborativeSearchService.collaborations.has(TEST_CONTRIBUTOR_ID)).to.eq(false);
     });
 
     it('Adding a filter from a Contributor with a linked contributor should trigger a CollaborationEvent and register two collaborations', () => {
@@ -49,8 +49,8 @@ describe('CollaborativeSearchService', () => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledWith({ id: TEST_CONTRIBUTOR_ID, operation: OperationEnum.add, all: false});
         expect(collaborativeSearchService.collaborations.size).to.eq(2);
-        expect(collaborativeSearchService.collaborations.has(TEST_CONTRIBUTOR_ID)).to.be.true;
-        expect(collaborativeSearchService.collaborations.has(OTHER_CONTRIBUTOR_ID)).to.be.true;
+        expect(collaborativeSearchService.collaborations.has(TEST_CONTRIBUTOR_ID)).to.eq(true);
+        expect(collaborativeSearchService.collaborations.has(OTHER_CONTRIBUTOR_ID)).to.eq(true);
     });
 
     it('A CollaborationEvent set to remove all collaborations should clear the collaborations map', () => {
@@ -61,5 +61,5 @@ describe('CollaborativeSearchService', () => {
 
         collaborativeSearchService.collaborationBus.next({ id: 'all', operation: OperationEnum.remove, all: true });
         expect(collaborativeSearchService.collaborations.size).to.eq(0);
-    })
-})
+    });
+});
