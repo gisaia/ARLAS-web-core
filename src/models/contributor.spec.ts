@@ -16,7 +16,7 @@ describe('Contributor', () => {
     let contributor: TestContributor;
 
     function checkUpdateFromCollaboration(eventId: string, shouldUpdate: boolean) {
-        const spy = vi.spyOn(contributor, 'updateFromCollaboration');
+        const updateFromCollaborationSpy = vi.spyOn(contributor, 'updateFromCollaboration');
         const ongoingSpy = vi.spyOn(collaborativeSearchService.ongoingSubscribe, 'next');
         const event = eventWithId(eventId);
 
@@ -24,13 +24,13 @@ describe('Contributor', () => {
         vi.runAllTimers();
 
         if (shouldUpdate) {
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith(event);
+            expect(updateFromCollaborationSpy).toHaveBeenCalledTimes(1);
+            expect(updateFromCollaborationSpy).toHaveBeenCalledWith(event);
 
             expect(ongoingSpy).toHaveBeenNthCalledWith(1, 1);
             expect(ongoingSpy).toHaveBeenNthCalledWith(2, -1);
         } else {
-            expect(spy).not.toHaveBeenCalled();
+            expect(updateFromCollaborationSpy).not.toHaveBeenCalled();
             expect(ongoingSpy).not.toHaveBeenCalled();
         }
     }

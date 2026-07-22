@@ -20,20 +20,20 @@ describe('CollaborativeSearchService', () => {
     });
 
     it('Adding a filter should trigger a CollaborationEvent', () => {
-        const spy = vi.spyOn(collaborativeSearchService.collaborationBus, 'next');
+        const collaborationBusSpy = vi.spyOn(collaborativeSearchService.collaborationBus, 'next');
         collaborativeSearchService.setFilter(TEST_CONTRIBUTOR_ID, { filters: new Map(), enabled: true });
 
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith({ id: TEST_CONTRIBUTOR_ID, operation: OperationEnum.add, all: false});
+        expect(collaborationBusSpy).toHaveBeenCalledTimes(1);
+        expect(collaborationBusSpy).toHaveBeenCalledWith({ id: TEST_CONTRIBUTOR_ID, operation: OperationEnum.add, all: false});
         expect(collaborativeSearchService.collaborations.has(TEST_CONTRIBUTOR_ID)).to.eq(true);
     });
 
     it('Removing a filter should trigger a CollaborationEvent', () => {
-        const spy = vi.spyOn(collaborativeSearchService.collaborationBus, 'next');
+        const collaborationBusSpy = vi.spyOn(collaborativeSearchService.collaborationBus, 'next');
         collaborativeSearchService.removeFilter(TEST_CONTRIBUTOR_ID);
 
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith({ id: TEST_CONTRIBUTOR_ID, operation: OperationEnum.remove, all: false});
+        expect(collaborationBusSpy).toHaveBeenCalledTimes(1);
+        expect(collaborationBusSpy).toHaveBeenCalledWith({ id: TEST_CONTRIBUTOR_ID, operation: OperationEnum.remove, all: false});
         expect(collaborativeSearchService.collaborations.has(TEST_CONTRIBUTOR_ID)).to.eq(false);
     });
 
@@ -43,11 +43,11 @@ describe('CollaborativeSearchService', () => {
         const contributor = createContributor(collaborativeSearchService, configService);
         contributor.linkedContributorId = OTHER_CONTRIBUTOR_ID;
 
-        const spy = vi.spyOn(collaborativeSearchService.collaborationBus, 'next');
+        const collaborationBusSpy = vi.spyOn(collaborativeSearchService.collaborationBus, 'next');
         collaborativeSearchService.setFilter(TEST_CONTRIBUTOR_ID, { filters: new Map(), enabled: true });
 
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith({ id: TEST_CONTRIBUTOR_ID, operation: OperationEnum.add, all: false});
+        expect(collaborationBusSpy).toHaveBeenCalledTimes(1);
+        expect(collaborationBusSpy).toHaveBeenCalledWith({ id: TEST_CONTRIBUTOR_ID, operation: OperationEnum.add, all: false});
         expect(collaborativeSearchService.collaborations.size).to.eq(2);
         expect(collaborativeSearchService.collaborations.has(TEST_CONTRIBUTOR_ID)).to.eq(true);
         expect(collaborativeSearchService.collaborations.has(OTHER_CONTRIBUTOR_ID)).to.eq(true);
