@@ -3,11 +3,12 @@
   "version": "29.1.0-dev0",
   "description": "Core Service Library for ARLAS Web App",
   "scripts": {
-    "build-release": "tsc -p tsconfig.json && tsc-alias && cp -r patches dist/",
+    "build-release": "tsc -p tsconfig.build.json && tsc-alias && cp -r patches dist/",
     "clean": "npm cache clear && rimraf -- dist",
     "lint": "eslint . --ext .ts",
     "postinstall": "patch-package",
-    "license-check": "license-check-and-add check -f license-check-and-add.json"
+    "license-check": "license-check-and-add check -f license-check-and-add.json",
+    "test": "vitest run"
   },
   "repository": {
     "type": "git",
@@ -30,7 +31,8 @@
     "node": "^24.10.1",
     "patch-package": "^8.0.1",
     "tsc-alias": "^1.8.16",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.9"
   },
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-web-core/issues"

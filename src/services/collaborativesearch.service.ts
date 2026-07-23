@@ -17,28 +17,34 @@
  * under the License.
  */
 import {
-    Aggregation, AggregationResponse, AggregationsRequest,
-    CollectionReferenceDescription, Count, ExploreApi, Expression,
-    FeatureCollection, Filter, Hits, Search, Metric, Page, Form, ComputationRequest, ComputationResponse
+    Aggregation, AggregationResponse, AggregationsRequest, CollectionReferenceDescription, ComputationRequest,
+    ComputationResponse, Count, ExploreApi, Expression, FeatureCollection, Filter, Hits, Metric, Search
 } from 'arlas-api';
-import { Observable, Subject, from, zip } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { fromEntries, CollectionCount } from '../utils/utils';
+import { Observable, Subject, from, map, of, throwError, zip } from 'rxjs';
 import { Collaboration, CollaborationEvent, OperationEnum } from '../models/collaboration';
 import { Contributor } from '../models/contributor';
-import { GeohashAggregation, TiledSearch, projType, GeoTileAggregation } from '../models/projections';
+import { GeoTileAggregation, GeohashAggregation, TiledSearch, projType } from '../models/projections';
+import { CollectionCount, fromEntries } from '../utils/utils';
 import { ConfigService } from './config.service';
+
+export interface FetchOptions {
+    credentials: string;
+    signal?: AbortSignal;
+    responseType?: string;
+    referrerPolicy?: string;
+    headers?: Record<string, any>;
+}
 
 export class CollaborativesearchService {
     /**
     * Bus of CollaborationEvent.
     */
-    public collaborationBus: Subject<CollaborationEvent> = new Subject<CollaborationEvent>();
+    public collaborationBus = new Subject<CollaborationEvent>();
 
     /**
     * Bus of CollaborationEvent.
     */
-    public contribFilterBus: Subject<Contributor> = new Subject<Contributor>();
+    public contribFilterBus = new Subject<Contributor>();
     /**
     * Registry of Collaborations, Map of contributor identifier,Collaboration.
     */
@@ -50,7 +56,7 @@ export class CollaborativesearchService {
     /**
     * ARLAS SERVER collection used by default by the contributors.
     */
-    public defaultCollection: string;
+    public defaultCollection!: string;
 
     /** ARLAS SERVER collections that declared in the contributos */
 
@@ -62,7 +68,7 @@ export class CollaborativesearchService {
     /**
     * Number of entity return by the collaborativesearchService at any time
     */
-    public countAll: Observable<CollectionCount[]>;
+    public countAll: Observable<CollectionCount[]> = of([]);
     /**
     * Bus number of ongoing subscribe to the collaborativesearchService
     */
@@ -78,23 +84,19 @@ export class CollaborativesearchService {
     /**
     * ARLAS SERVER Explore Api used by the collaborativesearchService.
     */
-    private exploreApi: ExploreApi;
+    private exploreApi!: ExploreApi;
     /**
     * Configuration Service used by the collaborativesearchService.
     */
-    private configService: ConfigService;
+    private configService?: ConfigService;
     /**
     * Configuration object of fetch call. By default all credentials are included.
     */
-    private fetchOptions: {
-        credentials: string;
-        signal?: any;
-        responseType?: string;
-        referrerPolicy?: string;
-    } = {
-            credentials: 'include',
-            referrerPolicy: 'origin'
-        };
+    private fetchOptions: FetchOptions = {
+        credentials: 'include',
+        referrerPolicy: 'origin'
+    };
+
     public constructor() {
         /**
         * Subscribe ongoingSubscribe bus to know how many subscribe are on going.
@@ -127,7 +129,7 @@ export class CollaborativesearchService {
     * Set the fetch options.
     * @param fetchOptions : Object.
     */
-    public setFetchOptions(fetchOptions: any) {
+    public setFetchOptions(fetchOptions: FetchOptions) {
         this.fetchOptions = fetchOptions;
     }
     /**
@@ -148,7 +150,10 @@ export class CollaborativesearchService {
     * Return the Configuraion Service.
     * @returns ConfigService.
     */
-    public getConfigService() {
+    public getConfigService(): ConfigService {
+        if (!this.configService) {
+            throw new Error('No config service has been defined');
+        }
         return this.configService;
     }
     /**
@@ -191,7 +196,7 @@ export class CollaborativesearchService {
         const contributor = this.registry.get(contributorId);
         collaboration.enabled = true;
         this.collaborations.set(contributorId, collaboration);
-        if (contributor.linkedContributorId) {
+        if (contributor?.linkedContributorId) {
             this.collaborations.set(contributor.linkedContributorId, collaboration);
         }
         const collaborationEvent: CollaborationEvent = {
@@ -212,7 +217,7 @@ export class CollaborativesearchService {
     public removeFilter(contributorId: string) {
         const contributor = this.registry.get(contributorId);
         this.collaborations.delete(contributorId);
-        if (contributor.linkedContributorId) {
+        if (contributor?.linkedContributorId) {
             this.collaborations.delete(contributor.linkedContributorId);
             const linkedCollaborationEvent: CollaborationEvent = {
                 id: contributor.linkedContributorId,
@@ -260,15 +265,14 @@ export class CollaborativesearchService {
     }
 
     public urlBuilder(): string {
-        const dataModel = {};
-        Array.from(this.collaborations.keys()).forEach(identifier => {
-            dataModel[identifier] = Object.assign({}, this.collaborations.get(identifier));
-            if (!dataModel[identifier].filters && !!dataModel[identifier].filter) {
+        const dataModel: Record<string, Collaboration> = {};
+        Array.from(this.collaborations.entries()).forEach(([identifier, c]) => {
+            dataModel[identifier] = { ...c };
+            if (!dataModel[identifier].filters && !!(dataModel[identifier] as any).filter) {
                 /** retrocompatibility code to transform an pre-18 collaboration structure to 18 one */
-                dataModel[identifier].filters = {};
-                dataModel[identifier].filters[this.defaultCollection] = [Object.assign({}, dataModel[identifier].filter)];
-                delete dataModel[identifier].filter;
-            } else if (!!dataModel[identifier].filters) {
+                dataModel[identifier].filters = new Map([this.defaultCollection, {...(dataModel[identifier] as any).filter}]);
+                delete (dataModel[identifier] as any).filter;
+            } else if (dataModel[identifier].filters) {
                 dataModel[identifier].filters = fromEntries(dataModel[identifier].filters);
             }
         });
@@ -280,14 +284,14 @@ export class CollaborativesearchService {
     * Initialise all the contributors collaborations from dataModel.
     * @param dataModel
     */
-    public setCollaborations(dataModel: Object) {
+    public setCollaborations(dataModel: Record<string, Collaboration>) {
         this.collaborations.clear();
         Array.from(this.registry.keys()).forEach(identifier => {
             if (dataModel[identifier] !== undefined) {
-                const collaboration: Collaboration = dataModel[identifier];
+                const collaboration = dataModel[identifier];
                 const contributor = this.registry.get(identifier);
                 this.collaborations.set(identifier, collaboration);
-                if (contributor.linkedContributorId) {
+                if (contributor?.linkedContributorId) {
                     this.collaborations.set(contributor.linkedContributorId, collaboration);
                 }
             }
@@ -305,12 +309,8 @@ export class CollaborativesearchService {
     * @param contributorId  Identifier of a contributor.
     * @returns Collaboration.
     */
-    public getCollaboration(contributorId: string): Collaboration {
-        if (this.collaborations.get(contributorId)) {
-            return this.collaborations.get(contributorId);
-        } else {
-            return null;
-        }
+    public getCollaboration(contributorId: string): Collaboration | undefined {
+        return this.collaborations.get(contributorId);
     }
     /**
     * Resolve an ARLAS Server Search or Count request with all the collaborations enabled in the collaboration registry
@@ -324,7 +324,7 @@ export class CollaborativesearchService {
     */
     public resolveButNotHits(projection:
         [projType.search, Search]
-        | [projType.count, Count], collaborations: Map<string, Collaboration>, collection,
+        | [projType.count, Count], collaborations: Map<string, Collaboration>, collection: string,
         contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
     ): Observable<Hits> {
         return this.resolveButNot(projection, collaborations, collection, contributorId, filter, isFlat, max_age);
@@ -340,7 +340,7 @@ export class CollaborativesearchService {
     */
     public resolveHits(projection:
         [projType.search, Search]
-        | [projType.count, Count], collaborations: Map<string, Collaboration>, collection,
+        | [projType.count, Count], collaborations: Map<string, Collaboration>, collection: string,
         contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
     ): Observable<Hits> {
         return this.resolve(projection, collaborations, collection, contributorId, filter, isFlat, max_age);
@@ -357,7 +357,7 @@ export class CollaborativesearchService {
     public resolveComputeHits(projection:
         [projType.search, Search]
         | [projType.count, Count],
-        filters: Array<Filter>, collection, isFlat?: boolean, max_age = this.max_age
+        filters: Array<Filter>, collection: string, isFlat?: boolean, max_age = this.max_age
     ): Observable<Hits> {
         return this.computeResolve(projection, filters, collection, isFlat, max_age);
     }
@@ -377,7 +377,7 @@ export class CollaborativesearchService {
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.geohashgeoaggregate, GeohashAggregation]
         | [projType.geotilegeoaggregate, GeoTileAggregation]
-        | [projType.geoaggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>, collection, isFlat = true,
+        | [projType.geoaggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>, collection: string, isFlat = true,
         contributorId?: string, filter?: Filter, max_age = this.max_age
     ): Observable<FeatureCollection> {
         return this.resolveButNot(projection, collaborations, collection, contributorId, filter, isFlat, max_age);
@@ -385,7 +385,7 @@ export class CollaborativesearchService {
 
     public resolveButNotShapefile(projection:
         [projType.shapeaggregate, Array<Aggregation>]
-        | [projType.shapesearch, Search], collaborations: Map<string, Collaboration>, collection, isFlat = true,
+        | [projType.shapesearch, Search], collaborations: Map<string, Collaboration>, collection: string, isFlat = true,
         contributorId?: string, filter?: Filter, max_age = this.max_age
     ): Observable<ArrayBuffer> {
         return this.resolveButNot(projection, collaborations, collection, contributorId, filter, isFlat, max_age);
@@ -397,7 +397,7 @@ export class CollaborativesearchService {
         | [projType.geohashgeoaggregate, GeohashAggregation]
         | [projType.geotilegeoaggregate, GeoTileAggregation]
         | [projType.geoaggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>,
-        collection, isFlat = true, abortableSignal,
+        collection: string, isFlat = true, abortableSignal: AbortSignal,
         contributorId?: string, filter?: Filter, max_age = this.max_age,
     ): Observable<FeatureCollection> {
         const fetchOptions = Object.assign({}, this.fetchOptions);
@@ -419,7 +419,7 @@ export class CollaborativesearchService {
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.geohashgeoaggregate, GeohashAggregation]
         | [projType.geotilegeoaggregate, GeoTileAggregation]
-        | [projType.geoaggregate, Array<Aggregation>], isFlat = true, collaborations: Map<string, Collaboration>, collection,
+        | [projType.geoaggregate, Array<Aggregation>], isFlat = true, collaborations: Map<string, Collaboration>, collection: string,
         contributorId?: string, filter?: Filter, max_age = this.max_age
     ): Observable<FeatureCollection> {
         return this.resolve(projection, collaborations, collection, contributorId, filter, isFlat, max_age);
@@ -435,7 +435,7 @@ export class CollaborativesearchService {
     * @returns ARLAS Server observable.
     */
     public resolveButNotAggregation(projection:
-        [projType.aggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>, collection,
+        [projType.aggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>, collection: string,
         contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
     ): Observable<AggregationResponse> {
         return this.resolveButNot(projection, collaborations, collection, contributorId, filter, isFlat, max_age);
@@ -450,7 +450,7 @@ export class CollaborativesearchService {
     * @returns ARLAS Server observable.
     */
     public resolveAggregation(projection:
-        [projType.aggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>, collection,
+        [projType.aggregate, Array<Aggregation>], collaborations: Map<string, Collaboration>, collection: string,
         contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
     ): Observable<AggregationResponse> {
         return this.resolve(projection, collaborations, collection, contributorId, filter, isFlat, max_age);
@@ -467,7 +467,7 @@ export class CollaborativesearchService {
     * @returns ARLAS Server observable.
     */
     public resolveButNotComputation(projection:
-        [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>, collection,
+        [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>, collection: string,
         contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age
     ): Observable<ComputationResponse> {
         return this.resolveButNot(projection, collaborations, collection, contributorId, filter, isFlat, max_age);
@@ -496,21 +496,21 @@ export class CollaborativesearchService {
     * @returns List of contributor idenfiers.
     */
     public getEnableContributors(): Array<string> {
-        return Array.from(this.collaborations.keys()).filter(x => this.collaborations.get(x).enabled);
+        return Array.from(this.collaborations.keys()).filter(x => this.collaborations.get(x)?.enabled);
     }
     /**
     * Retrieve the contributor identifiers for which the collaboration is disabled.
     * @returns List of contributor idenfiers.
     */
     public getDisableContributors(): Array<string> {
-        return Array.from(this.collaborations.keys()).filter(x => !this.collaborations.get(x).enabled);
+        return Array.from(this.collaborations.keys()).filter(x => !this.collaborations.get(x)?.enabled);
     }
     /**
     * Retrieve enabled parameter of collaboration from a contributor identifier.
     * @returns Contributor collaboration enabled properties.
     */
     public isEnable(contributorId: string): boolean {
-        return this.collaborations.get(contributorId).enabled;
+        return !!this.collaborations.get(contributorId)?.enabled;
     }
     /**
     * Update countAll property.
@@ -564,7 +564,7 @@ export class CollaborativesearchService {
             });
         }
         if (qForGet !== undefined) {
-            queryParameters.set('q', qForGet);
+            queryParameters.set('q', qForGet as any);
         }
         queryParameters.set('pretty', 'false');
         if (max_age !== undefined) {
@@ -582,14 +582,12 @@ export class CollaborativesearchService {
         const finalFilter: Filter = {};
         const f: Array<Array<Expression>> = new Array<Array<Expression>>();
         const q: Array<Array<string>> = new Array<Array<string>>();
-        const p: Array<Array<string>> = new Array<Array<string>>();
-        const gi: Array<Array<string>> = new Array<Array<string>>();
 
         const dateformats = new Set(filters.map(filter => filter.dateformat));
         if (dateformats.size > 1) {
-            this.collaborationErrorBus.next((<Error>new Error('Dateformats must be equals for each filters')));
+            this.collaborationErrorBus.next((new Error('Dateformats must be equals for each filters')));
         } else if (dateformats.size === 1) {
-            finalFilter.dateformat = dateformats[0];
+            finalFilter.dateformat = Array.from(dateformats.values())[0];
         }
         filters.forEach(filter => {
             if (filter) {
@@ -652,15 +650,17 @@ export class CollaborativesearchService {
     * @param contributorId  Contributor identifier.
     */
     private setEnable(enabled: boolean, contributorId: string) {
-        const contributor = this.registry.get(contributorId);
         const collaboration = this.collaborations.get(contributorId);
         if (collaboration) {
             collaboration.enabled = enabled;
+            this.collaborations.set(contributorId, collaboration);
+
+            const contributor = this.registry.get(contributorId);
+            if (contributor?.linkedContributorId) {
+                this.collaborations.set(contributor.linkedContributorId, collaboration);
+            }
         }
-        this.collaborations.set(contributorId, collaboration);
-        if (contributor.linkedContributorId) {
-            this.collaborations.set(contributor.linkedContributorId, collaboration);
-        }
+
         const collaborationEvent: CollaborationEvent = {
             id: contributorId,
             operation: OperationEnum.add,
@@ -685,7 +685,7 @@ export class CollaborativesearchService {
         | [projType.geosearch, Search]
         | [projType.tiledgeosearch, TiledSearch]
         | [projType.count, Count]
-        | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>, collection,
+        | [projType.compute, ComputationRequest], collaborations: Map<string, Collaboration>, collection: string,
         contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age, fetchOptions = this.fetchOptions
     ): Observable<any> {
         try {
@@ -709,6 +709,7 @@ export class CollaborativesearchService {
             return this.computeResolve(projection, filters, collection, isFlat, max_age, fetchOptions);
         } catch (ex) {
             this.collaborationErrorBus.next((<Error>ex));
+            return throwError(() => ex);
         }
     }
     /**
@@ -731,7 +732,7 @@ export class CollaborativesearchService {
         | [projType.count, Count]
         | [projType.compute, ComputationRequest]
         | [projType.shapeaggregate, Array<Aggregation>]
-        | [projType.shapesearch, Search], collaborations: Map<string, Collaboration>, collection,
+        | [projType.shapesearch, Search], collaborations: Map<string, Collaboration>, collection: string,
         contributorId?: string, filter?: Filter, isFlat?: boolean, max_age = this.max_age, fetchOptions = this.fetchOptions
     ): Observable<any> {
         try {
@@ -739,7 +740,7 @@ export class CollaborativesearchService {
             if (contributorId) {
                 collaborations.forEach((collab, c) => {
                     const contributor = this.registry.get(contributorId);
-                    if ((c !== contributorId && c !== contributor.linkedContributorId) && collab.enabled) {
+                    if ((c !== contributorId && c !== contributor?.linkedContributorId) && collab.enabled) {
                         if (collab.filters && collab.filters.get(collection)) {
                             const collabFilters = collab.filters.get(collection);
                             if (!!collabFilters && collabFilters.length > 0) {
@@ -768,6 +769,7 @@ export class CollaborativesearchService {
             return this.computeResolve(projection, filters, collection, isFlat, max_age, fetchOptions);
         } catch (ex) {
             this.collaborationErrorBus.next((<Error>ex));
+            return throwError(() => ex);
         }
     }
 
@@ -788,7 +790,7 @@ export class CollaborativesearchService {
         | [projType.count, Count]
         | [projType.compute, ComputationRequest]
         | [projType.shapeaggregate, Array<Aggregation>]
-        | [projType.shapesearch, Search], filters: Array<Filter>, collection, isFlat?: boolean, max_age = this.max_age,
+        | [projType.shapesearch, Search], filters: Array<Filter>, collection: string, isFlat?: boolean, max_age = this.max_age,
         fetchOptions = this.fetchOptions
     ): Observable<any> {
         const finalFilter = this.getFinalFilter(filters);
@@ -798,12 +800,11 @@ export class CollaborativesearchService {
         let aggregationsForGet: string[];
         let includes: string[] = [];
         let excludes: string[] = [];
-        let returnedGeometries: string;
+        let returnedGeometries: string | undefined;
         let result;
         const fForGet = this.buildFilterFieldGetParam('f', finalFilter);
         const qForGet = this.buildFilterFieldGetParam('q', finalFilter);
         let search: Search;
-        let pretty = false;
         let flat = false;
         let pageAfter;
         let pageBefore;
@@ -824,8 +825,9 @@ export class CollaborativesearchService {
                 }
             }
             returnedGeometries = search.returned_geometries;
-            const form: Form = search.form;
-            const page: Page = search.page;
+
+            const form = search.form;
+            const page = search.page;
             if (form !== undefined) {
                 if (form.flat !== undefined) {
                     flat = form.flat;
@@ -833,9 +835,6 @@ export class CollaborativesearchService {
                     if (isFlat !== undefined && isFlat !== null) {
                         flat = isFlat;
                     }
-                }
-                if (form.pretty !== undefined) {
-                    pretty = form.pretty;
                 }
             } else {
                 if (isFlat !== undefined && isFlat !== null) {
@@ -963,11 +962,18 @@ export class CollaborativesearchService {
             case projType.compute.valueOf():
                 const field = (<ComputationRequest>projection[1]).field;
                 const metric = (<ComputationRequest>projection[1]).metric;
-                result = <Observable<ComputationResponse>>from(
-                    this.exploreApi.compute(collection, field, metric.toString().toLowerCase(), fForGet,
-                        qForGet, dateformat, righthand, false, max_age, fetchOptions)
-                );
+
+                if (field && metric) {
+                    result = <Observable<ComputationResponse>>from(
+                        this.exploreApi.compute(collection, field, metric.toString().toLowerCase(), fForGet,
+                            qForGet, dateformat, righthand, false, max_age, fetchOptions)
+                    );
+                } else {
+                    result = throwError(() => new Error('Field or metric missing from the ComputationRequest'));
+                }
                 break;
+            default:
+                result = throwError(() => new Error(`Projection ${projection[0]} not recognized`));
         }
         return result;
     }
@@ -979,7 +985,7 @@ export class CollaborativesearchService {
     */
     private buildAggGetParam(aggregationRequest: AggregationsRequest): string[] {
         const aggregations: string[] = [];
-        aggregationRequest.aggregations.forEach(agg => {
+        aggregationRequest.aggregations?.forEach(agg => {
             let aggregation = agg.type + ':' + agg.field;
             if (agg.interval !== undefined) {
                 if (agg.interval.value !== undefined) {
@@ -1041,7 +1047,7 @@ export class CollaborativesearchService {
     * @param filter
     * @returns aggregations as string[].
     */
-    private buildFilterFieldGetParam(field: string, filter: Filter): any {
+    private buildFilterFieldGetParam(field: 'f' | 'q', filter: Filter): string[] {
         if (field === 'f') {
             const f: string[] = [];
             if (filter.f !== undefined) {
@@ -1054,10 +1060,10 @@ export class CollaborativesearchService {
                 });
             }
             return f;
-        } else {
+        } else if (field === 'q') {
             const f: string[] = [];
-            if (filter[field] !== undefined) {
-                filter[field].forEach(e => {
+            if (filter.q) {
+                filter.q.forEach(e => {
                     let union = '';
                     e.forEach(i => {
                         union = union + i + ';';
@@ -1066,8 +1072,9 @@ export class CollaborativesearchService {
                 });
                 return f;
             } else {
-                return undefined;
+                return [];
             }
         }
+        return [];
     }
 }

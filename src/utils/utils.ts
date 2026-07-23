@@ -25,7 +25,7 @@
  * @returns {any} returns object by key or string value
  */
 
-export function getObject(datalayer: object, objectKey?: string): any {
+export function getObject(datalayer: Object | undefined, objectKey?: string): any {
     // if datalayer doesn't exists, just return
   if (!datalayer) {
     return null;
@@ -34,13 +34,14 @@ export function getObject(datalayer: object, objectKey?: string): any {
   let current = datalayer;
   // check every layer
   if (typeof objectKey === 'string') {
-    const numberOfObjectHierarchy = objectKey.match(/\./g).length;
+    const numberOfObjectHierarchy = objectKey.match(/\./g)?.length ?? 0;
     for (let i = 1; i <= numberOfObjectHierarchy; i++) {
       const currentKey = objectKey.split(/\./)[i];
-      if (typeof current[currentKey] === 'undefined') {
+
+      current = Object.entries(current).find(([key, val]) => key === currentKey)?.[1];
+      if (current === undefined) {
         return null;
       }
-      current = current[currentKey];
     }
   }
 
@@ -57,17 +58,16 @@ export interface CollectionAggField {
 export function hasAtLeastOneCommon(collections1: string[], collections2: string[]): boolean {
   const cSet1 = new Set(collections1);
   if (!!cSet1 && collections2) {
-    return collections2.filter(c => cSet1.has(c)).length > 0;
+    return collections2.some(c => cSet1.has(c));
   }
   return false;
 }
 
-export function fromEntries<T = any>(map: Map<string, T>): { [k: string]: T; } {
-
-  const object = {};
-  if (!!map) {
+export function fromEntries<T = any>(map: Map<string, T>): Map<string, T> {
+  const object: Map<string, T> = new Map();
+  if (map) {
     map.forEach((v, k) => {
-      object[k] = v;
+      object.set(k, v);
     });
   }
   return object;
