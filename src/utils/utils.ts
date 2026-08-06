@@ -63,11 +63,11 @@ export function hasAtLeastOneCommon(collections1: string[], collections2: string
   return false;
 }
 
-export function fromEntries<T = any>(map: Map<string, T>): Map<string, T> {
-  const object: Map<string, T> = new Map();
+export function fromEntries<T = any>(map: Map<string, T>): Record<string, T> {
+  const object: Record<string, T> = {};
   if (map) {
     map.forEach((v, k) => {
-      object.set(k, v);
+      object[k] = v;
     });
   }
   return object;

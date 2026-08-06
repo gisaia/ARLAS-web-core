@@ -272,8 +272,11 @@ export class CollaborativesearchService {
                 /** retrocompatibility code to transform an pre-18 collaboration structure to 18 one */
                 dataModel[identifier].filters = new Map([this.defaultCollection, {...(dataModel[identifier] as any).filter}]);
                 delete (dataModel[identifier] as any).filter;
-            } else if (dataModel[identifier].filters) {
-                dataModel[identifier].filters = fromEntries(dataModel[identifier].filters);
+            }
+
+            if (dataModel[identifier].filters) {
+                // Type as any so that the Map can be transformed into a Record which is stringifyable
+                dataModel[identifier].filters = fromEntries(dataModel[identifier].filters) as any;
             }
         });
         const url = 'filter=' + JSON.stringify(dataModel);
