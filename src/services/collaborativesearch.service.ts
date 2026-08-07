@@ -28,7 +28,7 @@ import { CollectionCount, fromEntries } from '../utils/utils';
 import { ConfigService } from './config.service';
 
 export interface FetchOptions {
-    credentials: string;
+    credentials?: string;
     signal?: AbortSignal;
     responseType?: string;
     referrerPolicy?: string;
