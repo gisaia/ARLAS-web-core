@@ -22,7 +22,7 @@ import { debounceTime, finalize, map } from 'rxjs/operators';
 import { CollaborativesearchService } from '../services/collaborativesearch.service';
 import { ConfigService } from '../services/config.service';
 import { CollectionAggField, hasAtLeastOneCommon } from '../utils/utils';
-import { Collaboration, CollaborationEvent } from './collaboration';
+import { Collaboration, CollaborationEvent, OperationEnum } from './collaboration';
 
 
 export abstract class Contributor {
@@ -65,7 +65,7 @@ export abstract class Contributor {
         // Subscribe a bus to update data and selection
         this.collaborativeSearcheService.collaborationBus.pipe(debounceTime(debounceDuration))
             .subscribe({
-                next: (collaborationEvent) => {
+                next: (collaborationEvent: CollaborationEvent) => {
                     // Update only contributor of same collection that the current collaboration or on the init whit the url
                     let collaborationCollections: CollectionAggField[] = [];
                     const collaboration = this.collaborativeSearcheService.registry.get(collaborationEvent.id);
@@ -88,12 +88,16 @@ export abstract class Contributor {
                         const myLinkedContribCollaboration = this.collaborativeSearcheService.getCollaboration(this.linkedContributorId);
                         if (myLinkedContribCollaboration) {
                             this.setSelection(this.fetchedData, myLinkedContribCollaboration);
+                        } else if(collaborationEvent.operation === OperationEnum.remove) {
+                            this.clearSelection(this.fetchedData, myLinkedContribCollaboration);
                         }
                     }
                     if (!update && this.isMyOwnCollaboration(collaborationEvent)) {
                         const myOwnCollaboration = this.collaborativeSearcheService.getCollaboration(this.identifier);
                         if (myOwnCollaboration) {
                             this.setSelection(this.fetchedData, myOwnCollaboration);
+                        } else if(collaborationEvent.operation === OperationEnum.remove) {
+                          this.clearSelection(this.fetchedData, myOwnCollaboration);
                         }
                     }
                 },
@@ -171,6 +175,13 @@ export abstract class Contributor {
     public abstract setData(data: any): void;
 
     public abstract setSelection(data: any, c: Collaboration | undefined): void;
+
+  /**
+   * Clear a contributor selection
+   * @param data
+   * @param collaboration
+   */
+  public abstract clearSelection(data: any, collaboration?: Collaboration): void;
 
     public updateFromCollaboration(collaborationEvent: CollaborationEvent) {
         this.collaborativeSearcheService.ongoingSubscribe.next(1);
