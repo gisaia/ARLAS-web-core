@@ -88,7 +88,7 @@ export abstract class Contributor {
                         const myLinkedContribCollaboration = this.collaborativeSearcheService.getCollaboration(this.linkedContributorId);
                         if (myLinkedContribCollaboration) {
                             this.setSelection(this.fetchedData, myLinkedContribCollaboration);
-                        } else if(collaborationEvent.operation === OperationEnum.remove) {
+                        } else if (collaborationEvent.operation === OperationEnum.remove) {
                             this.clearSelection(this.fetchedData, myLinkedContribCollaboration);
                         }
                     }
@@ -96,7 +96,7 @@ export abstract class Contributor {
                         const myOwnCollaboration = this.collaborativeSearcheService.getCollaboration(this.identifier);
                         if (myOwnCollaboration) {
                             this.setSelection(this.fetchedData, myOwnCollaboration);
-                        } else if(collaborationEvent.operation === OperationEnum.remove) {
+                        } else if (collaborationEvent.operation === OperationEnum.remove) {
                           this.clearSelection(this.fetchedData, myOwnCollaboration);
                         }
                     }
