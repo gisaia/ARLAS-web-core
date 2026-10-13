@@ -1,6 +1,6 @@
 # Change Log
 
-## [v29.0.0-rc.7](https://github.com/gisaia/ARLAS-web-core/tree/v29.0.0-rc.7) (2026-09-17)
+## [v29.0.0-rc.7](https://github.com/gisaia/ARLAS-web-core/tree/v29.0.0-rc.7) (2026-09-16)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v29.0.0-rc.6...v29.0.0-rc.7)
 
@@ -26,11 +26,7 @@
 
 ## [v29.0.0-rc.1](https://github.com/gisaia/ARLAS-web-core/tree/v29.0.0-rc.1) (2026-07-20)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v29.0.0...v29.0.0-rc.1)
-
-## [v29.0.0](https://github.com/gisaia/ARLAS-web-core/tree/v29.0.0) (2026-07-03)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v28.1.0...v29.0.0)
+[Full Changelog](https://github.com/gisaia/ARLAS-web-core/compare/v28.1.0...v29.0.0-rc.1)
 
 ## [v28.1.0](https://github.com/gisaia/ARLAS-web-core/tree/v28.1.0) (2026-07-03)
 

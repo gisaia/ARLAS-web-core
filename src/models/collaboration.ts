@@ -20,11 +20,12 @@
 import { Filter } from 'arlas-api';
 
 /**
-* - A filter object from ARLAS API.
-* - A boolean to know if the filter of the collaboration is enabled.
-*/
+ * A Collaboration is a set of ARLAS filters applied by a contributor to filter data
+ */
 export interface Collaboration {
+  /** A map of Filter from ARLAS API */
   filters: Map<string, Filter[]>;
+  /** Whether the filter of the collaboration is enabled */
   enabled: boolean;
 }
 
@@ -33,18 +34,19 @@ export interface FilterOnCollection extends Filter {
 }
 
 /**
-* - An id of a contributor.
-* - An operation add/remove.
-* - If the operation is for all the contributors
-*/
+ * Represents the event sent when a new Collaboration is added/removed
+ */
 export interface CollaborationEvent {
+  /** Id of the contributor */
   id: string;
+  /** Operation */
   operation: OperationEnum;
+  /** Whether the collaboration is for all contributors */
   all: boolean;
 }
 
 /**
-* - Enum of operation.
+* Enum of operation
 */
 export enum OperationEnum {
   add, remove

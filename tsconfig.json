@@ -7,31 +7,16 @@
     "declaration": true,
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "stripInternal": true,
     "skipLibCheck": true,
     "allowJs": true,
+    "strict": true,
     "lib": [
       "esnext",
       "dom"
     ]
-  },
-  "files": [
-    "src/index.ts"
-  ],
-  "include": [
-    "src/**/*",
-    "eslint.config.mjs"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "eslint.config.mjs"
-  ],
-  "tsc-alias": {
-    "resolveFullPaths": true,
-    "verbose": false
   }
 }
